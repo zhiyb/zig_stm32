@@ -1,0 +1,33 @@
+{
+    /*
+     * Requires the Cortex-Debug extension
+     * https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug
+     */
+    "version": "0.2.0",
+    "configurations": [
+        {
+            /* Configuration for the application debug binary */
+            "type": "cortex-debug",
+            "request": "launch",
+            "name": "Debug application (zhiyb-rpi4:3333)",
+            "servertype": "external",
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": "zig build",
+            "runToEntryPoint": "main.main",
+            "executable": "zig-out/bin/controller",
+            //"device": "STM32F103xx",
+            "gdbPath": "gdb-multiarch",
+            "gdbTarget": "zhiyb-rpi4:3333",
+            "svdFile": "STM32F103.svd",
+            "swoConfig": {
+                "enabled": false,
+                "cpuFrequency": 8000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    { "type": "console", "label": "ITM", "port": 0 }
+                ]
+            }
+        },
+    ]
+}
