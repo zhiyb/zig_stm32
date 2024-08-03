@@ -1,5 +1,4 @@
 const hal = @import("stm32f103.zig");
-const rcc = @import("rcc.zig");
 
 pub const timer_type1_t = struct {
     reg: @TypeOf(hal.REG.TIM1),
@@ -49,20 +48,21 @@ pub const timer_type1_t = struct {
             .CC4E = 1,
             .CC4P = 0,
         };
+        reg.BDTR.MOE = 1;
 
         // Timer overflow frequency
         const freq = 480;
-        // TIM2 from APB1 @ 72 MHz
+        // TIM1 from APB2 @ 72 MHz
         const freq_in = 72_000_000;
         const ratio = @max(1, freq_in / freq / 65536);
         reg.PSC.PSC = ratio - 1;
         reg.ARR.ARR = 65535;
 
         // Compare values
-        reg.CCR1.CCR1 = 128;
-        reg.CCR2.CCR2 = 1024;
-        reg.CCR3.CCR3 = 8192;
-        reg.CCR4.CCR4 = 32768;
+        reg.CCR1.CCR1 = 16;
+        reg.CCR2.CCR2 = 32;
+        reg.CCR3.CCR3 = 64;
+        reg.CCR4.CCR4 = 128;
 
         // Enable timer
         reg.CR1.CEN = 1;
