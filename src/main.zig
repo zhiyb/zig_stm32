@@ -15,10 +15,11 @@ fn init() !void {
     rcc.enable(.TIM1, true);
     systick.init();
 
-    gpio.gpio_a.setPinMode(0, .af_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(1, .af_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(2, .af_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(3, .af_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinMode(0, .output_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinMode(1, .output_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinMode(2, .output_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinMode(3, .output_push_pull, .max_2mhz);
+
     gpio.gpio_a.setPinMode(8, .af_push_pull, .max_2mhz);
     gpio.gpio_a.setPinMode(9, .af_push_pull, .max_2mhz);
     gpio.gpio_a.setPinMode(10, .af_push_pull, .max_2mhz);
@@ -30,9 +31,6 @@ fn init() !void {
 pub fn main() noreturn {
     init() catch {};
 
-    // Function
-    while (true) {
-        systick.delay_ms(1000);
-        @breakpoint();
-    }
+    @breakpoint();
+    while (true) {}
 }

@@ -51,18 +51,30 @@ pub const gpio_t = struct {
         }
 
         if (m == .input_pull_down) {
-            self.reg.BSRR = @bitCast(@as(u32, @as(u32, 1) << (p + 16)));
+            self.reg.BSRR = @bitCast(@as(u32, 1) << (p + 16));
         } else if (m == .input_pull_up) {
-            self.reg.BSRR = @bitCast(@as(u32, @as(u32, 1) << p));
+            self.reg.BSRR = @bitCast(@as(u32, 1) << p);
         }
     }
 
     pub fn setPinValue(self: gpio_t, p: u5, v: u1) void {
         if (v == 0) {
-            self.reg.BSRR = @bitCast(@as(u32, @as(u32, 1) << (p + 16)));
+            self.reg.BSRR = @bitCast(@as(u32, 1) << (p + 16));
         } else {
-            self.reg.BSRR = @bitCast(@as(u32, @as(u32, 1) << p));
+            self.reg.BSRR = @bitCast(@as(u32, 1) << p);
         }
+    }
+
+    pub fn setPinValues(self: gpio_t, values: []const struct { p: u5, v: u1 }) void {
+        var bsrr: u32 = 0;
+        for (values) |v| {
+            if (v.v == 0) {
+                bsrr |= @as(u32, 1) << (v.p + 16);
+            } else {
+                bsrr |= @as(u32, 1) << v.p;
+            }
+        }
+        self.reg.BSRR = @bitCast(bsrr);
     }
 };
 
