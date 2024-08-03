@@ -19,5 +19,11 @@
             "command": "zig build update-svd --summary all",
             "problemMatcher": [],
         },
+        {
+            "label": "zig test",
+            "type": "shell",
+            "command": "zig build test --summary all",
+            "problemMatcher": [],
+        },
     ]
 }
