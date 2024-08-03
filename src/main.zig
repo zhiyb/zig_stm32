@@ -15,15 +15,16 @@ fn init() !void {
     rcc.enable(.TIM1, true);
     systick.init();
 
-    gpio.gpio_a.setPinMode(0, .output_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(1, .output_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(2, .output_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(3, .output_push_pull, .max_2mhz);
-
-    gpio.gpio_a.setPinMode(8, .af_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(9, .af_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(10, .af_push_pull, .max_2mhz);
-    gpio.gpio_a.setPinMode(11, .af_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinModesComp(&.{
+        .{ .p = 0, .m = .output_push_pull, .s = .max_2mhz },
+        .{ .p = 1, .m = .output_push_pull, .s = .max_2mhz },
+        .{ .p = 2, .m = .output_push_pull, .s = .max_2mhz },
+        .{ .p = 3, .m = .output_push_pull, .s = .max_2mhz },
+        .{ .p = 8, .m = .af_push_pull, .s = .max_2mhz },
+        .{ .p = 9, .m = .af_push_pull, .s = .max_2mhz },
+        .{ .p = 10, .m = .af_push_pull, .s = .max_2mhz },
+        .{ .p = 11, .m = .af_push_pull, .s = .max_2mhz },
+    });
 
     timer.timer1.init();
 }
