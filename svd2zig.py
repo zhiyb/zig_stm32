@@ -140,16 +140,39 @@ def parsePeripheral(indent, pname, base, peripheral):
 def parsePeripherals(indent, peripherals):
     pmap = {}
     pstrs = []
+    imap = {}
     for peripheral in findElements(peripherals, "peripheral"):
         pname = getText(findElements(peripheral, "name")[0])
         base = int(getText(findElements(peripheral, "baseAddress")[0]), 0)
+
+        for interrupt in findElements(peripheral, "interrupt"):
+            idx = int(getText(findElements(interrupt, "value")[0]), 0)
+            iname = getText(findElements(interrupt, "name")[0])
+            if idx in imap:
+                if iname == imap[idx][0]:
+                    # Bug in STM32 SVD, duplicated interrupt declaration
+                    continue
+                raise RuntimeError(f"Overlapping interrupt {idx}")
+            imap[idx] = (iname, interrupt)
+
         derived = peripheral.getAttribute("derivedFrom")
         if derived:
             # Same type as derived source
             pstrs.append(f"{' '*indent}pub const {pname}: @TypeOf({derived}) = @ptrFromInt({base:#010x});\n")
             continue
+
         pmap[pname] = peripheral
         pstrs.append(parsePeripheral(indent, pname, base, peripheral))
+
+    # Interrupt enum
+    istr = f"{' '*indent}pub const IRQ = enum(u32) {{\n"
+    iindent = indent + indent_step
+    for idx, (iname, interrupt) in [(k, imap[k]) for k in sorted(imap.keys())]:
+        istr += f"{' '*iindent}{iname} = {idx},\n"
+        print(idx, iname, interrupt)
+    istr += "};\n"
+    pstrs.append(istr)
+
     return "\n".join(pstrs)
 
 

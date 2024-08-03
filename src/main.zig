@@ -2,6 +2,7 @@ const std = @import("std");
 const rcc = @import("rcc.zig");
 const gpio = @import("gpio.zig");
 const timer = @import("timer.zig");
+const systick = @import("systick.zig");
 
 comptime {
     // Force import start.zig
@@ -11,19 +12,27 @@ comptime {
 fn init() !void {
     rcc.init();
     rcc.enable(.IOPA, true);
-    rcc.enable(.TIM2, true);
+    rcc.enable(.TIM1, true);
+    systick.init();
 
+    gpio.gpio_a.setPinMode(0, .af_push_pull, .max_2mhz);
     gpio.gpio_a.setPinMode(1, .af_push_pull, .max_2mhz);
     gpio.gpio_a.setPinMode(2, .af_push_pull, .max_2mhz);
     gpio.gpio_a.setPinMode(3, .af_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinMode(8, .af_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinMode(9, .af_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinMode(10, .af_push_pull, .max_2mhz);
+    gpio.gpio_a.setPinMode(11, .af_push_pull, .max_2mhz);
 
-    timer.timer2.init();
+    timer.timer1.init();
 }
 
 pub fn main() noreturn {
     init() catch {};
 
     // Function
-    @breakpoint();
-    while (true) {}
+    while (true) {
+        systick.delay_ms(1000);
+        @breakpoint();
+    }
 }

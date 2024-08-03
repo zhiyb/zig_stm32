@@ -1,4 +1,6 @@
-pub const REG = @import("stm32f103_svd.zig");
+pub const svd = @import("stm32f103_svd.zig");
+pub const REG = svd;
+pub const IRQ = svd.IRQ;
 
 pub const RCC_CFGR_SW = enum(u2) {
     HSI = 0,
