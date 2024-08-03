@@ -145,7 +145,9 @@ def parsePeripherals(indent, peripherals):
         base = int(getText(findElements(peripheral, "baseAddress")[0]), 0)
         derived = peripheral.getAttribute("derivedFrom")
         if derived:
-            peripheral = pmap[derived]
+            # Same type as derived source
+            pstrs.append(f"{' '*indent}pub const {pname}: @TypeOf({derived}) = @ptrFromInt({base:#010x});\n")
+            continue
         pmap[pname] = peripheral
         pstrs.append(parsePeripheral(indent, pname, base, peripheral))
     return "\n".join(pstrs)
