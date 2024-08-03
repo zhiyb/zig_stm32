@@ -54,3 +54,53 @@ pub const FLASH_ACR_LATENCY = enum(u3) {
     WAIT_1 = 0b001,
     WAIT_2 = 0b010,
 };
+
+pub const GPIO_CR_CNF = enum(u2) {
+    ANALOG_OUTPUT_PP = 0b00,
+    FLOATING_OUTPUT_OD = 0b01,
+    INPUT_AF_PP = 0b10,
+    AF_OD = 0b11,
+};
+
+pub const GPIO_CR_MODE = enum(u2) {
+    INPUT = 0b00,
+    MAX_10MHZ = 0b01,
+    MAX_2MHZ = 0b10,
+    MAX_50MHZ = 0b11,
+};
+
+pub const TIM_CR1_CKD = enum(u2) {
+    DIV1 = 0b00,
+    DIV2 = 0b01,
+    DIV4 = 0b10,
+};
+
+pub const TIM_CR1_CMS = enum(u2) {
+    EDGE = 0b00,
+    CENTER_DOWN = 0b01, // CC set when counter counting down
+    CENTER_UP = 0b10, // CC set when counter counting up
+    CENTER_BOTH = 0b11, // CC set when counter counting up or down
+};
+
+pub const TIM_CR1_DIR = enum(u1) {
+    UP = 0,
+    DOWN = 1,
+};
+
+pub const TIM_CCMR_CCS = enum(u2) {
+    OUTPUT = 0b00,
+    INPUT_TI2 = 0b01,
+    INPUT_TI1 = 0b10,
+    INPUT_TRC = 0b11,
+};
+
+pub const TIM_CCMR_OCM = enum(u3) {
+    FROZEN = 0b000,
+    MATCH_ACT = 0b001,
+    MATCH_INACT = 0b010,
+    MATCH_TOGGLE = 0b011,
+    FORCE_INACT = 0b100,
+    FORCE_ACT = 0b101,
+    PWM_1 = 0b110,
+    PWM_2 = 0b111,
+};

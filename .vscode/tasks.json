@@ -6,7 +6,12 @@
         {
             "label": "zig build",
             "type": "shell",
-            "command": "zig build --release=fast"
+            "command": "zig build --release=fast --summary all",
+            "problemMatcher": [],
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
         }
     ]
 }
