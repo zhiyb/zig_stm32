@@ -6,7 +6,7 @@
         {
             "label": "zig build",
             "type": "shell",
-            "command": "zig build --release=fast --summary all",
+            "command": "zig build --release=fast --summary all && arm-none-eabi-size zig-out/bin/controller",
             "problemMatcher": [],
             "group": {
               "kind": "build",
