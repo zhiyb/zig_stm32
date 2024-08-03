@@ -1,3 +1,4 @@
+pub usingnamespace @import("stm32f103_svd.zig");
 pub const svd = @import("stm32f103_svd.zig");
 pub const REG = svd;
 pub const IRQ = svd.IRQ;
@@ -91,8 +92,8 @@ pub const TIM_CR1_DIR = enum(u1) {
 
 pub const TIM_CCMR_CCS = enum(u2) {
     OUTPUT = 0b00,
-    INPUT_TI2 = 0b01,
-    INPUT_TI1 = 0b10,
+    INPUT_SAME = 0b01, // Same input channel
+    INPUT_COMP = 0b10, // Complementary input channel
     INPUT_TRC = 0b11,
 };
 
@@ -105,4 +106,30 @@ pub const TIM_CCMR_OCM = enum(u3) {
     FORCE_ACT = 0b101,
     PWM_1 = 0b110,
     PWM_2 = 0b111,
+};
+
+pub const TIM_CCMR_ICF = enum(u4) {
+    DTS_DIV1_N1 = 0b0000,
+    INT_N2 = 0b0001,
+    INT_N4 = 0b0010,
+    INT_N8 = 0b0011,
+    DTS_DIV2_N6 = 0b0100,
+    DTS_DIV2_N8 = 0b0101,
+    DTS_DIV4_N6 = 0b0110,
+    DTS_DIV4_N8 = 0b0111,
+    DTS_DIV8_N6 = 0b1000,
+    DTS_DIV8_N8 = 0b1001,
+    DTS_DIV16_N5 = 0b1010,
+    DTS_DIV16_N6 = 0b1011,
+    DTS_DIV16_N8 = 0b1100,
+    DTS_DIV32_N5 = 0b1101,
+    DTS_DIV32_N6 = 0b1110,
+    DTS_DIV32_N8 = 0b1111,
+};
+
+pub const TIM_CCMR_ICPSC = enum(u2) {
+    DIV1 = 0b00,
+    DIV2 = 0b01,
+    DIV4 = 0b10,
+    DIV8 = 0b11,
 };

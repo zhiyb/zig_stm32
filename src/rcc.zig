@@ -40,8 +40,12 @@ pub fn init() void {
 }
 
 pub const peripherals_t = enum {
+    AFIO,
     IOPA,
     IOPB,
+    IOPC,
+    IOPD,
+    IOPE,
     TIM1,
     TIM2,
     TIM3,
@@ -51,8 +55,12 @@ pub const peripherals_t = enum {
 pub fn enable(ph: peripherals_t, en: bool) void {
     const v = @intFromBool(en);
     switch (ph) {
+        .AFIO => hal.REG.RCC.APB2ENR.AFIOEN = v,
         .IOPA => hal.REG.RCC.APB2ENR.IOPAEN = v,
         .IOPB => hal.REG.RCC.APB2ENR.IOPBEN = v,
+        .IOPC => hal.REG.RCC.APB2ENR.IOPCEN = v,
+        .IOPD => hal.REG.RCC.APB2ENR.IOPDEN = v,
+        .IOPE => hal.REG.RCC.APB2ENR.IOPEEN = v,
         .TIM1 => hal.REG.RCC.APB2ENR.TIM1EN = v,
         .TIM2 => hal.REG.RCC.APB1ENR.TIM2EN = v,
         .TIM3 => hal.REG.RCC.APB1ENR.TIM3EN = v,

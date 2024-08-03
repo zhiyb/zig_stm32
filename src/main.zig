@@ -12,7 +12,9 @@ comptime {
 fn init() !void {
     rcc.init();
     rcc.enable(.IOPA, true);
+    rcc.enable(.IOPB, true);
     rcc.enable(.TIM1, true);
+    rcc.enable(.TIM4, true);
     systick.init();
 
     gpio.gpio_a.setPinModesComp(&.{
@@ -25,8 +27,13 @@ fn init() !void {
         .{ .p = 10, .m = .af_push_pull, .s = .max_2mhz },
         .{ .p = 11, .m = .af_push_pull, .s = .max_2mhz },
     });
+    gpio.gpio_b.setPinModesComp(&.{
+        .{ .p = 7, .m = .input_pull_up, .s = .input },
+        .{ .p = 9, .m = .input_pull_up, .s = .input },
+    });
 
-    timer.timer1.init();
+    timer.timer1.initPwm();
+    timer.timer4.initIrRemote();
 }
 
 pub fn main() noreturn {
