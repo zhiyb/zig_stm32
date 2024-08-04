@@ -1,5 +1,6 @@
 const std = @import("std");
 const rcc = @import("rcc.zig");
+const nvic = @import("nvic.zig");
 const gpio = @import("gpio.zig");
 const timer = @import("timer.zig");
 const systick = @import("systick.zig");
@@ -34,11 +35,49 @@ fn init() !void {
 
     timer.timer1.initPwm();
     timer.timer4.initIrRemote();
+
+    nvic.enable_irq(.TIM4, true);
 }
 
 pub fn main() noreturn {
     init() catch {};
 
-    @breakpoint();
-    while (true) {}
+    var ch: u8 = 1;
+    while (true) {
+        const ir = timer.timer4.popIrRemote(1);
+        if (ir != 0) {
+            const mask = 0xfffffcfc;
+            const button = enum(u32) { // Sky NOW TV remote
+                back = 0x57436699 & mask,
+                home = 0x5743c03f & mask,
+                ok = 0x574354ab & mask,
+                up = 0x57439966 & mask,
+                down = 0x5743cd32 & mask,
+                left = 0x57437986 & mask,
+                right = 0x5743b54a & mask,
+                rewind = 0x57432dd2 & mask,
+                pause = 0x574333cc & mask,
+                ff = 0x5743ab54 & mask,
+                star = 0x57438679 & mask,
+                now = 0x574320df & mask,
+                store = 0x574318e7 & mask,
+            };
+            switch (@as(button, @enumFromInt(ir & mask))) {
+                .rewind => ch = 1,
+                .pause => ch = 2,
+                .ff => ch = 3,
+                .up => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 8),
+                .down => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 8) -% 8),
+                .left => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 1) -% 1),
+                .right => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 1),
+                .back => @breakpoint(),
+                else => {
+                    var _dbg: u32 = 0;
+                    const dbg = @as(*volatile u32, &_dbg);
+                    dbg.* = ir;
+                    @breakpoint();
+                },
+            }
+        }
+    }
 }

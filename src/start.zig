@@ -1,6 +1,7 @@
 const root = @import("root");
 const hal = @import("stm32f103.zig");
 const systick = @import("systick.zig");
+const timer = @import("timer.zig");
 
 comptime {
     // Interrupt vector table
@@ -108,9 +109,9 @@ comptime {
     @export(default_irq, .{ .name = "TIM1_UP_IRQHandler" });
     @export(default_irq, .{ .name = "TIM1_TRG_COM_IRQHandler" });
     @export(default_irq, .{ .name = "TIM1_CC_IRQHandler" });
-    @export(default_irq, .{ .name = "TIM2_IRQHandler" });
-    @export(default_irq, .{ .name = "TIM3_IRQHandler" });
-    @export(default_irq, .{ .name = "TIM4_IRQHandler" });
+    @export(timer.timer2_irq, .{ .name = "TIM2_IRQHandler" });
+    @export(timer.timer3_irq, .{ .name = "TIM3_IRQHandler" });
+    @export(timer.timer4_irq, .{ .name = "TIM4_IRQHandler" });
     @export(default_irq, .{ .name = "I2C1_EV_IRQHandler" });
     @export(default_irq, .{ .name = "I2C1_ER_IRQHandler" });
     @export(default_irq, .{ .name = "I2C2_EV_IRQHandler" });
@@ -158,6 +159,12 @@ fn _main() callconv(.C) noreturn {
 
 fn default_irq() callconv(.C) noreturn {
     while (true)
-        if (hal.REG.SCB.SHCRS.MONITORACT != 0)
+        if (hal.CoreDebug.DHCSR.C_DEBUGEN != 0)
+            @breakpoint();
+}
+
+pub fn panic() noreturn {
+    while (true)
+        if (hal.CoreDebug.DHCSR.C_DEBUGEN != 0)
             @breakpoint();
 }

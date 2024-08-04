@@ -1,7 +1,43 @@
 pub usingnamespace @import("stm32f103_svd.zig");
 pub const svd = @import("stm32f103_svd.zig");
 pub const REG = svd;
-pub const IRQ = svd.IRQ;
+
+pub const CoreDebug: *volatile packed struct {
+    DHCSR: packed struct {
+        C_DEBUGEN: u1,
+        C_HALT: u1,
+        C_STEP: u1,
+        C_MASKINTS: u1,
+        _0: u1,
+        C_SNAPSTALL: u1,
+        _1: u10,
+        DEBUG: packed union {
+            S: packed struct {
+                S_REGRDY: u1,
+                S_HALT: u1,
+                S_SLEEP: u1,
+                S_LOCKUP: u1,
+                _2: u4,
+                S_RETIRE_ST: u1,
+                S_RESET_ST: u1,
+                _3: u6,
+            },
+            DBGKEY: u16,
+        },
+    },
+
+    DCRSR: packed struct {
+        _0: u32,
+    },
+
+    DCRDR: packed struct {
+        _0: u32,
+    },
+
+    DEMCR: packed struct {
+        _0: u32,
+    },
+} = @ptrFromInt(0xE000EDF0);
 
 pub const RCC_CFGR_SW = enum(u2) {
     HSI = 0,
