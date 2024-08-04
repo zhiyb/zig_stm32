@@ -4,6 +4,7 @@ const nvic = @import("nvic.zig");
 const gpio = @import("gpio.zig");
 const timer = @import("timer.zig");
 const systick = @import("systick.zig");
+const semihosting = @import("semihosting.zig");
 
 comptime {
     // Force import start.zig
@@ -46,6 +47,9 @@ pub fn main() noreturn {
     while (true) {
         const ir = timer.timer4.popIrRemote(1);
         if (ir != 0) {
+            const out = semihosting.writer;
+            out.print("IR: 0x{x:08}\n", .{ir}) catch {};
+
             const mask = 0xfffffcfc;
             const button = enum(u32) { // Sky NOW TV remote
                 back = 0x57436699 & mask,
@@ -71,12 +75,7 @@ pub fn main() noreturn {
                 .left => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 1) -% 1),
                 .right => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 1),
                 .back => @breakpoint(),
-                else => {
-                    var _dbg: u32 = 0;
-                    const dbg = @as(*volatile u32, &_dbg);
-                    dbg.* = ir;
-                    @breakpoint();
-                },
+                else => {},
             }
         }
     }

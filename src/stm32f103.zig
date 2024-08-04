@@ -169,3 +169,7 @@ pub const TIM_CCMR_ICPSC = enum(u2) {
     DIV4 = 0b10,
     DIV8 = 0b11,
 };
+
+pub fn dbgEn() bool {
+    return CoreDebug.DHCSR.C_DEBUGEN != 0;
+}

@@ -159,12 +159,12 @@ fn _main() callconv(.C) noreturn {
 
 fn default_irq() callconv(.C) noreturn {
     while (true)
-        if (hal.CoreDebug.DHCSR.C_DEBUGEN != 0)
+        if (hal.dbgEn())
             @breakpoint();
 }
 
 pub fn panic() noreturn {
     while (true)
-        if (hal.CoreDebug.DHCSR.C_DEBUGEN != 0)
+        if (hal.dbgEn())
             @breakpoint();
 }
