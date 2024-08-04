@@ -33,7 +33,7 @@ fn init() !void {
         .{ .p = 9, .m = .input_pull_up, .s = .input },
     });
 
-    timer.timer1.initPwm();
+    timer.timer1.initPwm(0x03ff);
     timer.timer4.initIrRemote();
 
     nvic.enable_irq(.TIM4, true);

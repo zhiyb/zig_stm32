@@ -96,7 +96,7 @@ const common_t = struct {
     mode: mode_t = .Uninitialised,
     data: data_t = .{ .unused = 0 },
 
-    fn initPwm(self: anytype) void {
+    fn initPwm(self: anytype, top: u16) void {
         const reg = self.reg;
         self.common.mode = .OutputPWM;
 
@@ -146,19 +146,24 @@ const common_t = struct {
         if (@TypeOf(self.*) == timer_type1_t)
             reg.BDTR.MOE = 1;
 
-        // Timer overflow frequency
-        const freq = 480;
-        // TIM1 from APB2 @ 72 MHz
-        const freq_in = 72_000_000;
-        const ratio = @max(1, freq_in / freq / 65536);
-        reg.PSC.PSC = ratio - 1;
-        reg.ARR.ARR = 65535;
+        if (false) {
+            // Timer overflow frequency
+            const freq = 480;
+            // TIM1 from APB2 @ 72 MHz
+            const freq_in = 72_000_000;
+            const ratio = @max(1, freq_in / freq / 65536);
+            reg.PSC.PSC = @intCast(ratio - 1);
+            reg.ARR.ARR = 65536 - 1;
+        } else {
+            reg.PSC.PSC = 1;
+            reg.ARR.ARR = top;
+        }
 
         // Compare values
-        reg.CCR1.CCR1 = 16;
-        reg.CCR2.CCR2 = 32;
-        reg.CCR3.CCR3 = 64;
-        reg.CCR4.CCR4 = 128;
+        reg.CCR1.CCR1 = 1;
+        reg.CCR2.CCR2 = 1;
+        reg.CCR3.CCR3 = 1;
+        reg.CCR4.CCR4 = 1;
 
         // Enable timer
         reg.CR1.CEN = 1;
