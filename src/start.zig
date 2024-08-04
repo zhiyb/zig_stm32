@@ -1,3 +1,4 @@
+const std = @import("std");
 const root = @import("root");
 const hal = @import("stm32f103.zig");
 const systick = @import("systick.zig");
@@ -158,13 +159,5 @@ fn _main() callconv(.C) noreturn {
 }
 
 fn default_irq() callconv(.C) noreturn {
-    while (true)
-        if (hal.dbgEn())
-            @breakpoint();
-}
-
-pub fn panic() noreturn {
-    while (true)
-        if (hal.dbgEn())
-            @breakpoint();
+    std.debug.panic("unhandled interrupt", .{});
 }

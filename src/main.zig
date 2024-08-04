@@ -6,6 +6,8 @@ const timer = @import("timer.zig");
 const systick = @import("systick.zig");
 const semihosting = @import("semihosting.zig");
 
+pub const panic = semihosting.panic;
+
 comptime {
     // Force import start.zig
     _ = @import("start.zig");

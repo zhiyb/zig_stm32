@@ -1,5 +1,4 @@
-const fmt = @import("std").fmt;
-const Writer = @import("std").io.Writer;
+const std = @import("std");
 const hal = @import("stm32f103.zig");
 
 // https://developer.arm.com/documentation/dui0471/i/semihosting/semihosting-operations
@@ -57,4 +56,19 @@ fn callback(_: void, string: []const u8) error{}!usize {
     return string.len;
 }
 
-pub const writer = Writer(void, error{}, callback){ .context = {} };
+pub const writer = std.io.Writer(void, error{}, callback){ .context = {} };
+
+pub fn panic(msg: []const u8, error_return_trace: ?*std.builtin.StackTrace, ret_addr: ?usize) noreturn {
+    @setCold(true);
+
+    //_ = msg;
+    _ = error_return_trace;
+    //_ = ret_addr;
+
+    while (true) {
+        if (hal.dbgEn()) {
+            writer.print("panic at 0x{?x:08}: {s}\n", .{ ret_addr, msg }) catch {};
+            @breakpoint();
+        }
+    }
+}

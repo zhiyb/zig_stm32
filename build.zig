@@ -39,6 +39,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    // Keep debug and frame pointers for debugging
+    exe.root_module.strip = false;
+    exe.root_module.omit_frame_pointer = false;
+
     exe.setLinkerScript(b.path("STM32F103C8_FLASH.ld"));
     exe.entry = .{ .symbol_name = "Reset_Handler" };
 

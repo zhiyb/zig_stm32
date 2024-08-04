@@ -172,7 +172,7 @@ const common_t = struct {
     fn initIrRemote(self: anytype) void {
         const reg = self.reg;
         self.common.mode = .InputIrRemote;
-        self.common.data.ir_remote = .{};
+        self.common.data = .{ .ir_remote = .{} };
 
         // Setup PWM input capture timer using CC inputs 2 and 4
         reg.CR1 = .{
@@ -281,7 +281,7 @@ const common_t = struct {
                 reg.SR = @bitCast(~@as(u32, @bitCast(sr)));
             },
 
-            else => start.panic(),
+            else => unreachable,
         }
     }
 };
