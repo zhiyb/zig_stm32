@@ -1,6 +1,9 @@
 const hal = @import("stm32f103.zig");
 const start = @import("start.zig");
 
+const ir_remote_debug = false;
+const ir_remote_log = 8;
+
 const common_t = struct {
     const mode_t = enum { Uninitialised, OutputPWM, InputIrRemote };
 
@@ -10,19 +13,21 @@ const common_t = struct {
             const tick_freq = 100_000;
 
             const source_t = struct {
-                const debug_t = struct {
-                    burst: i32 = 0,
-                    space: i32 = 0,
-                    data: u32 = 0,
-                    bit: i8 = 0,
-                };
+                debug: if (ir_remote_debug) struct {
+                    const debug_t = struct {
+                        burst: i32 = 0,
+                        space: i32 = 0,
+                        data: u32 = 0,
+                        bit: i8 = 0,
+                    };
 
-                debug: [64]debug_t = [_]debug_t{.{}} ** 64,
-                didx: u6 = 0,
+                    log: [64]debug_t = [_]debug_t{.{}} ** 64,
+                    idx: u6 = 0,
+                } else struct {} = .{},
 
-                _log: [8]u32 = [_]u32{0} ** 8,
-                _widx: u3 = 0,
-                _ridx: u3 = 0,
+                _log: [ir_remote_log]u32 = [_]u32{0} ** ir_remote_log,
+                _widx: u8 = 0,
+                _ridx: u8 = 0,
 
                 last_tick: u16 = 0,
                 burst_ticks: u16 = 0,
@@ -62,14 +67,16 @@ const common_t = struct {
                         }
                     }
 
-                    const dbg: debug_t = .{
-                        .burst = burst,
-                        .space = space,
-                        .data = self.data,
-                        .bit = self.bit,
-                    };
-                    self.debug[self.didx] = dbg;
-                    self.didx +%= 1;
+                    if (ir_remote_debug) {
+                        const dbg: @TypeOf(self.debug).debug_t = .{
+                            .burst = burst,
+                            .space = space,
+                            .data = self.data,
+                            .bit = self.bit,
+                        };
+                        self.debug.log[self.debug.idx] = dbg;
+                        self.debug.idx +%= 1;
+                    }
 
                     if (self.bit == 32) {
                         // 32-bit data complete
@@ -79,7 +86,7 @@ const common_t = struct {
                         const w = widx.*;
                         if (w +% 1 != ridx.*) {
                             log[w] = self.data;
-                            widx.* = w +% 1;
+                            widx.* = (w +% 1) % ir_remote_log;
                         }
                         self.bit = -1;
                     }
@@ -235,7 +242,7 @@ const common_t = struct {
         if (r == widx.*)
             return 0;
         const data = log[r];
-        ridx.* = r +% 1;
+        ridx.* = (r +% 1) % ir_remote_log;
         return data;
     }
 
