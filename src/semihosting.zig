@@ -1,5 +1,5 @@
 const std = @import("std");
-const hal = @import("stm32f103.zig");
+const hal = @import("stm32f722.zig");
 
 // https://developer.arm.com/documentation/dui0471/i/semihosting/semihosting-operations
 pub const op = enum(i32) {

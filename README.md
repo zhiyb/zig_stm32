@@ -1,2 +1,2 @@
-# zig_stm32f103
-stm32f103 zig experimentation project
+# zig_stm32f722re
+stm32f722re zig experimentation project

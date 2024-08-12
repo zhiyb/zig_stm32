@@ -7,22 +7,24 @@ pub fn build(b: *std.Build) void {
     // Run `zig build update-svd` to update HAL from SVD
     const hal = b.addSystemCommand(&.{"python3"});
     hal.addFileArg(b.path("svd2zig.py"));
-    hal.addFileArg(b.path("STM32F103.svd"));
-    const hal_out = hal.addOutputFileArg("stm32f103_svd.zig");
+    hal.addFileArg(b.path("STM32F722.svd"));
+    const hal_out = hal.addOutputFileArg("stm32f722_svd.zig");
 
     const wf = b.addUpdateSourceFiles();
-    wf.addCopyFileToSource(hal_out, "src/stm32f103_svd.zig");
+    wf.addCopyFileToSource(hal_out, "src/stm32f722_svd.zig");
 
     const update_hal = b.step("update-svd", "Update Zig HAL code from SVD");
     update_hal.dependOn(&wf.step);
 
-    // Standard target options allows the person running `zig build` to choose
-    // what target to build for. Here we do not override the defaults, which
-    // means any target is allowed, and the default is native. Other options
-    // for restricting supported target set are available.
+    // CPU target configurations
+    var features = std.Target.Cpu.Feature.Set.empty;
+    // fp_armv8 is same as fp_vfp5
+    features.addFeature(@intFromEnum(std.Target.arm.Feature.fp_armv8d16sp));
+
     const target = b.resolveTargetQuery(.{
         .cpu_arch = .thumb,
-        .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m3 },
+        .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m7 },
+        .cpu_features_add = features,
         .abi = .eabi,
         .os_tag = .freestanding,
     });
@@ -43,7 +45,7 @@ pub fn build(b: *std.Build) void {
     exe.root_module.strip = false;
     exe.root_module.omit_frame_pointer = false;
 
-    exe.setLinkerScript(b.path("STM32F103C8_FLASH.ld"));
+    exe.setLinkerScript(b.path("STM32F722RE_FLASH_AXIM.ld"));
     exe.entry = .{ .symbol_name = "Reset_Handler" };
 
     // This declares intent for the executable to be installed into the
