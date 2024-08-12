@@ -15,10 +15,9 @@
             "preLaunchTask": "zig build",
             "runToEntryPoint": "main.main",
             "executable": "zig-out/bin/controller",
-            //"device": "STM32F103xx",
             "gdbPath": "gdb-multiarch",
             "gdbTarget": "zhiyb-rpi4:3333",
-            "svdFile": "STM32F103.svd",
+            "svdFile": "STM32F722.svd",
             "swoConfig": {
                 "enabled": false,
                 "cpuFrequency": 8000000,

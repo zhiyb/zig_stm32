@@ -1,5 +1,5 @@
 const std = @import("std");
-// const rcc = @import("rcc.zig");
+const rcc = @import("rcc.zig");
 // const nvic = @import("nvic.zig");
 // const gpio = @import("gpio.zig");
 // const timer = @import("timer.zig");
@@ -14,8 +14,7 @@ comptime {
 }
 
 fn init() !void {
-    semihosting.writer.print("Hello, world!\n", .{}) catch {};
-    // rcc.init();
+    rcc.init();
     // rcc.enable(.IOPA, true);
     // rcc.enable(.IOPB, true);
     // rcc.enable(.TIM1, true);
@@ -46,8 +45,12 @@ fn init() !void {
 pub fn main() noreturn {
     init() catch {};
 
+    semihosting.writer.print("Hello, world!\n", .{}) catch {};
+
     // var ch: u8 = 1;
     while (true) {
+        @breakpoint();
+
         // const ir = timer.timer4.popIrRemote(1);
         // if (ir != 0) {
         //     const out = semihosting.writer;
