@@ -3,7 +3,7 @@ const rcc = @import("rcc.zig");
 // const nvic = @import("nvic.zig");
 // const gpio = @import("gpio.zig");
 // const timer = @import("timer.zig");
-// const systick = @import("systick.zig");
+const systick = @import("systick.zig");
 const semihosting = @import("semihosting.zig");
 
 pub const panic = semihosting.panic;
@@ -19,7 +19,7 @@ fn init() !void {
     // rcc.enable(.IOPB, true);
     // rcc.enable(.TIM1, true);
     // rcc.enable(.TIM4, true);
-    // systick.init();
+    systick.init();
 
     // gpio.gpio_a.setPinModesComp(&.{
     //     .{ .p = 0, .m = .output_push_pull, .s = .max_2mhz },

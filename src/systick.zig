@@ -1,4 +1,4 @@
-const hal = @import("stm32f103.zig");
+const hal = @import("stm32f722.zig");
 
 pub const tick_rate = 1_000;
 const freq_in = 72_000_000 / 8;
@@ -8,18 +8,18 @@ var _tick: u32 = 0;
 pub const ptick = @as(*volatile u32, &_tick);
 
 pub fn init() void {
-    const reg = hal.REG.STK;
+    const reg = hal.SYST;
     ptick.* = 0;
 
     // Clock source AHB/8 = 72/8 = 9 MHz
-    reg.CTRL = .{
+    reg.CSR = .{
         .CLKSOURCE = 0,
         .TICKINT = 1,
         .ENABLE = 0,
     };
-    reg.LOAD.RELOAD = ratio - 1;
-    reg.VAL.CURRENT = 0;
-    reg.CTRL.ENABLE = 1;
+    reg.RVR = .{ .RELOAD = ratio - 1 };
+    reg.CVR = .{ .CURRENT = 0 };
+    reg.CSR.ENABLE = 1;
 }
 
 pub fn irq() callconv(.C) void {
@@ -30,7 +30,7 @@ pub fn get_tick() struct { tick: u32, cnt: u32 } {
     var tick = ptick.*;
     var cnt: u32 = 0;
     while (true) {
-        cnt = hal.REG.STK.VAL.CURRENT;
+        cnt = hal.SYST.VAL.CURRENT;
         const now = ptick.*;
         if (now == tick) {
             break;

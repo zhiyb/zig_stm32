@@ -37,6 +37,34 @@ pub const CoreDebug: *volatile packed struct {
     },
 } = @ptrFromInt(0xE000EDF0);
 
+pub const SYST: *volatile packed struct {
+    CSR: packed struct {
+        ENABLE: u1 = 0,
+        TICKINT: u1 = 0,
+        CLKSOURCE: u1 = 0,
+        _0: u13 = 0,
+        COUNTFLAG: u1 = 0,
+        _1: u15 = 0,
+    },
+
+    RVR: packed struct {
+        RELOAD: u24 = 0,
+        _0: u8 = 0,
+    },
+
+    CVR: packed struct {
+        CURRENT: u24 = 0,
+        _0: u8 = 0,
+    },
+
+    CALIB: packed struct {
+        TENMS: u24 = 0,
+        _0: u6 = 0,
+        SKEW: u1 = 0,
+        NOREF: u1 = 0,
+    },
+} = @ptrFromInt(0xE000E010);
+
 pub const PWR_CR1_VOS = enum(u2) {
     SCALE_3 = 0b01,
     SCALE_2 = 0b10,

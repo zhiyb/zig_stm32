@@ -1,7 +1,7 @@
 const std = @import("std");
 const root = @import("root");
 const hal = @import("stm32f722.zig");
-// const systick = @import("systick.zig");
+const systick = @import("systick.zig");
 // const timer = @import("timer.zig");
 
 comptime {
@@ -145,7 +145,7 @@ comptime {
     @export(default_irq, .{ .name = "SVC_Handler" });
     @export(default_irq, .{ .name = "DebugMon_Handler" });
     @export(default_irq, .{ .name = "PendSV_Handler" });
-    @export(default_irq, .{ .name = "SysTick_Handler" });
+    @export(systick.irq, .{ .name = "SysTick_Handler" });
     @export(default_irq, .{ .name = "WWDG_IRQHandler" });
     @export(default_irq, .{ .name = "PVD_IRQHandler" });
     @export(default_irq, .{ .name = "TAMP_STAMP_IRQHandler" });
