@@ -1,7 +1,7 @@
 const std = @import("std");
 const rcc = @import("rcc.zig");
 // const nvic = @import("nvic.zig");
-// const gpio = @import("gpio.zig");
+const gpio = @import("gpio.zig");
 // const timer = @import("timer.zig");
 const systick = @import("systick.zig");
 const semihosting = @import("semihosting.zig");
@@ -15,26 +15,35 @@ comptime {
 
 fn init() !void {
     rcc.init();
-    // rcc.enable(.IOPA, true);
-    // rcc.enable(.IOPB, true);
-    // rcc.enable(.TIM1, true);
-    // rcc.enable(.TIM4, true);
+    rcc.enablePeripheralsComp(&.{
+        .{ .per = .GPIOA },
+        .{ .per = .GPIOB },
+    });
+
     systick.init();
 
-    // gpio.gpio_a.setPinModesComp(&.{
-    //     .{ .p = 0, .m = .output_push_pull, .s = .max_2mhz },
-    //     .{ .p = 1, .m = .output_push_pull, .s = .max_2mhz },
-    //     .{ .p = 2, .m = .output_push_pull, .s = .max_2mhz },
-    //     .{ .p = 3, .m = .output_push_pull, .s = .max_2mhz },
-    //     .{ .p = 8, .m = .af_push_pull, .s = .max_2mhz },
-    //     .{ .p = 9, .m = .af_push_pull, .s = .max_2mhz },
-    //     .{ .p = 10, .m = .af_push_pull, .s = .max_2mhz },
-    //     .{ .p = 11, .m = .af_push_pull, .s = .max_2mhz },
-    // });
-    // gpio.gpio_b.setPinModesComp(&.{
-    //     .{ .p = 7, .m = .input_pull_up, .s = .input },
-    //     .{ .p = 9, .m = .input_pull_up, .s = .input },
-    // });
+    gpio.gpio_a.setPinModesComp(&.{
+        .{ .pin = 0, .mode = .analog },
+        .{ .pin = 1, .mode = .analog },
+        .{ .pin = 2, .mode = .analog },
+        .{ .pin = 3, .mode = .analog },
+        .{ .pin = 4, .mode = .analog }, // DAC_OUT1
+        .{ .pin = 5, .mode = .analog }, // DAC_OUT2
+        .{ .pin = 6, .mode = .analog },
+        .{ .pin = 7, .mode = .analog },
+        .{ .pin = 8, .mode = .analog },
+        .{ .pin = 9, .mode = .analog },
+        .{ .pin = 10, .mode = .analog },
+        .{ .pin = 11, .mode = .analog },
+        .{ .pin = 12, .mode = .analog },
+        .{ .pin = 13, .mode = .af_push_pull, .af = 0, .speed = .high }, // SWDIO
+        .{ .pin = 14, .mode = .af_push_pull, .af = 0, .speed = .high }, // SWCLK
+        .{ .pin = 15, .mode = .analog },
+    });
+    gpio.gpio_b.setPinModesComp(&.{
+        .{ .pin = 14, .mode = .af_push_pull, .af = 12, .speed = .medium }, // USB_DM
+        .{ .pin = 15, .mode = .af_push_pull, .af = 12, .speed = .medium }, // USB_DP
+    });
 
     // timer.timer1.initPwm(0x03ff);
     // timer.timer4.initIrRemote();

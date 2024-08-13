@@ -109,18 +109,29 @@ pub const RCC_PLLCFGR_PLLP = enum(u2) {
     DIV_8 = 0b11,
 };
 
-pub const GPIO_CR_CNF = enum(u2) {
-    ANALOG_OUTPUT_PP = 0b00,
-    FLOATING_OUTPUT_OD = 0b01,
-    INPUT_AF_PP = 0b10,
-    AF_OD = 0b11,
+pub const GPIO_MODER = enum(u2) {
+    INPUT = 0b00,
+    OUTPUT = 0b01,
+    ALTERNATE_FUNCTION = 0b10,
+    ANALOG = 0b11,
 };
 
-pub const GPIO_CR_MODE = enum(u2) {
-    INPUT = 0b00,
-    MAX_10MHZ = 0b01,
-    MAX_2MHZ = 0b10,
-    MAX_50MHZ = 0b11,
+pub const GPIO_OTYPER = enum(u1) {
+    PUSH_PULL = 0,
+    OPEN_DRAIN = 1,
+};
+
+pub const GPIO_OSPEEDR = enum(u2) {
+    LOW = 0b00,
+    MEDIUM = 0b01,
+    HIGH = 0b10,
+    VERY_HIGH = 0b11,
+};
+
+pub const GPIO_PUPDR = enum(u2) {
+    PULL_NONE = 0b00,
+    PULL_UP = 0b01,
+    PULL_DOWN = 0b10,
 };
 
 // pub const TIM_CR1_CKD = enum(u2) {

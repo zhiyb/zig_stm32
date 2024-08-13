@@ -73,6 +73,8 @@ def parseRegister(indent, pname, rname, addr, register):
         rstr += f"{' '*indent}{rname}: packed struct {{\n"
         findent = indent + indent_step
         rstr += parseFields(findent, pname, rname, addr, fields)
+        rstr += "\n"
+        rstr += f"{' '*findent}pub const set = set_masked;\n"
         rstr += f"{' '*indent}}},\n"
 
     return rstr
@@ -189,6 +191,17 @@ def main():
     print(f"device: {name}")
 
     with open(args.output, "w") as fout:
+        fout.write("""const std = @import("std");
+
+// Common helper functions
+pub inline fn set_masked(self: anytype, mask: @TypeOf(self.*), val: @TypeOf(self.*)) void {
+    if (!std.meta.eql(mask, .{}))
+        self.* = @bitCast((@as(u32, @bitCast(self.*)) &
+            ~@as(u32, @bitCast(mask))) | @as(u32, @bitCast(val)));
+}
+
+// Peripherals
+""")
         peripherals = findElements(device, "peripherals")[0]
         fout.write(parsePeripherals(0, peripherals))
 

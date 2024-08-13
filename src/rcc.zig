@@ -59,31 +59,66 @@ pub fn init() void {
     hal.RCC.DCKCFGR2 = .{};
 }
 
-// pub const peripherals_t = enum {
-//     AFIO,
-//     IOPA,
-//     IOPB,
-//     IOPC,
-//     IOPD,
-//     IOPE,
-//     TIM1,
-//     TIM2,
-//     TIM3,
-//     TIM4,
-// };
+pub const peripherals_t = enum {
+    GPIOA,
+    GPIOB,
+    GPIOC,
+    GPIOD,
+    GPIOE,
+    GPIOF,
+    GPIOG,
+    GPIOH,
+    GPIOI,
+};
 
-// pub fn enable(ph: peripherals_t, en: bool) void {
-//     const v = @intFromBool(en);
-//     switch (ph) {
-//         .AFIO => hal.REG.RCC.APB2ENR.AFIOEN = v,
-//         .IOPA => hal.REG.RCC.APB2ENR.IOPAEN = v,
-//         .IOPB => hal.REG.RCC.APB2ENR.IOPBEN = v,
-//         .IOPC => hal.REG.RCC.APB2ENR.IOPCEN = v,
-//         .IOPD => hal.REG.RCC.APB2ENR.IOPDEN = v,
-//         .IOPE => hal.REG.RCC.APB2ENR.IOPEEN = v,
-//         .TIM1 => hal.REG.RCC.APB2ENR.TIM1EN = v,
-//         .TIM2 => hal.REG.RCC.APB1ENR.TIM2EN = v,
-//         .TIM3 => hal.REG.RCC.APB1ENR.TIM3EN = v,
-//         .TIM4 => hal.REG.RCC.APB1ENR.TIM4EN = v,
-//     }
-// }
+pub fn enablePeripheralsComp(comptime phs: []const struct {
+    per: peripherals_t,
+    en: bool = true,
+}) void {
+    comptime var ahb1enr_mask: @TypeOf(hal.RCC.AHB1ENR) = .{};
+    comptime var ahb1enr_val: @TypeOf(hal.RCC.AHB1ENR) = .{};
+    comptime {
+        for (phs) |ph| {
+            const en = @intFromBool(ph.en);
+            switch (ph.per) {
+                .GPIOA => {
+                    ahb1enr_mask.GPIOAEN = 1;
+                    ahb1enr_val.GPIOAEN = en;
+                },
+                .GPIOB => {
+                    ahb1enr_mask.GPIOBEN = 1;
+                    ahb1enr_val.GPIOBEN = en;
+                },
+                .GPIOC => {
+                    ahb1enr_mask.GPIOCEN = 1;
+                    ahb1enr_val.GPIOCEN = en;
+                },
+                .GPIOD => {
+                    ahb1enr_mask.GPIODEN = 1;
+                    ahb1enr_val.GPIODEN = en;
+                },
+                .GPIOE => {
+                    ahb1enr_mask.GPIOEEN = 1;
+                    ahb1enr_val.GPIOEEN = en;
+                },
+                .GPIOF => {
+                    ahb1enr_mask.GPIOFEN = 1;
+                    ahb1enr_val.GPIOFEN = en;
+                },
+                .GPIOG => {
+                    ahb1enr_mask.GPIOGEN = 1;
+                    ahb1enr_val.GPIOGEN = en;
+                },
+                .GPIOH => {
+                    ahb1enr_mask.GPIOHEN = 1;
+                    ahb1enr_val.GPIOHEN = en;
+                },
+                .GPIOI => {
+                    ahb1enr_mask.GPIOIEN = 1;
+                    ahb1enr_val.GPIOIEN = en;
+                },
+            }
+        }
+    }
+    hal.RCC.AHB1ENR.set(ahb1enr_mask, ahb1enr_val);
+}

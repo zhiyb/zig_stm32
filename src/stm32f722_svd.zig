@@ -1,3 +1,13 @@
+const std = @import("std");
+
+// Common helper functions
+pub inline fn set_masked(self: anytype, mask: @TypeOf(self.*), val: @TypeOf(self.*)) void {
+    if (!std.meta.eql(mask, .{}))
+        self.* = @bitCast((@as(u32, @bitCast(self.*)) &
+            ~@as(u32, @bitCast(mask))) | @as(u32, @bitCast(val)));
+}
+
+// Peripherals
 pub const TIM1: *volatile packed struct {
     CR1: packed struct {
         CEN: u1 = 0,
@@ -11,6 +21,8 @@ pub const TIM1: *volatile packed struct {
         _0: u1 = 0,
         UIFREMAP: u1 = 0,
         _1: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -34,6 +46,8 @@ pub const TIM1: *volatile packed struct {
         _3: u1 = 0,
         MMS2: u4 = 0,
         _4: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     SMCR: packed struct {
@@ -47,6 +61,8 @@ pub const TIM1: *volatile packed struct {
         ETP: u1 = 0,
         SMS_3: u1 = 0,
         _1: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     DIER: packed struct {
@@ -66,6 +82,8 @@ pub const TIM1: *volatile packed struct {
         COMDE: u1 = 0,
         TDE: u1 = 0,
         _0: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -83,6 +101,8 @@ pub const TIM1: *volatile packed struct {
         CC3OF: u1 = 0,
         CC4OF: u1 = 0,
         _0: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     EGR: packed struct {
@@ -96,6 +116,8 @@ pub const TIM1: *volatile packed struct {
         BG: u1 = 0,
         B2G: u1 = 0,
         _0: u23 = 0,
+
+        pub const set = set_masked;
     },
 
     CCMR1: packed union {
@@ -114,6 +136,8 @@ pub const TIM1: *volatile packed struct {
             _0: u7 = 0,
             OC2M_3: u1 = 0,
             _1: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -124,6 +148,8 @@ pub const TIM1: *volatile packed struct {
             IC2PCS: u2 = 0,
             IC2F: u4 = 0,
             _0: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -143,6 +169,8 @@ pub const TIM1: *volatile packed struct {
             _0: u7 = 0,
             OC4M_3: u1 = 0,
             _1: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -153,6 +181,8 @@ pub const TIM1: *volatile packed struct {
             IC4PSC: u2 = 0,
             IC4F: u4 = 0,
             _0: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -179,47 +209,65 @@ pub const TIM1: *volatile packed struct {
         CC6E: u1 = 0,
         CC6P: u1 = 0,
         _2: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     CNT: packed struct {
         CNT: u16 = 0,
         _0: u15 = 0,
         UIFCPY: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     PSC: packed struct {
         PSC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ARR: packed struct {
         ARR: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     RCR: packed struct {
         REP: u8 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR1: packed struct {
         CCR1: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR2: packed struct {
         CCR2: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR3: packed struct {
         CCR3: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR4: packed struct {
         CCR4: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     BDTR: packed struct {
@@ -236,6 +284,8 @@ pub const TIM1: *volatile packed struct {
         BK2E: u1 = 0,
         BK2P: u1 = 0,
         _0: u6 = 0,
+
+        pub const set = set_masked;
     },
 
     DCR: packed struct {
@@ -243,10 +293,14 @@ pub const TIM1: *volatile packed struct {
         _0: u3 = 0,
         DBL: u5 = 0,
         _1: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     DMAR: packed struct {
         DMAB: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -266,6 +320,8 @@ pub const TIM1: *volatile packed struct {
         _2: u7 = 0,
         OC6M3: u1 = 0,
         _3: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR5: packed struct {
@@ -274,11 +330,15 @@ pub const TIM1: *volatile packed struct {
         GC5C1: u1 = 0,
         GC5C2: u1 = 0,
         GC5C3: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR6: packed struct {
         CCR6: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40010000);
 
@@ -293,6 +353,8 @@ pub const ADC2: *volatile packed struct {
         STRT: u1 = 0,
         OVR: u1 = 0,
         _0: u26 = 0,
+
+        pub const set = set_masked;
     },
 
     CR1: packed struct {
@@ -312,6 +374,8 @@ pub const ADC2: *volatile packed struct {
         RES: u2 = 0,
         OVRIE: u1 = 0,
         _1: u5 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -331,44 +395,62 @@ pub const ADC2: *volatile packed struct {
         EXTEN: u2 = 0,
         SWSTART: u1 = 0,
         _3: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     SMPR1: packed struct {
         SMPx_x: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SMPR2: packed struct {
         SMPx_x: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     JOFR1: packed struct {
         JOFFSET1: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     JOFR2: packed struct {
         JOFFSET2: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     JOFR3: packed struct {
         JOFFSET3: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     JOFR4: packed struct {
         JOFFSET4: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     HTR: packed struct {
         HT: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     LTR: packed struct {
         LT: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     SQR1: packed struct {
@@ -378,6 +460,8 @@ pub const ADC2: *volatile packed struct {
         SQ16: u5 = 0,
         L: u4 = 0,
         _0: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     SQR2: packed struct {
@@ -388,6 +472,8 @@ pub const ADC2: *volatile packed struct {
         SQ11: u5 = 0,
         SQ12: u5 = 0,
         _0: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     SQR3: packed struct {
@@ -398,6 +484,8 @@ pub const ADC2: *volatile packed struct {
         SQ5: u5 = 0,
         SQ6: u5 = 0,
         _0: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     JSQR: packed struct {
@@ -407,31 +495,43 @@ pub const ADC2: *volatile packed struct {
         JSQ4: u5 = 0,
         JL: u2 = 0,
         _0: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     JDR1: packed struct {
         JDATA: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     JDR2: packed struct {
         JDATA: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     JDR3: packed struct {
         JDATA: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     JDR4: packed struct {
         JDATA: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     DR: packed struct {
         DATA: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40012100);
 
@@ -448,12 +548,16 @@ pub const TIM6: *volatile packed struct {
         _0: u3 = 0,
         ARPE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
         _0: u4 = 0,
         MMS: u3 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -463,16 +567,22 @@ pub const TIM6: *volatile packed struct {
         _0: u7 = 0,
         UDE: u1 = 0,
         _1: u23 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
         UIF: u1 = 0,
         _0: u31 = 0,
+
+        pub const set = set_masked;
     },
 
     EGR: packed struct {
         UG: u1 = 0,
         _0: u31 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u96 = 0,
@@ -481,16 +591,22 @@ pub const TIM6: *volatile packed struct {
         CNT: u16 = 0,
         _0: u15 = 0,
         UIFCPY: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     PSC: packed struct {
         PSC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ARR: packed struct {
         ARR: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40001000);
 
@@ -519,6 +635,8 @@ pub const C_ADC: *volatile packed struct {
         STRT3: u1 = 0,
         OVR3: u1 = 0,
         _2: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR: packed struct {
@@ -533,11 +651,15 @@ pub const C_ADC: *volatile packed struct {
         VBATE: u1 = 0,
         TSVREFE: u1 = 0,
         _3: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     CDR: packed struct {
         DATA1: u16 = 0,
         DATA2: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40012300);
 
@@ -555,6 +677,8 @@ pub const CAN1: *volatile packed struct {
         RESET: u1 = 0,
         DBF: u1 = 0,
         _1: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     MSR: packed struct {
@@ -569,6 +693,8 @@ pub const CAN1: *volatile packed struct {
         SAMP: u1 = 0,
         RX: u1 = 0,
         _1: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     TSR: packed struct {
@@ -597,6 +723,8 @@ pub const CAN1: *volatile packed struct {
         LOW0: u1 = 0,
         LOW1: u1 = 0,
         LOW2: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     RF0R: packed struct {
@@ -606,6 +734,8 @@ pub const CAN1: *volatile packed struct {
         FOVR0: u1 = 0,
         RFOM0: u1 = 0,
         _1: u26 = 0,
+
+        pub const set = set_masked;
     },
 
     RF1R: packed struct {
@@ -615,6 +745,8 @@ pub const CAN1: *volatile packed struct {
         FOVR1: u1 = 0,
         RFOM1: u1 = 0,
         _1: u26 = 0,
+
+        pub const set = set_masked;
     },
 
     IER: packed struct {
@@ -635,6 +767,8 @@ pub const CAN1: *volatile packed struct {
         WKUIE: u1 = 0,
         SLKIE: u1 = 0,
         _2: u14 = 0,
+
+        pub const set = set_masked;
     },
 
     ESR: packed struct {
@@ -646,6 +780,8 @@ pub const CAN1: *volatile packed struct {
         _1: u9 = 0,
         TEC: u8 = 0,
         REC: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     BTR: packed struct {
@@ -658,6 +794,8 @@ pub const CAN1: *volatile packed struct {
         _2: u4 = 0,
         LBKM: u1 = 0,
         SILM: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u2816 = 0,
@@ -668,6 +806,8 @@ pub const CAN1: *volatile packed struct {
         IDE: u1 = 0,
         EXID: u18 = 0,
         STID: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     TDT0R: packed struct {
@@ -676,6 +816,8 @@ pub const CAN1: *volatile packed struct {
         TGT: u1 = 0,
         _1: u7 = 0,
         TIME: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     TDL0R: packed struct {
@@ -683,6 +825,8 @@ pub const CAN1: *volatile packed struct {
         DATA1: u8 = 0,
         DATA2: u8 = 0,
         DATA3: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     TDH0R: packed struct {
@@ -690,6 +834,8 @@ pub const CAN1: *volatile packed struct {
         DATA5: u8 = 0,
         DATA6: u8 = 0,
         DATA7: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     TI1R: packed struct {
@@ -698,6 +844,8 @@ pub const CAN1: *volatile packed struct {
         IDE: u1 = 0,
         EXID: u18 = 0,
         STID: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     TDT1R: packed struct {
@@ -706,6 +854,8 @@ pub const CAN1: *volatile packed struct {
         TGT: u1 = 0,
         _1: u7 = 0,
         TIME: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     TDL1R: packed struct {
@@ -713,6 +863,8 @@ pub const CAN1: *volatile packed struct {
         DATA1: u8 = 0,
         DATA2: u8 = 0,
         DATA3: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     TDH1R: packed struct {
@@ -720,6 +872,8 @@ pub const CAN1: *volatile packed struct {
         DATA5: u8 = 0,
         DATA6: u8 = 0,
         DATA7: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     TI2R: packed struct {
@@ -728,6 +882,8 @@ pub const CAN1: *volatile packed struct {
         IDE: u1 = 0,
         EXID: u18 = 0,
         STID: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     TDT2R: packed struct {
@@ -736,6 +892,8 @@ pub const CAN1: *volatile packed struct {
         TGT: u1 = 0,
         _1: u7 = 0,
         TIME: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     TDL2R: packed struct {
@@ -743,6 +901,8 @@ pub const CAN1: *volatile packed struct {
         DATA1: u8 = 0,
         DATA2: u8 = 0,
         DATA3: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     TDH2R: packed struct {
@@ -750,6 +910,8 @@ pub const CAN1: *volatile packed struct {
         DATA5: u8 = 0,
         DATA6: u8 = 0,
         DATA7: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     RI0R: packed struct {
@@ -758,6 +920,8 @@ pub const CAN1: *volatile packed struct {
         IDE: u1 = 0,
         EXID: u18 = 0,
         STID: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     RDT0R: packed struct {
@@ -765,6 +929,8 @@ pub const CAN1: *volatile packed struct {
         _0: u4 = 0,
         FMI: u8 = 0,
         TIME: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     RDL0R: packed struct {
@@ -772,6 +938,8 @@ pub const CAN1: *volatile packed struct {
         DATA1: u8 = 0,
         DATA2: u8 = 0,
         DATA3: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     RDH0R: packed struct {
@@ -779,6 +947,8 @@ pub const CAN1: *volatile packed struct {
         DATA5: u8 = 0,
         DATA6: u8 = 0,
         DATA7: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     RI1R: packed struct {
@@ -787,6 +957,8 @@ pub const CAN1: *volatile packed struct {
         IDE: u1 = 0,
         EXID: u18 = 0,
         STID: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     RDT1R: packed struct {
@@ -794,6 +966,8 @@ pub const CAN1: *volatile packed struct {
         _0: u4 = 0,
         FMI: u8 = 0,
         TIME: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     RDL1R: packed struct {
@@ -801,6 +975,8 @@ pub const CAN1: *volatile packed struct {
         DATA1: u8 = 0,
         DATA2: u8 = 0,
         DATA3: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     RDH1R: packed struct {
@@ -808,6 +984,8 @@ pub const CAN1: *volatile packed struct {
         DATA5: u8 = 0,
         DATA6: u8 = 0,
         DATA7: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u384 = 0,
@@ -815,6 +993,8 @@ pub const CAN1: *volatile packed struct {
     FMR: packed struct {
         FINIT: u1 = 0,
         _0: u31 = 0,
+
+        pub const set = set_masked;
     },
 
     FM1R: packed struct {
@@ -833,6 +1013,8 @@ pub const CAN1: *volatile packed struct {
         FBM12: u1 = 0,
         FBM13: u1 = 0,
         _0: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u32 = 0,
@@ -853,6 +1035,8 @@ pub const CAN1: *volatile packed struct {
         FSC12: u1 = 0,
         FSC13: u1 = 0,
         _0: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _3: u32 = 0,
@@ -873,6 +1057,8 @@ pub const CAN1: *volatile packed struct {
         FFA12: u1 = 0,
         FFA13: u1 = 0,
         _0: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _4: u32 = 0,
@@ -893,6 +1079,8 @@ pub const CAN1: *volatile packed struct {
         FACT12: u1 = 0,
         FACT13: u1 = 0,
         _0: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _5: u256 = 0,
@@ -930,6 +1118,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F0R2: packed struct {
@@ -965,6 +1155,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F1R1: packed struct {
@@ -1000,6 +1192,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F1R2: packed struct {
@@ -1035,6 +1229,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F2R1: packed struct {
@@ -1070,6 +1266,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F2R2: packed struct {
@@ -1105,6 +1303,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F3R1: packed struct {
@@ -1140,6 +1340,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F3R2: packed struct {
@@ -1175,6 +1377,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F4R1: packed struct {
@@ -1210,6 +1414,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F4R2: packed struct {
@@ -1245,6 +1451,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F5R1: packed struct {
@@ -1280,6 +1488,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F5R2: packed struct {
@@ -1315,6 +1525,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F6R1: packed struct {
@@ -1350,6 +1562,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F6R2: packed struct {
@@ -1385,6 +1599,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F7R1: packed struct {
@@ -1420,6 +1636,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F7R2: packed struct {
@@ -1455,6 +1673,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F8R1: packed struct {
@@ -1490,6 +1710,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F8R2: packed struct {
@@ -1525,6 +1747,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F9R1: packed struct {
@@ -1560,6 +1784,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F9R2: packed struct {
@@ -1595,6 +1821,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F10R1: packed struct {
@@ -1630,6 +1858,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F10R2: packed struct {
@@ -1665,6 +1895,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F11R1: packed struct {
@@ -1700,6 +1932,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F11R2: packed struct {
@@ -1735,6 +1969,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F12R1: packed struct {
@@ -1770,6 +2006,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F12R2: packed struct {
@@ -1805,6 +2043,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F13R1: packed struct {
@@ -1840,6 +2080,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F13R2: packed struct {
@@ -1875,6 +2117,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F14R1: packed struct {
@@ -1910,6 +2154,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F14R2: packed struct {
@@ -1945,6 +2191,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F15R1: packed struct {
@@ -1980,6 +2228,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F15R2: packed struct {
@@ -2015,6 +2265,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F16R1: packed struct {
@@ -2050,6 +2302,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F16R2: packed struct {
@@ -2085,6 +2339,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F17R1: packed struct {
@@ -2120,6 +2376,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F17R2: packed struct {
@@ -2155,6 +2413,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F18R1: packed struct {
@@ -2190,6 +2450,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F18R2: packed struct {
@@ -2225,6 +2487,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F19R1: packed struct {
@@ -2260,6 +2524,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F19R2: packed struct {
@@ -2295,6 +2561,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F20R1: packed struct {
@@ -2330,6 +2598,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F20R2: packed struct {
@@ -2365,6 +2635,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F21R1: packed struct {
@@ -2400,6 +2672,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F21R2: packed struct {
@@ -2435,6 +2709,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F22R1: packed struct {
@@ -2470,6 +2746,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F22R2: packed struct {
@@ -2505,6 +2783,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F23R1: packed struct {
@@ -2540,6 +2820,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F23R2: packed struct {
@@ -2575,6 +2857,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F24R1: packed struct {
@@ -2610,6 +2894,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F24R2: packed struct {
@@ -2645,6 +2931,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F25R1: packed struct {
@@ -2680,6 +2968,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F25R2: packed struct {
@@ -2715,6 +3005,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F26R1: packed struct {
@@ -2750,6 +3042,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F26R2: packed struct {
@@ -2785,6 +3079,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F27R1: packed struct {
@@ -2820,6 +3116,8 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     F27R2: packed struct {
@@ -2855,17 +3153,23 @@ pub const CAN1: *volatile packed struct {
         FB29: u1 = 0,
         FB30: u1 = 0,
         FB31: u1 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40006400);
 
 pub const CRC: *volatile packed struct {
     DR: packed struct {
         DR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     IDR: packed struct {
         IDR: u8 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     CR: packed struct {
@@ -2875,16 +3179,22 @@ pub const CRC: *volatile packed struct {
         REV_IN: u2 = 0,
         REV_OUT: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
 
     INIT: packed struct {
         CRC_INIT: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     POL: packed struct {
         POL: u32 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40023000);
 
@@ -2904,6 +3214,8 @@ pub const CRYP: *volatile packed struct {
         _0: u3 = 0,
         KEYSIZE: u1 = 0,
         _1: u13 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -2912,96 +3224,142 @@ pub const CRYP: *volatile packed struct {
         WRERR: u1 = 0,
         Busy: u1 = 0,
         _0: u28 = 0,
+
+        pub const set = set_masked;
     },
 
     DINR: packed struct {
         DINR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     DOUTR: packed struct {
         DOUTR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR0: packed struct {
         KEYR0: u31 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR1: packed struct {
         KEYR1: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR2: packed struct {
         KEYR2: u31 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR3: packed struct {
         KEYR3: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     IVR0: packed struct {
         IVR0: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     IVR1: packed struct {
         IVR1: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     IVR2: packed struct {
         IVR2: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     IVR3: packed struct {
         IVR3: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR4: packed struct {
         KEYR4: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR5: packed struct {
         KEYR5: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR6: packed struct {
         KEYR6: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR7: packed struct {
         KEYR7: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SUSP0R: packed struct {
         SUSP0R: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SUSP1R: packed struct {
         SUSP1R: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SUSP2R: packed struct {
         SUSP2R: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SUSP3R: packed struct {
         SUSP3R: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SUSP4R: packed struct {
         SUSP4R: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SUSP5R: packed struct {
         SUSP5R: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SUSP6R: packed struct {
         SUSP6R: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SUSP7R: packed struct {
         SUSP7R: u32 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x50060000);
 
@@ -3010,6 +3368,8 @@ pub const DBG: *volatile packed struct {
         DEV_ID: u12 = 0,
         _0: u4 = 0,
         REV_ID: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     DBGMCU_CR: packed struct {
@@ -3020,6 +3380,8 @@ pub const DBG: *volatile packed struct {
         TRACE_IOEN: u1 = 0,
         TRACE_MODE: u2 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     DBGMCU_APB1_FZ: packed struct {
@@ -3043,6 +3405,8 @@ pub const DBG: *volatile packed struct {
         DBG_CAN1_STOP: u1 = 0,
         DBG_CAN2_STOP: u1 = 0,
         _3: u5 = 0,
+
+        pub const set = set_masked;
     },
 
     DBGMCU_APB2_FZ: packed struct {
@@ -3053,6 +3417,8 @@ pub const DBG: *volatile packed struct {
         DBG_TIM10_STOP: u1 = 0,
         DBG_TIM11_STOP: u1 = 0,
         _1: u13 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0xe0042000);
 
@@ -3076,44 +3442,60 @@ pub const DAC: *volatile packed struct {
         DMAEN2: u1 = 0,
         DMAUDRIE2: u1 = 0,
         _1: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     SWTRIGR: packed struct {
         SWTRIG1: u1 = 0,
         SWTRIG2: u1 = 0,
         _0: u30 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR12R1: packed struct {
         DACC1DHR: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR12L1: packed struct {
         _0: u4 = 0,
         DACC1DHR: u12 = 0,
         _1: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR8R1: packed struct {
         DACC1DHR: u8 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR12R2: packed struct {
         DACC2DHR: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR12L2: packed struct {
         _0: u4 = 0,
         DACC2DHR: u12 = 0,
         _1: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR8R2: packed struct {
         DACC2DHR: u8 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR12RD: packed struct {
@@ -3121,6 +3503,8 @@ pub const DAC: *volatile packed struct {
         _0: u4 = 0,
         DACC2DHR: u12 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR12LD: packed struct {
@@ -3128,22 +3512,30 @@ pub const DAC: *volatile packed struct {
         DACC1DHR: u12 = 0,
         _1: u4 = 0,
         DACC2DHR: u12 = 0,
+
+        pub const set = set_masked;
     },
 
     DHR8RD: packed struct {
         DACC1DHR: u8 = 0,
         DACC2DHR: u8 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     DOR1: packed struct {
         DACC1DOR: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     DOR2: packed struct {
         DACC2DOR: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -3152,6 +3544,8 @@ pub const DAC: *volatile packed struct {
         _1: u15 = 0,
         DMAUDR2: u1 = 0,
         _2: u2 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40007400);
 
@@ -3183,6 +3577,8 @@ pub const DMA2: *volatile packed struct {
         HTIF3: u1 = 0,
         TCIF3: u1 = 0,
         _5: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     HISR: packed struct {
@@ -3212,6 +3608,8 @@ pub const DMA2: *volatile packed struct {
         HTIF7: u1 = 0,
         TCIF7: u1 = 0,
         _5: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     LIFCR: packed struct {
@@ -3241,6 +3639,8 @@ pub const DMA2: *volatile packed struct {
         CHTIF3: u1 = 0,
         CTCIF3: u1 = 0,
         _5: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     HIFCR: packed struct {
@@ -3270,6 +3670,8 @@ pub const DMA2: *volatile packed struct {
         CHTIF7: u1 = 0,
         CTCIF7: u1 = 0,
         _5: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S0CR: packed struct {
@@ -3294,23 +3696,33 @@ pub const DMA2: *volatile packed struct {
         MBURST: u2 = 0,
         CHSEL: u3 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S0NDTR: packed struct {
         NDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     S0PAR: packed struct {
         PA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S0M0AR: packed struct {
         M0A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S0M1AR: packed struct {
         M1A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S0FCR: packed struct {
@@ -3320,6 +3732,8 @@ pub const DMA2: *volatile packed struct {
         _0: u1 = 0,
         FEIE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     S1CR: packed struct {
@@ -3344,23 +3758,33 @@ pub const DMA2: *volatile packed struct {
         MBURST: u2 = 0,
         CHSEL: u3 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S1NDTR: packed struct {
         NDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     S1PAR: packed struct {
         PA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S1M0AR: packed struct {
         M0A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S1M1AR: packed struct {
         M1A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S1FCR: packed struct {
@@ -3370,6 +3794,8 @@ pub const DMA2: *volatile packed struct {
         _0: u1 = 0,
         FEIE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     S2CR: packed struct {
@@ -3394,23 +3820,33 @@ pub const DMA2: *volatile packed struct {
         MBURST: u2 = 0,
         CHSEL: u3 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S2NDTR: packed struct {
         NDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     S2PAR: packed struct {
         PA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S2M0AR: packed struct {
         M0A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S2M1AR: packed struct {
         M1A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S2FCR: packed struct {
@@ -3420,6 +3856,8 @@ pub const DMA2: *volatile packed struct {
         _0: u1 = 0,
         FEIE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     S3CR: packed struct {
@@ -3444,23 +3882,33 @@ pub const DMA2: *volatile packed struct {
         MBURST: u2 = 0,
         CHSEL: u3 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S3NDTR: packed struct {
         NDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     S3PAR: packed struct {
         PA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S3M0AR: packed struct {
         M0A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S3M1AR: packed struct {
         M1A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S3FCR: packed struct {
@@ -3470,6 +3918,8 @@ pub const DMA2: *volatile packed struct {
         _0: u1 = 0,
         FEIE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     S4CR: packed struct {
@@ -3494,23 +3944,33 @@ pub const DMA2: *volatile packed struct {
         MBURST: u2 = 0,
         CHSEL: u3 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S4NDTR: packed struct {
         NDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     S4PAR: packed struct {
         PA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S4M0AR: packed struct {
         M0A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S4M1AR: packed struct {
         M1A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S4FCR: packed struct {
@@ -3520,6 +3980,8 @@ pub const DMA2: *volatile packed struct {
         _0: u1 = 0,
         FEIE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     S5CR: packed struct {
@@ -3544,23 +4006,33 @@ pub const DMA2: *volatile packed struct {
         MBURST: u2 = 0,
         CHSEL: u3 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S5NDTR: packed struct {
         NDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     S5PAR: packed struct {
         PA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S5M0AR: packed struct {
         M0A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S5M1AR: packed struct {
         M1A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S5FCR: packed struct {
@@ -3570,6 +4042,8 @@ pub const DMA2: *volatile packed struct {
         _0: u1 = 0,
         FEIE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     S6CR: packed struct {
@@ -3594,23 +4068,33 @@ pub const DMA2: *volatile packed struct {
         MBURST: u2 = 0,
         CHSEL: u3 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S6NDTR: packed struct {
         NDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     S6PAR: packed struct {
         PA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S6M0AR: packed struct {
         M0A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S6M1AR: packed struct {
         M1A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S6FCR: packed struct {
@@ -3620,6 +4104,8 @@ pub const DMA2: *volatile packed struct {
         _0: u1 = 0,
         FEIE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     S7CR: packed struct {
@@ -3644,23 +4130,33 @@ pub const DMA2: *volatile packed struct {
         MBURST: u2 = 0,
         CHSEL: u3 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     S7NDTR: packed struct {
         NDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     S7PAR: packed struct {
         PA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S7M0AR: packed struct {
         M0A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S7M1AR: packed struct {
         M1A: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     S7FCR: packed struct {
@@ -3670,6 +4166,8 @@ pub const DMA2: *volatile packed struct {
         _0: u1 = 0,
         FEIE: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40026400);
 
@@ -3702,6 +4200,8 @@ pub const EXTI: *volatile packed struct {
         IM22: u1 = 0,
         IM23: u1 = 0,
         _0: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     EMR: packed struct {
@@ -3730,6 +4230,8 @@ pub const EXTI: *volatile packed struct {
         EM22: u1 = 0,
         EM23: u1 = 0,
         _0: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     RTSR: packed struct {
@@ -3758,6 +4260,8 @@ pub const EXTI: *volatile packed struct {
         TR22: u1 = 0,
         TR23: u1 = 0,
         _0: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     FTSR: packed struct {
@@ -3786,6 +4290,8 @@ pub const EXTI: *volatile packed struct {
         TR22: u1 = 0,
         TR23: u1 = 0,
         _0: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     SWIER: packed struct {
@@ -3814,6 +4320,8 @@ pub const EXTI: *volatile packed struct {
         SWIER22: u1 = 0,
         SWIER23: u1 = 0,
         _0: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     PR: packed struct {
@@ -3842,6 +4350,8 @@ pub const EXTI: *volatile packed struct {
         PR22: u1 = 0,
         PR23: u1 = 0,
         _0: u8 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40013c00);
 
@@ -3854,14 +4364,20 @@ pub const FLASH: *volatile packed struct {
         _1: u1 = 0,
         ARTRST: u1 = 0,
         _2: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     KEYR: packed struct {
         KEY: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     OPTKEYR: packed struct {
         OPTKEYR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -3875,6 +4391,8 @@ pub const FLASH: *volatile packed struct {
         _1: u8 = 0,
         BSY: u1 = 0,
         _2: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     CR: packed struct {
@@ -3891,6 +4409,8 @@ pub const FLASH: *volatile packed struct {
         RDERRIE: u1 = 0,
         _2: u4 = 0,
         LOCK: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OPTCR: packed struct {
@@ -3906,17 +4426,23 @@ pub const FLASH: *volatile packed struct {
         _0: u2 = 0,
         IWDG_STDBY: u1 = 0,
         IWDG_STOP: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OPTCR1: packed struct {
         BOOT_ADD0: u16 = 0,
         BOOT_ADD1: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OPTCR2: packed struct {
         PCROP: u8 = 0,
         _0: u23 = 0,
         PCROP_RDP: u1 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40023c00);
 
@@ -3941,6 +4467,8 @@ pub const FMC: *volatile packed struct {
         CCLKEN: u1 = 0,
         WFDIS: u1 = 0,
         _2: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     BTR1: packed struct {
@@ -3952,6 +4480,8 @@ pub const FMC: *volatile packed struct {
         DATLAT: u4 = 0,
         ACCMOD: u2 = 0,
         _0: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     BCR2: packed struct {
@@ -3972,6 +4502,8 @@ pub const FMC: *volatile packed struct {
         CPSIZE: u3 = 0,
         CBURSTRW: u1 = 0,
         _2: u12 = 0,
+
+        pub const set = set_masked;
     },
 
     BTR2: packed struct {
@@ -3983,6 +4515,8 @@ pub const FMC: *volatile packed struct {
         DATLAT: u4 = 0,
         ACCMOD: u2 = 0,
         _0: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     BCR3: packed struct {
@@ -4003,6 +4537,8 @@ pub const FMC: *volatile packed struct {
         CPSIZE: u3 = 0,
         CBURSTRW: u1 = 0,
         _2: u12 = 0,
+
+        pub const set = set_masked;
     },
 
     BTR3: packed struct {
@@ -4014,6 +4550,8 @@ pub const FMC: *volatile packed struct {
         DATLAT: u4 = 0,
         ACCMOD: u2 = 0,
         _0: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     BCR4: packed struct {
@@ -4034,6 +4572,8 @@ pub const FMC: *volatile packed struct {
         CPSIZE: u3 = 0,
         CBURSTRW: u1 = 0,
         _2: u12 = 0,
+
+        pub const set = set_masked;
     },
 
     BTR4: packed struct {
@@ -4045,6 +4585,8 @@ pub const FMC: *volatile packed struct {
         DATLAT: u4 = 0,
         ACCMOD: u2 = 0,
         _0: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u768 = 0,
@@ -4061,6 +4603,8 @@ pub const FMC: *volatile packed struct {
         TAR: u4 = 0,
         ECCPS: u3 = 0,
         _2: u12 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -4072,6 +4616,8 @@ pub const FMC: *volatile packed struct {
         IFEN: u1 = 0,
         FEMPT: u1 = 0,
         _0: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     PMEM: packed struct {
@@ -4079,6 +4625,8 @@ pub const FMC: *volatile packed struct {
         MEMWAITx: u8 = 0,
         MEMHOLDx: u8 = 0,
         MEMHIZx: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     PATT: packed struct {
@@ -4086,12 +4634,16 @@ pub const FMC: *volatile packed struct {
         ATTWAITx: u8 = 0,
         ATTHOLDx: u8 = 0,
         ATTHIZx: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u32 = 0,
 
     ECCR: packed struct {
         ECCx: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u864 = 0,
@@ -4104,6 +4656,8 @@ pub const FMC: *volatile packed struct {
         _0: u8 = 0,
         ACCMOD: u2 = 0,
         _1: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     _3: u32 = 0,
@@ -4116,6 +4670,8 @@ pub const FMC: *volatile packed struct {
         _0: u8 = 0,
         ACCMOD: u2 = 0,
         _1: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     _4: u32 = 0,
@@ -4128,6 +4684,8 @@ pub const FMC: *volatile packed struct {
         _0: u8 = 0,
         ACCMOD: u2 = 0,
         _1: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     _5: u32 = 0,
@@ -4140,6 +4698,8 @@ pub const FMC: *volatile packed struct {
         _0: u8 = 0,
         ACCMOD: u2 = 0,
         _1: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     _6: u256 = 0,
@@ -4155,6 +4715,8 @@ pub const FMC: *volatile packed struct {
         RBURST: u1 = 0,
         RPIPE: u2 = 0,
         _0: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     SDCR2: packed struct {
@@ -4167,6 +4729,8 @@ pub const FMC: *volatile packed struct {
         SDCLK: u2 = 0,
         RBURST: u1 = 0,
         _0: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     SDTR1: packed struct {
@@ -4178,6 +4742,8 @@ pub const FMC: *volatile packed struct {
         TRP: u4 = 0,
         TRCD: u4 = 0,
         _0: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     SDTR2: packed struct {
@@ -4189,6 +4755,8 @@ pub const FMC: *volatile packed struct {
         TRP: u4 = 0,
         TRCD: u4 = 0,
         _0: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     SDCMR: packed struct {
@@ -4198,6 +4766,8 @@ pub const FMC: *volatile packed struct {
         NRFS: u4 = 0,
         MRD: u13 = 0,
         _0: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     SDRTR: packed struct {
@@ -4205,6 +4775,8 @@ pub const FMC: *volatile packed struct {
         COUNT: u13 = 0,
         REIE: u1 = 0,
         _0: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     SDSR: packed struct {
@@ -4213,6 +4785,8 @@ pub const FMC: *volatile packed struct {
         MODES2: u2 = 0,
         BUSY: u1 = 0,
         _1: u26 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0xa0000000);
 
@@ -4226,6 +4800,8 @@ pub const TIM9: *volatile packed struct {
         ARPE: u1 = 0,
         CKD: u2 = 0,
         _1: u22 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -4236,6 +4812,8 @@ pub const TIM9: *volatile packed struct {
         TS: u3 = 0,
         MSM: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     DIER: packed struct {
@@ -4245,6 +4823,8 @@ pub const TIM9: *volatile packed struct {
         _0: u3 = 0,
         TIE: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -4257,6 +4837,8 @@ pub const TIM9: *volatile packed struct {
         CC1OF: u1 = 0,
         CC2OF: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     EGR: packed struct {
@@ -4266,6 +4848,8 @@ pub const TIM9: *volatile packed struct {
         _0: u3 = 0,
         TG: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     CCMR1: packed union {
@@ -4284,6 +4868,8 @@ pub const TIM9: *volatile packed struct {
             _2: u7 = 0,
             OC2M_3: u1 = 0,
             _3: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -4295,6 +4881,8 @@ pub const TIM9: *volatile packed struct {
             IC2PCS: u2 = 0,
             IC2F: u3 = 0,
             _1: u17 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -4310,21 +4898,29 @@ pub const TIM9: *volatile packed struct {
         _1: u1 = 0,
         CC2NP: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     CNT: packed struct {
         CNT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     PSC: packed struct {
         PSC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ARR: packed struct {
         ARR: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u32 = 0,
@@ -4332,11 +4928,15 @@ pub const TIM9: *volatile packed struct {
     CCR1: packed struct {
         CCR1: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR2: packed struct {
         CCR2: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40014000);
 
@@ -4355,6 +4955,8 @@ pub const TIM2: *volatile packed struct {
         _0: u1 = 0,
         UIFREMAP: u1 = 0,
         _1: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -4363,6 +4965,8 @@ pub const TIM2: *volatile packed struct {
         MMS: u3 = 0,
         TI1S: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     SMCR: packed struct {
@@ -4376,6 +4980,8 @@ pub const TIM2: *volatile packed struct {
         ETP: u1 = 0,
         SMS_3: u1 = 0,
         _1: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     DIER: packed struct {
@@ -4395,6 +5001,8 @@ pub const TIM2: *volatile packed struct {
         _2: u1 = 0,
         TDE: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -4411,6 +5019,8 @@ pub const TIM2: *volatile packed struct {
         CC3OF: u1 = 0,
         CC4OF: u1 = 0,
         _2: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     EGR: packed struct {
@@ -4422,6 +5032,8 @@ pub const TIM2: *volatile packed struct {
         _0: u1 = 0,
         TG: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     CCMR1: packed union {
@@ -4440,6 +5052,8 @@ pub const TIM2: *volatile packed struct {
             _0: u7 = 0,
             OC2M_3: u1 = 0,
             _1: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -4450,6 +5064,8 @@ pub const TIM2: *volatile packed struct {
             IC2PCS: u2 = 0,
             IC2F: u4 = 0,
             _0: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -4469,6 +5085,8 @@ pub const TIM2: *volatile packed struct {
             _0: u7 = 0,
             OC4M_3: u1 = 0,
             _1: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -4479,6 +5097,8 @@ pub const TIM2: *volatile packed struct {
             IC4PSC: u2 = 0,
             IC4F: u4 = 0,
             _0: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -4500,21 +5120,29 @@ pub const TIM2: *volatile packed struct {
         _3: u1 = 0,
         CC4NP: u1 = 0,
         _4: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CNT: packed struct {
         CNT_L: u16 = 0,
         CNT_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     PSC: packed struct {
         PSC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ARR: packed struct {
         ARR_L: u16 = 0,
         ARR_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -4522,21 +5150,29 @@ pub const TIM2: *volatile packed struct {
     CCR1: packed struct {
         CCR1_L: u16 = 0,
         CCR1_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR2: packed struct {
         CCR2_L: u16 = 0,
         CCR2_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR3: packed struct {
         CCR3_L: u16 = 0,
         CCR3_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR4: packed struct {
         CCR4_L: u16 = 0,
         CCR4_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u32 = 0,
@@ -4546,17 +5182,23 @@ pub const TIM2: *volatile packed struct {
         _0: u3 = 0,
         DBL: u5 = 0,
         _1: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     DMAR: packed struct {
         DMAB: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OR: packed struct {
         _0: u10 = 0,
         ITR1_RMP: u2 = 0,
         _1: u20 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40000000);
 
@@ -4573,6 +5215,8 @@ pub const TIM3: *volatile packed struct {
         _0: u1 = 0,
         UIFREMAP: u1 = 0,
         _1: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -4581,6 +5225,8 @@ pub const TIM3: *volatile packed struct {
         MMS: u3 = 0,
         TI1S: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     SMCR: packed struct {
@@ -4594,6 +5240,8 @@ pub const TIM3: *volatile packed struct {
         ETP: u1 = 0,
         SMS_3: u1 = 0,
         _1: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     DIER: packed struct {
@@ -4613,6 +5261,8 @@ pub const TIM3: *volatile packed struct {
         _2: u1 = 0,
         TDE: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -4629,6 +5279,8 @@ pub const TIM3: *volatile packed struct {
         CC3OF: u1 = 0,
         CC4OF: u1 = 0,
         _2: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     EGR: packed struct {
@@ -4640,6 +5292,8 @@ pub const TIM3: *volatile packed struct {
         _0: u1 = 0,
         TG: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     CCMR1: packed union {
@@ -4658,6 +5312,8 @@ pub const TIM3: *volatile packed struct {
             _0: u7 = 0,
             OC2M_3: u1 = 0,
             _1: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -4668,6 +5324,8 @@ pub const TIM3: *volatile packed struct {
             IC2PCS: u2 = 0,
             IC2F: u4 = 0,
             _0: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -4687,6 +5345,8 @@ pub const TIM3: *volatile packed struct {
             _0: u7 = 0,
             OC4M_3: u1 = 0,
             _1: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -4697,6 +5357,8 @@ pub const TIM3: *volatile packed struct {
             IC4PSC: u2 = 0,
             IC4F: u4 = 0,
             _0: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -4718,21 +5380,29 @@ pub const TIM3: *volatile packed struct {
         _3: u1 = 0,
         CC4NP: u1 = 0,
         _4: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CNT: packed struct {
         CNT_L: u16 = 0,
         CNT_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     PSC: packed struct {
         PSC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ARR: packed struct {
         ARR_L: u16 = 0,
         ARR_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -4740,21 +5410,29 @@ pub const TIM3: *volatile packed struct {
     CCR1: packed struct {
         CCR1_L: u16 = 0,
         CCR1_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR2: packed struct {
         CCR2_L: u16 = 0,
         CCR2_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR3: packed struct {
         CCR3_L: u16 = 0,
         CCR3_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR4: packed struct {
         CCR4_L: u16 = 0,
         CCR4_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u32 = 0,
@@ -4764,11 +5442,15 @@ pub const TIM3: *volatile packed struct {
         _0: u3 = 0,
         DBL: u5 = 0,
         _1: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     DMAR: packed struct {
         DMAB: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40000400);
 
@@ -4787,6 +5469,8 @@ pub const TIM5: *volatile packed struct {
         _0: u1 = 0,
         UIFREMAP: u1 = 0,
         _1: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -4795,6 +5479,8 @@ pub const TIM5: *volatile packed struct {
         MMS: u3 = 0,
         TI1S: u1 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     SMCR: packed struct {
@@ -4808,6 +5494,8 @@ pub const TIM5: *volatile packed struct {
         ETP: u1 = 0,
         SMS_3: u1 = 0,
         _1: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     DIER: packed struct {
@@ -4827,6 +5515,8 @@ pub const TIM5: *volatile packed struct {
         _2: u1 = 0,
         TDE: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -4843,6 +5533,8 @@ pub const TIM5: *volatile packed struct {
         CC3OF: u1 = 0,
         CC4OF: u1 = 0,
         _2: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     EGR: packed struct {
@@ -4854,6 +5546,8 @@ pub const TIM5: *volatile packed struct {
         _0: u1 = 0,
         TG: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     CCMR1: packed union {
@@ -4872,6 +5566,8 @@ pub const TIM5: *volatile packed struct {
             _0: u7 = 0,
             OC2M_3: u1 = 0,
             _1: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -4882,6 +5578,8 @@ pub const TIM5: *volatile packed struct {
             IC2PCS: u2 = 0,
             IC2F: u4 = 0,
             _0: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -4901,6 +5599,8 @@ pub const TIM5: *volatile packed struct {
             _0: u7 = 0,
             OC4M_3: u1 = 0,
             _1: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -4911,6 +5611,8 @@ pub const TIM5: *volatile packed struct {
             IC4PSC: u2 = 0,
             IC4F: u4 = 0,
             _0: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -4932,21 +5634,29 @@ pub const TIM5: *volatile packed struct {
         _3: u1 = 0,
         CC4NP: u1 = 0,
         _4: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CNT: packed struct {
         CNT_L: u16 = 0,
         CNT_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     PSC: packed struct {
         PSC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ARR: packed struct {
         ARR_L: u16 = 0,
         ARR_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -4954,21 +5664,29 @@ pub const TIM5: *volatile packed struct {
     CCR1: packed struct {
         CCR1_L: u16 = 0,
         CCR1_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR2: packed struct {
         CCR2_L: u16 = 0,
         CCR2_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR3: packed struct {
         CCR3_L: u16 = 0,
         CCR3_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR4: packed struct {
         CCR4_L: u16 = 0,
         CCR4_H: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u32 = 0,
@@ -4978,17 +5696,23 @@ pub const TIM5: *volatile packed struct {
         _0: u3 = 0,
         DBL: u5 = 0,
         _1: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     DMAR: packed struct {
         DMAB: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OR: packed struct {
         _0: u6 = 0,
         TI4_RMP: u2 = 0,
         _1: u24 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40000c00);
 
@@ -5010,6 +5734,8 @@ pub const GPIOH: *volatile packed struct {
         MODER13: u2 = 0,
         MODER14: u2 = 0,
         MODER15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     OTYPER: packed struct {
@@ -5030,6 +5756,8 @@ pub const GPIOH: *volatile packed struct {
         OT14: u1 = 0,
         OT15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OSPEEDR: packed struct {
@@ -5049,6 +5777,8 @@ pub const GPIOH: *volatile packed struct {
         OSPEEDR13: u2 = 0,
         OSPEEDR14: u2 = 0,
         OSPEEDR15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     PUPDR: packed struct {
@@ -5068,6 +5798,8 @@ pub const GPIOH: *volatile packed struct {
         PUPDR13: u2 = 0,
         PUPDR14: u2 = 0,
         PUPDR15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     IDR: packed struct {
@@ -5088,6 +5820,8 @@ pub const GPIOH: *volatile packed struct {
         IDR14: u1 = 0,
         IDR15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ODR: packed struct {
@@ -5108,6 +5842,8 @@ pub const GPIOH: *volatile packed struct {
         ODR14: u1 = 0,
         ODR15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     BSRR: packed struct {
@@ -5143,6 +5879,8 @@ pub const GPIOH: *volatile packed struct {
         BR13: u1 = 0,
         BR14: u1 = 0,
         BR15: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     LCKR: packed struct {
@@ -5164,6 +5902,8 @@ pub const GPIOH: *volatile packed struct {
         LCK15: u1 = 0,
         LCKK: u1 = 0,
         _0: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     AFRL: packed struct {
@@ -5175,6 +5915,8 @@ pub const GPIOH: *volatile packed struct {
         AFRL5: u4 = 0,
         AFRL6: u4 = 0,
         AFRL7: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     AFRH: packed struct {
@@ -5186,6 +5928,8 @@ pub const GPIOH: *volatile packed struct {
         AFRH13: u4 = 0,
         AFRH14: u4 = 0,
         AFRH15: u4 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40021c00);
 
@@ -5219,6 +5963,8 @@ pub const GPIOB: *volatile packed struct {
         MODER13: u2 = 0,
         MODER14: u2 = 0,
         MODER15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     OTYPER: packed struct {
@@ -5239,6 +5985,8 @@ pub const GPIOB: *volatile packed struct {
         OT14: u1 = 0,
         OT15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OSPEEDR: packed struct {
@@ -5258,6 +6006,8 @@ pub const GPIOB: *volatile packed struct {
         OSPEEDR13: u2 = 0,
         OSPEEDR14: u2 = 0,
         OSPEEDR15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     PUPDR: packed struct {
@@ -5277,6 +6027,8 @@ pub const GPIOB: *volatile packed struct {
         PUPDR13: u2 = 0,
         PUPDR14: u2 = 0,
         PUPDR15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     IDR: packed struct {
@@ -5297,6 +6049,8 @@ pub const GPIOB: *volatile packed struct {
         IDR14: u1 = 0,
         IDR15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ODR: packed struct {
@@ -5317,6 +6071,8 @@ pub const GPIOB: *volatile packed struct {
         ODR14: u1 = 0,
         ODR15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     BSRR: packed struct {
@@ -5352,6 +6108,8 @@ pub const GPIOB: *volatile packed struct {
         BR13: u1 = 0,
         BR14: u1 = 0,
         BR15: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     LCKR: packed struct {
@@ -5373,6 +6131,8 @@ pub const GPIOB: *volatile packed struct {
         LCK15: u1 = 0,
         LCKK: u1 = 0,
         _0: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     AFRL: packed struct {
@@ -5384,6 +6144,8 @@ pub const GPIOB: *volatile packed struct {
         AFRL5: u4 = 0,
         AFRL6: u4 = 0,
         AFRL7: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     AFRH: packed struct {
@@ -5395,6 +6157,8 @@ pub const GPIOB: *volatile packed struct {
         AFRH13: u4 = 0,
         AFRH14: u4 = 0,
         AFRH15: u4 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40020400);
 
@@ -5416,6 +6180,8 @@ pub const GPIOA: *volatile packed struct {
         MODER13: u2 = 0,
         MODER14: u2 = 0,
         MODER15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     OTYPER: packed struct {
@@ -5436,6 +6202,8 @@ pub const GPIOA: *volatile packed struct {
         OT14: u1 = 0,
         OT15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OSPEEDR: packed struct {
@@ -5455,6 +6223,8 @@ pub const GPIOA: *volatile packed struct {
         OSPEEDR13: u2 = 0,
         OSPEEDR14: u2 = 0,
         OSPEEDR15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     PUPDR: packed struct {
@@ -5474,6 +6244,8 @@ pub const GPIOA: *volatile packed struct {
         PUPDR13: u2 = 0,
         PUPDR14: u2 = 0,
         PUPDR15: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     IDR: packed struct {
@@ -5494,6 +6266,8 @@ pub const GPIOA: *volatile packed struct {
         IDR14: u1 = 0,
         IDR15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ODR: packed struct {
@@ -5514,6 +6288,8 @@ pub const GPIOA: *volatile packed struct {
         ODR14: u1 = 0,
         ODR15: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     BSRR: packed struct {
@@ -5549,6 +6325,8 @@ pub const GPIOA: *volatile packed struct {
         BR13: u1 = 0,
         BR14: u1 = 0,
         BR15: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     LCKR: packed struct {
@@ -5570,6 +6348,8 @@ pub const GPIOA: *volatile packed struct {
         LCK15: u1 = 0,
         LCKK: u1 = 0,
         _0: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     AFRL: packed struct {
@@ -5581,6 +6361,8 @@ pub const GPIOA: *volatile packed struct {
         AFRL5: u4 = 0,
         AFRL6: u4 = 0,
         AFRL7: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     AFRH: packed struct {
@@ -5592,6 +6374,8 @@ pub const GPIOA: *volatile packed struct {
         AFRH13: u4 = 0,
         AFRH14: u4 = 0,
         AFRH15: u4 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40020000);
 
@@ -5605,18 +6389,24 @@ pub const TIM13: *volatile packed struct {
         ARPE: u1 = 0,
         CKD: u2 = 0,
         _1: u22 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
 
     SMCR: packed struct {
         Res: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     DIER: packed struct {
         UIE: u1 = 0,
         CC1IE: u1 = 0,
         _0: u30 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -5625,12 +6415,16 @@ pub const TIM13: *volatile packed struct {
         _0: u7 = 0,
         CC1OF: u1 = 0,
         _1: u22 = 0,
+
+        pub const set = set_masked;
     },
 
     EGR: packed struct {
         UG: u1 = 0,
         CC1G: u1 = 0,
         _0: u30 = 0,
+
+        pub const set = set_masked;
     },
 
     CCMR1: packed union {
@@ -5642,6 +6436,8 @@ pub const TIM13: *volatile packed struct {
             _0: u9 = 0,
             OC1M_3: u1 = 0,
             _1: u15 = 0,
+
+            pub const set = set_masked;
         },
 
         Input: packed struct {
@@ -5649,6 +6445,8 @@ pub const TIM13: *volatile packed struct {
             ICPCS: u2 = 0,
             IC1F: u4 = 0,
             _0: u24 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -5660,21 +6458,29 @@ pub const TIM13: *volatile packed struct {
         _0: u1 = 0,
         CC1NP: u1 = 0,
         _1: u28 = 0,
+
+        pub const set = set_masked;
     },
 
     CNT: packed struct {
         CNT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     PSC: packed struct {
         PSC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ARR: packed struct {
         ARR: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u32 = 0,
@@ -5682,6 +6488,8 @@ pub const TIM13: *volatile packed struct {
     CCR1: packed struct {
         CCR1: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _3: u192 = 0,
@@ -5689,6 +6497,8 @@ pub const TIM13: *volatile packed struct {
     OR: packed struct {
         TI1_RMP: u2 = 0,
         _0: u30 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40001c00);
 
@@ -5702,16 +6512,22 @@ pub const IWDG: *volatile packed struct {
     KR: packed struct {
         KEY: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     PR: packed struct {
         PR: u3 = 0,
         _0: u29 = 0,
+
+        pub const set = set_masked;
     },
 
     RLR: packed struct {
         RL: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -5719,11 +6535,15 @@ pub const IWDG: *volatile packed struct {
         RVU: u1 = 0,
         WVU: u1 = 0,
         _0: u29 = 0,
+
+        pub const set = set_masked;
     },
 
     WINR: packed struct {
         WIN: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40003000);
 
@@ -5751,6 +6571,8 @@ pub const I2C1: *volatile packed struct {
         ALERTEN: u1 = 0,
         PECEN: u1 = 0,
         _2: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -5766,6 +6588,8 @@ pub const I2C1: *volatile packed struct {
         AUTOEND: u1 = 0,
         PECBYTE: u1 = 0,
         _0: u5 = 0,
+
+        pub const set = set_masked;
     },
 
     OAR1: packed struct {
@@ -5774,6 +6598,8 @@ pub const I2C1: *volatile packed struct {
         _0: u4 = 0,
         OA1EN: u1 = 0,
         _1: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OAR2: packed struct {
@@ -5783,6 +6609,8 @@ pub const I2C1: *volatile packed struct {
         _1: u4 = 0,
         OA2EN: u1 = 0,
         _2: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     TIMINGR: packed struct {
@@ -5792,6 +6620,8 @@ pub const I2C1: *volatile packed struct {
         SCLDEL: u4 = 0,
         _0: u4 = 0,
         PRESC: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     TIMEOUTR: packed struct {
@@ -5802,6 +6632,8 @@ pub const I2C1: *volatile packed struct {
         TIMEOUTB: u12 = 0,
         _1: u3 = 0,
         TEXTEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     ISR: packed struct {
@@ -5824,6 +6656,8 @@ pub const I2C1: *volatile packed struct {
         DIR: u1 = 0,
         ADDCODE: u7 = 0,
         _1: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     ICR: packed struct {
@@ -5839,21 +6673,29 @@ pub const I2C1: *volatile packed struct {
         TIMOUTCF: u1 = 0,
         ALERTCF: u1 = 0,
         _2: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     PECR: packed struct {
         PEC: u8 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     RXDR: packed struct {
         RXDATA: u8 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     TXDR: packed struct {
         TXDATA: u8 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40005400);
 
@@ -5871,6 +6713,8 @@ pub const LPTIM1: *volatile packed struct {
         UP: u1 = 0,
         DOWN: u1 = 0,
         _0: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     ICR: packed struct {
@@ -5882,6 +6726,8 @@ pub const LPTIM1: *volatile packed struct {
         UPCF: u1 = 0,
         DOWNCF: u1 = 0,
         _0: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     IER: packed struct {
@@ -5893,6 +6739,8 @@ pub const LPTIM1: *volatile packed struct {
         UPIE: u1 = 0,
         DOWNIE: u1 = 0,
         _0: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     CFGR: packed struct {
@@ -5914,6 +6762,8 @@ pub const LPTIM1: *volatile packed struct {
         COUNTMODE: u1 = 0,
         ENC: u1 = 0,
         _4: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     CR: packed struct {
@@ -5921,21 +6771,29 @@ pub const LPTIM1: *volatile packed struct {
         SNGSTRT: u1 = 0,
         CNTSTRT: u1 = 0,
         _0: u29 = 0,
+
+        pub const set = set_masked;
     },
 
     CMP: packed struct {
         CMP: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     ARR: packed struct {
         ARR: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CNT: packed struct {
         CNT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40002400);
 
@@ -5958,6 +6816,8 @@ pub const PWR: *volatile packed struct {
         ODSWEN: u1 = 0,
         UDEN: u2 = 0,
         _2: u12 = 0,
+
+        pub const set = set_masked;
     },
 
     CSR1: packed struct {
@@ -5975,6 +6835,8 @@ pub const PWR: *volatile packed struct {
         ODSWRDY: u1 = 0,
         UDRDY: u2 = 0,
         _3: u12 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -5992,6 +6854,8 @@ pub const PWR: *volatile packed struct {
         WUPP5: u1 = 0,
         WUPP6: u1 = 0,
         _1: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     CSR2: packed struct {
@@ -6009,6 +6873,8 @@ pub const PWR: *volatile packed struct {
         EWUP5: u1 = 0,
         EWUP6: u1 = 0,
         _1: u18 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40007000);
 
@@ -6033,6 +6899,8 @@ pub const QUADSPI: *volatile packed struct {
         APMS: u1 = 0,
         PMM: u1 = 0,
         PRESCALER: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     DCR: packed struct {
@@ -6042,6 +6910,8 @@ pub const QUADSPI: *volatile packed struct {
         _1: u5 = 0,
         FSIZE: u5 = 0,
         _2: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -6054,6 +6924,8 @@ pub const QUADSPI: *volatile packed struct {
         _0: u2 = 0,
         FLEVEL: u7 = 0,
         _1: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     FCR: packed struct {
@@ -6063,10 +6935,14 @@ pub const QUADSPI: *volatile packed struct {
         CSMF: u1 = 0,
         CTOF: u1 = 0,
         _1: u27 = 0,
+
+        pub const set = set_masked;
     },
 
     DLR: packed struct {
         DL: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     CCR: packed struct {
@@ -6084,36 +6960,52 @@ pub const QUADSPI: *volatile packed struct {
         _1: u1 = 0,
         DHHC: u1 = 0,
         DDRM: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     AR: packed struct {
         ADDRESS: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     ABR: packed struct {
         ALTERNATE: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     DR: packed struct {
         DATA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     PSMKR: packed struct {
         MASK: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     PSMAR: packed struct {
         MATCH: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     PIR: packed struct {
         INTERVAL: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     LPTR: packed struct {
         TIMEOUT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0xa0001000);
 
@@ -6123,6 +7015,8 @@ pub const RNG: *volatile packed struct {
         RNGEN: u1 = 0,
         IE: u1 = 0,
         _1: u28 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -6133,10 +7027,14 @@ pub const RNG: *volatile packed struct {
         CEIS: u1 = 0,
         SEIS: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     DR: packed struct {
         RNDATA: u32 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x50060800);
 
@@ -6152,6 +7050,8 @@ pub const RTC: *volatile packed struct {
         HT: u2 = 0,
         PM: u1 = 0,
         _2: u9 = 0,
+
+        pub const set = set_masked;
     },
 
     DR: packed struct {
@@ -6164,6 +7064,8 @@ pub const RTC: *volatile packed struct {
         YU: u4 = 0,
         YT: u4 = 0,
         _1: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     CR: packed struct {
@@ -6190,6 +7092,8 @@ pub const RTC: *volatile packed struct {
         COE: u1 = 0,
         ITSE: u1 = 0,
         _1: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     ISR: packed struct {
@@ -6212,6 +7116,8 @@ pub const RTC: *volatile packed struct {
         RECALPF: u1 = 0,
         ITSF: u1 = 0,
         _0: u14 = 0,
+
+        pub const set = set_masked;
     },
 
     PRER: packed struct {
@@ -6219,11 +7125,15 @@ pub const RTC: *volatile packed struct {
         _0: u1 = 0,
         PREDIV_A: u7 = 0,
         _1: u9 = 0,
+
+        pub const set = set_masked;
     },
 
     WUTR: packed struct {
         WUT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -6243,6 +7153,8 @@ pub const RTC: *volatile packed struct {
         DT: u2 = 0,
         WDSEL: u1 = 0,
         MSK4: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     ALRMBR: packed struct {
@@ -6260,22 +7172,30 @@ pub const RTC: *volatile packed struct {
         DT: u2 = 0,
         WDSEL: u1 = 0,
         MSK4: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     WPR: packed struct {
         KEY: u8 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     SSR: packed struct {
         SS: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     SHIFTR: packed struct {
         SUBFS: u15 = 0,
         _0: u16 = 0,
         ADD1S: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     TSTR: packed struct {
@@ -6289,6 +7209,8 @@ pub const RTC: *volatile packed struct {
         HT: u2 = 0,
         PM: u1 = 0,
         _2: u9 = 0,
+
+        pub const set = set_masked;
     },
 
     TSDR: packed struct {
@@ -6299,11 +7221,15 @@ pub const RTC: *volatile packed struct {
         MT: u1 = 0,
         WDU: u3 = 0,
         _1: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     TSSSR: packed struct {
         SS: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CALR: packed struct {
@@ -6313,6 +7239,8 @@ pub const RTC: *volatile packed struct {
         CALW8: u1 = 0,
         CALP: u1 = 0,
         _1: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     TAMPCR: packed struct {
@@ -6338,6 +7266,8 @@ pub const RTC: *volatile packed struct {
         TAMP3NOERASE: u1 = 0,
         TAMP3MF: u1 = 0,
         _0: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     ALRMASSR: packed struct {
@@ -6345,6 +7275,8 @@ pub const RTC: *volatile packed struct {
         _0: u9 = 0,
         MASKSS: u4 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     ALRMBSSR: packed struct {
@@ -6352,6 +7284,8 @@ pub const RTC: *volatile packed struct {
         _0: u9 = 0,
         MASKSS: u4 = 0,
         _1: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     OR: packed struct {
@@ -6360,134 +7294,200 @@ pub const RTC: *volatile packed struct {
         _1: u1 = 0,
         RTC_ALARM_TYPE: u1 = 0,
         _2: u28 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP0R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP1R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP2R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP3R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP4R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP5R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP6R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP7R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP8R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP9R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP10R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP11R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP12R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP13R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP14R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP15R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP16R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP17R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP18R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP19R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP20R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP21R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP22R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP23R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP24R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP25R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP26R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP27R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP28R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP29R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP30R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BKP31R: packed struct {
         BKP: u32 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40002800);
 
@@ -6510,6 +7510,8 @@ pub const RCC: *volatile packed struct {
         PLLSAION: u1 = 0,
         PLLSAIRDY: u1 = 0,
         _2: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     PLLCFGR: packed struct {
@@ -6522,6 +7524,8 @@ pub const RCC: *volatile packed struct {
         _2: u1 = 0,
         PLLQ: u4 = 0,
         _3: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     CFGR: packed struct {
@@ -6537,6 +7541,8 @@ pub const RCC: *volatile packed struct {
         MCO1PRE: u3 = 0,
         MCO2PRE: u3 = 0,
         MCO2: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     CIR: packed struct {
@@ -6565,6 +7571,8 @@ pub const RCC: *volatile packed struct {
         PLLSAIRDYC: u1 = 0,
         CSSC: u1 = 0,
         _1: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     AHB1RSTR: packed struct {
@@ -6585,6 +7593,8 @@ pub const RCC: *volatile packed struct {
         _2: u6 = 0,
         OTGHSRST: u1 = 0,
         _3: u2 = 0,
+
+        pub const set = set_masked;
     },
 
     AHB2RSTR: packed struct {
@@ -6594,12 +7604,16 @@ pub const RCC: *volatile packed struct {
         RNGRST: u1 = 0,
         OTGFSRST: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     AHB3RSTR: packed struct {
         FMCRST: u1 = 0,
         QSPIRST: u1 = 0,
         _0: u30 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -6636,6 +7650,8 @@ pub const RCC: *volatile packed struct {
         DACRST: u1 = 0,
         UART7RST: u1 = 0,
         UART8RST: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     APB2RSTR: packed struct {
@@ -6663,6 +7679,8 @@ pub const RCC: *volatile packed struct {
         SAI2RST: u1 = 0,
         _6: u7 = 0,
         USBPHYCRST: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u64 = 0,
@@ -6689,6 +7707,8 @@ pub const RCC: *volatile packed struct {
         OTGHSEN: u1 = 0,
         OTGHSULPIEN: u1 = 0,
         _4: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     AHB2ENR: packed struct {
@@ -6698,12 +7718,16 @@ pub const RCC: *volatile packed struct {
         RNGEN: u1 = 0,
         OTGFSEN: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     AHB3ENR: packed struct {
         FMCEN: u1 = 0,
         QSPIEN: u1 = 0,
         _0: u30 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u32 = 0,
@@ -6739,6 +7763,8 @@ pub const RCC: *volatile packed struct {
         DACEN: u1 = 0,
         UART7EN: u1 = 0,
         UART8EN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     APB2ENR: packed struct {
@@ -6767,6 +7793,8 @@ pub const RCC: *volatile packed struct {
         SAI2EN: u1 = 0,
         _5: u7 = 0,
         USBPHYCEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _3: u64 = 0,
@@ -6804,6 +7832,8 @@ pub const RCC: *volatile packed struct {
         OTGHSLPEN: u1 = 0,
         OTGHSULPILPEN: u1 = 0,
         _3: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     AHB2LPENR: packed struct {
@@ -6813,12 +7843,16 @@ pub const RCC: *volatile packed struct {
         RNGLPEN: u1 = 0,
         OTGFSLPEN: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     AHB3LPENR: packed struct {
         FMCLPEN: u1 = 0,
         QSPILPEN: u1 = 0,
         _0: u30 = 0,
+
+        pub const set = set_masked;
     },
 
     _4: u32 = 0,
@@ -6855,6 +7889,8 @@ pub const RCC: *volatile packed struct {
         DACLPEN: u1 = 0,
         UART7LPEN: u1 = 0,
         UART8LPEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     APB2LPENR: packed struct {
@@ -6882,6 +7918,8 @@ pub const RCC: *volatile packed struct {
         SAI1LPEN: u1 = 0,
         SAI2LPEN: u1 = 0,
         _5: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     _5: u64 = 0,
@@ -6897,6 +7935,8 @@ pub const RCC: *volatile packed struct {
         RTCEN: u1 = 0,
         BDRST: u1 = 0,
         _2: u15 = 0,
+
+        pub const set = set_masked;
     },
 
     CSR: packed struct {
@@ -6911,6 +7951,8 @@ pub const RCC: *volatile packed struct {
         WDGRSTF: u1 = 0,
         WWDGRSTF: u1 = 0,
         LPWRRSTF: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _6: u64 = 0,
@@ -6921,6 +7963,8 @@ pub const RCC: *volatile packed struct {
         _0: u2 = 0,
         SPREADSEL: u1 = 0,
         SSCGEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     PLLI2SCFGR: packed struct {
@@ -6930,6 +7974,8 @@ pub const RCC: *volatile packed struct {
         PLLI2SQ: u4 = 0,
         PLLI2SR: u3 = 0,
         _2: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     PLLSAICFGR: packed struct {
@@ -6940,6 +7986,8 @@ pub const RCC: *volatile packed struct {
         _2: u6 = 0,
         PLLSAIQ: u4 = 0,
         _3: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     DCKCFGR1: packed struct {
@@ -6951,6 +7999,8 @@ pub const RCC: *volatile packed struct {
         SAI2SEL: u2 = 0,
         TIMPRE: u1 = 0,
         _2: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     DCKCFGR2: packed struct {
@@ -6972,6 +8022,8 @@ pub const RCC: *volatile packed struct {
         SDMMC1SEL: u1 = 0,
         SDMMC2SEL: u1 = 0,
         _2: u2 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40023800);
 
@@ -6979,6 +8031,8 @@ pub const SDMMC1: *volatile packed struct {
     POWER: packed struct {
         PWRCTRL: u2 = 0,
         _0: u30 = 0,
+
+        pub const set = set_masked;
     },
 
     CLKCR: packed struct {
@@ -6990,10 +8044,14 @@ pub const SDMMC1: *volatile packed struct {
         NEGEDGE: u1 = 0,
         HWFC_EN: u1 = 0,
         _0: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     ARG: packed struct {
         CMDARG: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     CMD: packed struct {
@@ -7004,36 +8062,52 @@ pub const SDMMC1: *volatile packed struct {
         CPSMEN: u1 = 0,
         SDIOSuspend: u1 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     RESPCMD: packed struct {
         RESPCMD: u6 = 0,
         _0: u26 = 0,
+
+        pub const set = set_masked;
     },
 
     RESP1: packed struct {
         CARDSTATUS1: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     RESP2: packed struct {
         CARDSTATUS2: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     RESP3: packed struct {
         CARDSTATUS3: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     RESP4: packed struct {
         CARDSTATUS4: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     DTIMER: packed struct {
         DATATIME: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     DLEN: packed struct {
         DATALENGTH: u25 = 0,
         _0: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     DCTRL: packed struct {
@@ -7047,11 +8121,15 @@ pub const SDMMC1: *volatile packed struct {
         RWMOD: u1 = 0,
         SDIOEN: u1 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     DCOUNT: packed struct {
         DATACOUNT: u25 = 0,
         _0: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     STA: packed struct {
@@ -7079,6 +8157,8 @@ pub const SDMMC1: *volatile packed struct {
         RXDAVL: u1 = 0,
         SDIOIT: u1 = 0,
         _1: u9 = 0,
+
+        pub const set = set_masked;
     },
 
     ICR: packed struct {
@@ -7096,6 +8176,8 @@ pub const SDMMC1: *volatile packed struct {
         _1: u11 = 0,
         SDIOITC: u1 = 0,
         _2: u9 = 0,
+
+        pub const set = set_masked;
     },
 
     MASK: packed struct {
@@ -7123,6 +8205,8 @@ pub const SDMMC1: *volatile packed struct {
         RXDAVLIE: u1 = 0,
         SDIOITIE: u1 = 0,
         _1: u9 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u64 = 0,
@@ -7130,12 +8214,16 @@ pub const SDMMC1: *volatile packed struct {
     FIFOCNT: packed struct {
         FIFOCOUNT: u24 = 0,
         _0: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u416 = 0,
 
     FIFO: packed struct {
         FIFOData: u32 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40012c00);
 
@@ -7147,6 +8235,8 @@ pub const SAI1: *volatile packed struct {
         _0: u2 = 0,
         SYNCOUT: u2 = 0,
         _1: u26 = 0,
+
+        pub const set = set_masked;
     },
 
     ACR1: packed struct {
@@ -7166,6 +8256,8 @@ pub const SAI1: *volatile packed struct {
         NODIV: u1 = 0,
         MCKDIV: u4 = 0,
         _3: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     ACR2: packed struct {
@@ -7178,6 +8270,8 @@ pub const SAI1: *volatile packed struct {
         CPL: u1 = 0,
         COMP: u2 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     AFRCR: packed struct {
@@ -7188,6 +8282,8 @@ pub const SAI1: *volatile packed struct {
         FSPOL: u1 = 0,
         FSOFF: u1 = 0,
         _1: u13 = 0,
+
+        pub const set = set_masked;
     },
 
     ASLOTR: packed struct {
@@ -7197,6 +8293,8 @@ pub const SAI1: *volatile packed struct {
         NBSLOT: u4 = 0,
         _1: u4 = 0,
         SLOTEN: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     AIM: packed struct {
@@ -7208,6 +8306,8 @@ pub const SAI1: *volatile packed struct {
         AFSDETIE: u1 = 0,
         LFSDETIE: u1 = 0,
         _0: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     ASR: packed struct {
@@ -7221,6 +8321,8 @@ pub const SAI1: *volatile packed struct {
         _0: u9 = 0,
         FLVL: u3 = 0,
         _1: u13 = 0,
+
+        pub const set = set_masked;
     },
 
     ACLRFR: packed struct {
@@ -7232,10 +8334,14 @@ pub const SAI1: *volatile packed struct {
         CAFSDET: u1 = 0,
         CLFSDET: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     ADR: packed struct {
         DATA: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     BCR1: packed struct {
@@ -7255,6 +8361,8 @@ pub const SAI1: *volatile packed struct {
         NODIV: u1 = 0,
         MCKDIV: u4 = 0,
         _3: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     BCR2: packed struct {
@@ -7267,6 +8375,8 @@ pub const SAI1: *volatile packed struct {
         CPL: u1 = 0,
         COMP: u2 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     BFRCR: packed struct {
@@ -7277,6 +8387,8 @@ pub const SAI1: *volatile packed struct {
         FSPOL: u1 = 0,
         FSOFF: u1 = 0,
         _1: u13 = 0,
+
+        pub const set = set_masked;
     },
 
     BSLOTR: packed struct {
@@ -7286,6 +8398,8 @@ pub const SAI1: *volatile packed struct {
         NBSLOT: u4 = 0,
         _1: u4 = 0,
         SLOTEN: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     BIM: packed struct {
@@ -7297,6 +8411,8 @@ pub const SAI1: *volatile packed struct {
         AFSDETIE: u1 = 0,
         LFSDETIE: u1 = 0,
         _0: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     BSR: packed struct {
@@ -7310,6 +8426,8 @@ pub const SAI1: *volatile packed struct {
         _0: u9 = 0,
         FLVL: u3 = 0,
         _1: u13 = 0,
+
+        pub const set = set_masked;
     },
 
     BCLRFR: packed struct {
@@ -7321,10 +8439,14 @@ pub const SAI1: *volatile packed struct {
         CAFSDET: u1 = 0,
         CLFSDET: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     BDR: packed struct {
         DATA: u32 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40015800);
 
@@ -7347,6 +8469,8 @@ pub const SPI5: *volatile packed struct {
         BIDIOE: u1 = 0,
         BIDIMODE: u1 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -7363,6 +8487,8 @@ pub const SPI5: *volatile packed struct {
         LDMA_RX: u1 = 0,
         LDMA_TX: u1 = 0,
         _0: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
@@ -7378,26 +8504,36 @@ pub const SPI5: *volatile packed struct {
         FRLVL: u2 = 0,
         FTLVL: u2 = 0,
         _0: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     DR: packed struct {
         DR: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     CRCPR: packed struct {
         CRCPOLY: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     RXCRCR: packed struct {
         RxCRC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     TXCRCR: packed struct {
         TxCRC: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     I2SCFGR: packed struct {
@@ -7412,6 +8548,8 @@ pub const SPI5: *volatile packed struct {
         I2SMOD: u1 = 0,
         ASTRTEN: u1 = 0,
         _1: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     I2SPR: packed struct {
@@ -7419,6 +8557,8 @@ pub const SPI5: *volatile packed struct {
         ODD: u1 = 0,
         MCKOE: u1 = 0,
         _0: u22 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40015000);
 
@@ -7436,6 +8576,8 @@ pub const SYSCFG: *volatile packed struct {
         _0: u9 = 0,
         SWP_FMC: u2 = 0,
         _1: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     PMC: packed struct {
@@ -7450,6 +8592,8 @@ pub const SYSCFG: *volatile packed struct {
         _1: u8 = 0,
         ADCDC2: u3 = 0,
         _2: u13 = 0,
+
+        pub const set = set_masked;
     },
 
     EXTICR1: packed struct {
@@ -7458,6 +8602,8 @@ pub const SYSCFG: *volatile packed struct {
         EXTI2: u4 = 0,
         EXTI3: u4 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     EXTICR2: packed struct {
@@ -7466,6 +8612,8 @@ pub const SYSCFG: *volatile packed struct {
         EXTI6: u4 = 0,
         EXTI7: u4 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     EXTICR3: packed struct {
@@ -7474,6 +8622,8 @@ pub const SYSCFG: *volatile packed struct {
         EXTI10: u4 = 0,
         EXTI11: u4 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     EXTICR4: packed struct {
@@ -7482,6 +8632,8 @@ pub const SYSCFG: *volatile packed struct {
         EXTI14: u4 = 0,
         EXTI15: u4 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u64 = 0,
@@ -7491,6 +8643,8 @@ pub const SYSCFG: *volatile packed struct {
         _0: u7 = 0,
         READY: u1 = 0,
         _1: u23 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40013800);
 
@@ -7526,6 +8680,8 @@ pub const USART3: *volatile packed struct {
         EOBIE: u1 = 0,
         M1: u1 = 0,
         _1: u3 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -7551,6 +8707,8 @@ pub const USART3: *volatile packed struct {
         RTOEN: u1 = 0,
         ADD0_3: u4 = 0,
         ADD4_7: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     CR3: packed struct {
@@ -7575,22 +8733,30 @@ pub const USART3: *volatile packed struct {
         _1: u4 = 0,
         TCBGTIE: u1 = 0,
         _2: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     BRR: packed struct {
         BRR: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     GTPR: packed struct {
         PSC: u8 = 0,
         GT: u8 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     RTOR: packed struct {
         RTO: u24 = 0,
         BLEN: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     RQR: packed struct {
@@ -7600,6 +8766,8 @@ pub const USART3: *volatile packed struct {
         RXFRQ: u1 = 0,
         TXFRQ: u1 = 0,
         _0: u27 = 0,
+
+        pub const set = set_masked;
     },
 
     ISR: packed struct {
@@ -7627,6 +8795,8 @@ pub const USART3: *volatile packed struct {
         _2: u3 = 0,
         TCBGT: u1 = 0,
         _3: u6 = 0,
+
+        pub const set = set_masked;
     },
 
     ICR: packed struct {
@@ -7646,16 +8816,22 @@ pub const USART3: *volatile packed struct {
         _2: u4 = 0,
         CMCF: u1 = 0,
         _3: u14 = 0,
+
+        pub const set = set_masked;
     },
 
     RDR: packed struct {
         RDR: u9 = 0,
         _0: u23 = 0,
+
+        pub const set = set_masked;
     },
 
     TDR: packed struct {
         TDR: u9 = 0,
         _0: u23 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40004800);
 
@@ -7703,6 +8879,8 @@ pub const USART1: *volatile packed struct {
         EOBIE: u1 = 0,
         M1: u1 = 0,
         _1: u3 = 0,
+
+        pub const set = set_masked;
     },
 
     CR2: packed struct {
@@ -7728,6 +8906,8 @@ pub const USART1: *volatile packed struct {
         RTOEN: u1 = 0,
         ADD0_3: u4 = 0,
         ADD4_7: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     CR3: packed struct {
@@ -7752,22 +8932,30 @@ pub const USART1: *volatile packed struct {
         _1: u4 = 0,
         TCBGTIE: u1 = 0,
         _2: u7 = 0,
+
+        pub const set = set_masked;
     },
 
     BRR: packed struct {
         BRR: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     GTPR: packed struct {
         PSC: u8 = 0,
         GT: u8 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     RTOR: packed struct {
         RTO: u24 = 0,
         BLEN: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     RQR: packed struct {
@@ -7777,6 +8965,8 @@ pub const USART1: *volatile packed struct {
         RXFRQ: u1 = 0,
         TXFRQ: u1 = 0,
         _0: u27 = 0,
+
+        pub const set = set_masked;
     },
 
     ISR: packed struct {
@@ -7804,6 +8994,8 @@ pub const USART1: *volatile packed struct {
         _2: u3 = 0,
         TCBGT: u1 = 0,
         _3: u6 = 0,
+
+        pub const set = set_masked;
     },
 
     ICR: packed struct {
@@ -7823,16 +9015,22 @@ pub const USART1: *volatile packed struct {
         _2: u4 = 0,
         CMCF: u1 = 0,
         _3: u14 = 0,
+
+        pub const set = set_masked;
     },
 
     RDR: packed struct {
         RDR: u9 = 0,
         _0: u23 = 0,
+
+        pub const set = set_masked;
     },
 
     TDR: packed struct {
         TDR: u9 = 0,
         _0: u23 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40011000);
 
@@ -7858,6 +9056,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         BSVLD: u1 = 0,
         OTGVER: u1 = 0,
         _1: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_GOTGINT: packed struct {
@@ -7872,6 +9072,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         DBCDNE: u1 = 0,
         IDCHNG: u1 = 0,
         _3: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_GAHBCFG: packed struct {
@@ -7880,6 +9082,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         TXFELVL: u1 = 0,
         PTXFELVL: u1 = 0,
         _1: u23 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_GUSBCFG: packed struct {
@@ -7894,6 +9098,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         FHMOD: u1 = 0,
         FDMOD: u1 = 0,
         _3: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_GRSTCTL: packed struct {
@@ -7906,6 +9112,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         TXFNUM: u5 = 0,
         _1: u20 = 0,
         AHBIDL: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_GINTSTS: packed struct {
@@ -7939,6 +9147,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         DISCINT: u1 = 0,
         SRQINT: u1 = 0,
         WKUPINT: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_GINTMSK: packed struct {
@@ -7972,6 +9182,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         DISCINT: u1 = 0,
         SRQIM: u1 = 0,
         WUIM: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_GRXSTSR: packed union {
@@ -7982,6 +9194,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
             PKTSTS: u4 = 0,
             FRMNUM: u4 = 0,
             _0: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Host: packed struct {
@@ -7990,6 +9204,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
             DPID: u2 = 0,
             PKTSTS: u4 = 0,
             _0: u11 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -8001,6 +9217,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
             PKTSTS: u4 = 0,
             FRMNUM: u4 = 0,
             _0: u7 = 0,
+
+            pub const set = set_masked;
         },
 
         Host: packed struct {
@@ -8009,23 +9227,31 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
             DPID: u2 = 0,
             PKTSTS: u4 = 0,
             _0: u11 = 0,
+
+            pub const set = set_masked;
         },
     },
 
     OTG_FS_GRXFSIZ: packed struct {
         RXFD: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS: packed union {
         DIEPTXF0_Device: packed struct {
             TX0FSA: u16 = 0,
             TX0FD: u16 = 0,
+
+            pub const set = set_masked;
         },
 
         HNPTXFSIZ_Host: packed struct {
             NPTXFSA: u16 = 0,
             NPTXFD: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -8034,6 +9260,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         NPTQXSAV: u8 = 0,
         NPTXQTOP: u7 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_GI2CCTL: packed struct {
@@ -8048,6 +9276,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         _1: u1 = 0,
         RW: u1 = 0,
         BSYDNE: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -8065,10 +9295,14 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         SDEN: u1 = 0,
         VBDEN: u1 = 0,
         _1: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_CID: packed struct {
         PRODUCT_ID: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u160 = 0,
@@ -8090,6 +9324,8 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
         LPMRCNTSTS: u3 = 0,
         ENBESL: u1 = 0,
         _0: u3 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u1344 = 0,
@@ -8097,31 +9333,43 @@ pub const OTG_FS_GLOBAL: *volatile packed struct {
     OTG_FS_HPTXFSIZ: packed struct {
         PTXSA: u16 = 0,
         PTXFSIZ: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DIEPTXF1: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DIEPTXF2: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DIEPTXF3: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DIEPTXF4: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DIEPTXF5: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x50000000);
 
@@ -8130,16 +9378,22 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FSLSPCS: u2 = 0,
         FSLSS: u1 = 0,
         _0: u29 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HFIR: packed struct {
         FRIVL: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HFNUM: packed struct {
         FRNUM: u16 = 0,
         FTREM: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -8148,16 +9402,22 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PTXFSAVL: u16 = 0,
         PTXQSAV: u8 = 0,
         PTXQTOP: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HAINT: packed struct {
         HAINT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HAINTMSK: packed struct {
         HAINTM: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u288 = 0,
@@ -8178,6 +9438,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PTCTL: u4 = 0,
         PSPD: u2 = 0,
         _1: u13 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u1504 = 0,
@@ -8194,6 +9456,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _3: u32 = 0,
@@ -8211,6 +9475,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK0: packed struct {
@@ -8226,6 +9492,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ0: packed struct {
@@ -8233,6 +9501,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _4: u96 = 0,
@@ -8249,6 +9519,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _5: u32 = 0,
@@ -8266,6 +9538,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK1: packed struct {
@@ -8281,6 +9555,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ1: packed struct {
@@ -8288,6 +9564,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _6: u96 = 0,
@@ -8304,6 +9582,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _7: u32 = 0,
@@ -8321,6 +9601,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK2: packed struct {
@@ -8336,6 +9618,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ2: packed struct {
@@ -8343,6 +9627,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _8: u96 = 0,
@@ -8359,6 +9645,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _9: u32 = 0,
@@ -8376,6 +9664,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK3: packed struct {
@@ -8391,6 +9681,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ3: packed struct {
@@ -8398,6 +9690,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _10: u96 = 0,
@@ -8414,6 +9708,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _11: u32 = 0,
@@ -8431,6 +9727,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK4: packed struct {
@@ -8446,6 +9744,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ4: packed struct {
@@ -8453,6 +9753,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _12: u96 = 0,
@@ -8469,6 +9771,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _13: u32 = 0,
@@ -8486,6 +9790,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK5: packed struct {
@@ -8501,6 +9807,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ5: packed struct {
@@ -8508,6 +9816,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _14: u96 = 0,
@@ -8524,6 +9834,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _15: u32 = 0,
@@ -8541,6 +9853,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK6: packed struct {
@@ -8556,6 +9870,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ6: packed struct {
@@ -8563,6 +9879,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _16: u96 = 0,
@@ -8579,6 +9897,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _17: u32 = 0,
@@ -8596,6 +9916,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK7: packed struct {
@@ -8611,6 +9933,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ7: packed struct {
@@ -8618,6 +9942,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _18: u96 = 0,
@@ -8634,6 +9960,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _19: u32 = 0,
@@ -8651,6 +9979,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK8: packed struct {
@@ -8666,6 +9996,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ8: packed struct {
@@ -8673,6 +10005,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _20: u96 = 0,
@@ -8689,6 +10023,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _21: u32 = 0,
@@ -8706,6 +10042,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK9: packed struct {
@@ -8721,6 +10059,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ9: packed struct {
@@ -8728,6 +10068,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _22: u96 = 0,
@@ -8744,6 +10086,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _23: u32 = 0,
@@ -8761,6 +10105,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK10: packed struct {
@@ -8776,6 +10122,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ10: packed struct {
@@ -8783,6 +10131,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _24: u96 = 0,
@@ -8799,6 +10149,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _25: u32 = 0,
@@ -8816,6 +10168,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _2: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCINTMSK11: packed struct {
@@ -8831,6 +10185,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _1: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_HCTSIZ11: packed struct {
@@ -8838,6 +10194,8 @@ pub const OTG_FS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x50000400);
 
@@ -8849,6 +10207,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         DAD: u7 = 0,
         PFIVL: u2 = 0,
         _1: u19 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DCTL: packed struct {
@@ -8863,6 +10223,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         CGONAK: u1 = 0,
         POPRGDNE: u1 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DSTS: packed struct {
@@ -8872,6 +10234,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _0: u4 = 0,
         FNSOF: u14 = 0,
         _1: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -8885,6 +10249,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         INEPNMM: u1 = 0,
         INEPNEM: u1 = 0,
         _1: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DOEPMSK: packed struct {
@@ -8894,16 +10260,22 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         STUPM: u1 = 0,
         OTEPDM: u1 = 0,
         _1: u27 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DAINT: packed struct {
         IEPINT: u16 = 0,
         OEPINT: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DAINTMSK: packed struct {
         IEPM: u16 = 0,
         OEPINT: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u64 = 0,
@@ -8911,11 +10283,15 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
     OTG_FS_DVBUSDIS: packed struct {
         VBUSDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_FS_DVBUSPULSE: packed struct {
         DVBUSP: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u32 = 0,
@@ -8923,6 +10299,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
     OTG_FS_DIEPEMPMSK: packed struct {
         INEPTXFEM: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _3: u1600 = 0,
@@ -8942,6 +10320,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _3: u2 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _4: u32 = 0,
@@ -8956,6 +10336,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         INEPNE: u1 = 0,
         TXFE: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     _5: u32 = 0,
@@ -8965,6 +10347,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _0: u12 = 0,
         PKTCNT: u2 = 0,
         _1: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     _6: u32 = 0,
@@ -8972,6 +10356,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
     OTG_FS_DTXFSTS0: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _7: u32 = 0,
@@ -8992,6 +10378,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM_SD1PID: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _8: u32 = 0,
@@ -9006,6 +10394,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         INEPNE: u1 = 0,
         TXFE: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     _9: u32 = 0,
@@ -9015,6 +10405,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _10: u32 = 0,
@@ -9022,6 +10414,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
     OTG_FS_DTXFSTS1: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _11: u32 = 0,
@@ -9042,6 +10436,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _12: u32 = 0,
@@ -9056,6 +10452,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         INEPNE: u1 = 0,
         TXFE: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     _13: u32 = 0,
@@ -9065,6 +10463,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _14: u32 = 0,
@@ -9072,6 +10472,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
     OTG_FS_DTXFSTS2: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _15: u32 = 0,
@@ -9092,6 +10494,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _16: u32 = 0,
@@ -9106,6 +10510,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         INEPNE: u1 = 0,
         TXFE: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     _17: u32 = 0,
@@ -9115,6 +10521,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _18: u32 = 0,
@@ -9122,6 +10530,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
     OTG_FS_DTXFSTS3: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _19: u32 = 0,
@@ -9142,6 +10552,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _20: u32 = 0,
@@ -9156,6 +10568,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         INEPNE: u1 = 0,
         TXFE: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     _21: u32 = 0,
@@ -9165,6 +10579,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _22: u32 = 0,
@@ -9172,6 +10588,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
     OTG_FS_DTXFSTS4: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _23: u32 = 0,
@@ -9192,6 +10610,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _24: u32 = 0,
@@ -9206,6 +10626,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         INEPNE: u1 = 0,
         TXFE: u1 = 0,
         _2: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     _25: u32 = 0,
@@ -9215,6 +10637,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _26: u32 = 0,
@@ -9222,6 +10646,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
     OTG_FS_DTXFSTS5: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _27: u2592 = 0,
@@ -9241,6 +10667,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _3: u2 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _28: u32 = 0,
@@ -9254,6 +10682,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _1: u1 = 0,
         B2BSTUP: u1 = 0,
         _2: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     _29: u32 = 0,
@@ -9265,6 +10695,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _1: u9 = 0,
         STUPCNT: u2 = 0,
         _2: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _30: u96 = 0,
@@ -9285,6 +10717,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _31: u32 = 0,
@@ -9298,6 +10732,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _1: u1 = 0,
         B2BSTUP: u1 = 0,
         _2: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     _32: u32 = 0,
@@ -9307,6 +10743,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _33: u96 = 0,
@@ -9327,6 +10765,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _34: u32 = 0,
@@ -9340,6 +10780,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _1: u1 = 0,
         B2BSTUP: u1 = 0,
         _2: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     _35: u32 = 0,
@@ -9349,6 +10791,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _36: u96 = 0,
@@ -9369,6 +10813,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _37: u32 = 0,
@@ -9382,6 +10828,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _1: u1 = 0,
         B2BSTUP: u1 = 0,
         _2: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     _38: u32 = 0,
@@ -9391,6 +10839,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _39: u96 = 0,
@@ -9411,6 +10861,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _40: u32 = 0,
@@ -9424,6 +10876,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _1: u1 = 0,
         B2BSTUP: u1 = 0,
         _2: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     _41: u32 = 0,
@@ -9433,6 +10887,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _42: u96 = 0,
@@ -9453,6 +10909,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _43: u32 = 0,
@@ -9466,6 +10924,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         _1: u1 = 0,
         B2BSTUP: u1 = 0,
         _2: u25 = 0,
+
+        pub const set = set_masked;
     },
 
     _44: u32 = 0,
@@ -9475,6 +10935,8 @@ pub const OTG_FS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x50000800);
 
@@ -9485,6 +10947,8 @@ pub const OTG_FS_PWRCLK: *volatile packed struct {
         _0: u2 = 0,
         PHYSUSP: u1 = 0,
         _1: u27 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x50000e00);
 
@@ -9493,16 +10957,22 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FSLSPCS: u2 = 0,
         FSLSS: u1 = 0,
         _0: u29 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HFIR: packed struct {
         FRIVL: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HFNUM: packed struct {
         FRNUM: u16 = 0,
         FTREM: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -9511,16 +10981,22 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PTXFSAVL: u16 = 0,
         PTXQSAV: u8 = 0,
         PTXQTOP: u8 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HAINT: packed struct {
         HAINT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HAINTMSK: packed struct {
         HAINTM: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u288 = 0,
@@ -9541,6 +11017,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PTCTL: u4 = 0,
         PSPD: u2 = 0,
         _1: u13 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u1504 = 0,
@@ -9557,6 +11035,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT0: packed struct {
@@ -9566,6 +11046,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT0: packed struct {
@@ -9581,6 +11063,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK0: packed struct {
@@ -9596,6 +11080,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ0: packed struct {
@@ -9603,10 +11089,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA0: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _3: u64 = 0,
@@ -9623,6 +11113,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT1: packed struct {
@@ -9632,6 +11124,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT1: packed struct {
@@ -9647,6 +11141,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK1: packed struct {
@@ -9662,6 +11158,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ1: packed struct {
@@ -9669,10 +11167,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA1: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _4: u64 = 0,
@@ -9689,6 +11191,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT2: packed struct {
@@ -9698,6 +11202,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT2: packed struct {
@@ -9713,6 +11219,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK2: packed struct {
@@ -9728,6 +11236,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ2: packed struct {
@@ -9735,10 +11245,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA2: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _5: u64 = 0,
@@ -9755,6 +11269,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT3: packed struct {
@@ -9764,6 +11280,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT3: packed struct {
@@ -9779,6 +11297,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK3: packed struct {
@@ -9794,6 +11314,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ3: packed struct {
@@ -9801,10 +11323,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA3: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _6: u64 = 0,
@@ -9821,6 +11347,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT4: packed struct {
@@ -9830,6 +11358,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT4: packed struct {
@@ -9845,6 +11375,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK4: packed struct {
@@ -9860,6 +11392,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ4: packed struct {
@@ -9867,10 +11401,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA4: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _7: u64 = 0,
@@ -9887,6 +11425,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT5: packed struct {
@@ -9896,6 +11436,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT5: packed struct {
@@ -9911,6 +11453,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK5: packed struct {
@@ -9926,6 +11470,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ5: packed struct {
@@ -9933,10 +11479,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA5: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _8: u64 = 0,
@@ -9953,6 +11503,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT6: packed struct {
@@ -9962,6 +11514,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT6: packed struct {
@@ -9977,6 +11531,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK6: packed struct {
@@ -9992,6 +11548,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ6: packed struct {
@@ -9999,10 +11557,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA6: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _9: u64 = 0,
@@ -10019,6 +11581,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT7: packed struct {
@@ -10028,6 +11592,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT7: packed struct {
@@ -10043,6 +11609,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK7: packed struct {
@@ -10058,6 +11626,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ7: packed struct {
@@ -10065,10 +11635,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA7: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _10: u64 = 0,
@@ -10085,6 +11659,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT8: packed struct {
@@ -10094,6 +11670,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT8: packed struct {
@@ -10109,6 +11687,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK8: packed struct {
@@ -10124,6 +11704,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ8: packed struct {
@@ -10131,10 +11713,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA8: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _11: u64 = 0,
@@ -10151,6 +11737,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT9: packed struct {
@@ -10160,6 +11748,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT9: packed struct {
@@ -10175,6 +11765,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK9: packed struct {
@@ -10190,6 +11782,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ9: packed struct {
@@ -10197,10 +11791,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA9: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _12: u64 = 0,
@@ -10217,6 +11815,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT10: packed struct {
@@ -10226,6 +11826,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT10: packed struct {
@@ -10241,6 +11843,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK10: packed struct {
@@ -10256,6 +11860,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ10: packed struct {
@@ -10263,10 +11869,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA10: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _13: u64 = 0,
@@ -10283,6 +11893,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT11: packed struct {
@@ -10292,6 +11904,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT11: packed struct {
@@ -10307,6 +11921,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK11: packed struct {
@@ -10322,6 +11938,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ11: packed struct {
@@ -10329,10 +11947,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA11: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _14: u64 = 0,
@@ -10349,6 +11971,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT12: packed struct {
@@ -10358,6 +11982,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT12: packed struct {
@@ -10373,6 +11999,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK12: packed struct {
@@ -10388,6 +12016,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ12: packed struct {
@@ -10395,10 +12025,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA12: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _15: u64 = 0,
@@ -10415,6 +12049,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT13: packed struct {
@@ -10424,6 +12060,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT13: packed struct {
@@ -10439,6 +12077,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK13: packed struct {
@@ -10454,6 +12094,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ13: packed struct {
@@ -10461,10 +12103,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA13: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _16: u64 = 0,
@@ -10481,6 +12127,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT14: packed struct {
@@ -10490,6 +12138,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT14: packed struct {
@@ -10505,6 +12155,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK14: packed struct {
@@ -10520,6 +12172,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ14: packed struct {
@@ -10527,10 +12181,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA14: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _17: u64 = 0,
@@ -10547,6 +12205,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         ODDFRM: u1 = 0,
         CHDIS: u1 = 0,
         CHENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCSPLT15: packed struct {
@@ -10556,6 +12216,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         COMPLSPLT: u1 = 0,
         _0: u14 = 0,
         SPLITEN: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINT15: packed struct {
@@ -10571,6 +12233,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMOR: u1 = 0,
         DTERR: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCINTMSK15: packed struct {
@@ -10586,6 +12250,8 @@ pub const OTG_HS_HOST: *volatile packed struct {
         FRMORM: u1 = 0,
         DTERRM: u1 = 0,
         _0: u21 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCTSIZ15: packed struct {
@@ -10593,10 +12259,14 @@ pub const OTG_HS_HOST: *volatile packed struct {
         PKTCNT: u10 = 0,
         DPID: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_HCDMA15: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40040400);
 
@@ -10616,6 +12286,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         ASVLD: u1 = 0,
         BSVLD: u1 = 0,
         _2: u12 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_GOTGINT: packed struct {
@@ -10630,6 +12302,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         DBCDNE: u1 = 0,
         IDCHNG: u1 = 0,
         _3: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_GAHBCFG: packed struct {
@@ -10640,6 +12314,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         TXFELVL: u1 = 0,
         PTXFELVL: u1 = 0,
         _1: u23 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_GUSBCFG: packed struct {
@@ -10666,6 +12342,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         FHMOD: u1 = 0,
         FDMOD: u1 = 0,
         _5: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_GRSTCTL: packed struct {
@@ -10679,6 +12357,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         _1: u19 = 0,
         DMAREQ: u1 = 0,
         AHBIDL: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_GINTSTS: packed struct {
@@ -10712,6 +12392,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         DISCINT: u1 = 0,
         SRQINT: u1 = 0,
         WKUINT: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_GINTMSK: packed struct {
@@ -10745,6 +12427,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         DISCINT: u1 = 0,
         SRQIM: u1 = 0,
         WUIM: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_GRXSTSR: packed union {
@@ -10754,6 +12438,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
             DPID: u2 = 0,
             PKTSTS: u4 = 0,
             _0: u11 = 0,
+
+            pub const set = set_masked;
         },
 
         Device: packed struct {
@@ -10763,6 +12449,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
             PKTSTS: u4 = 0,
             FRMNUM: u4 = 0,
             _0: u7 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -10773,6 +12461,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
             DPID: u2 = 0,
             PKTSTS: u4 = 0,
             _0: u11 = 0,
+
+            pub const set = set_masked;
         },
 
         Device: packed struct {
@@ -10782,23 +12472,31 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
             PKTSTS: u4 = 0,
             FRMNUM: u4 = 0,
             _0: u7 = 0,
+
+            pub const set = set_masked;
         },
     },
 
     OTG_HS_GRXFSIZ: packed struct {
         RXFD: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS: packed union {
         HNPTXFSIZ_Host: packed struct {
             NPTXFSA: u16 = 0,
             NPTXFD: u16 = 0,
+
+            pub const set = set_masked;
         },
 
         DIEPTXF0_Device: packed struct {
             TX0FSA: u16 = 0,
             TX0FD: u16 = 0,
+
+            pub const set = set_masked;
         },
     },
 
@@ -10807,6 +12505,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         NPTQXSAV: u8 = 0,
         NPTXQTOP: u7 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_GI2CCTL: packed struct {
@@ -10821,6 +12521,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         _1: u1 = 0,
         RW: u1 = 0,
         BSYDNE: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -10838,10 +12540,14 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         SDEN: u1 = 0,
         VBDEN: u1 = 0,
         _1: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_CID: packed struct {
         PRODUCT_ID: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u160 = 0,
@@ -10863,6 +12569,8 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
         LPMRCNTSTS: u3 = 0,
         ENBESL: u1 = 0,
         _0: u3 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u1344 = 0,
@@ -10870,46 +12578,64 @@ pub const OTG_HS_GLOBAL: *volatile packed struct {
     OTG_HS_HPTXFSIZ: packed struct {
         PTXSA: u16 = 0,
         PTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPTXF1: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPTXF2: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPTXF3: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPTXF4: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPTXF5: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPTXF6: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPTXF7: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPTXF8: packed struct {
         INEPTXSA: u16 = 0,
         INEPTXFD: u16 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40040000);
 
@@ -10920,6 +12646,8 @@ pub const OTG_HS_PWRCLK: *volatile packed struct {
         _0: u2 = 0,
         PHYSUSP: u1 = 0,
         _1: u27 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40040e00);
 
@@ -10933,6 +12661,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _1: u11 = 0,
         PERSCHIVL: u2 = 0,
         _2: u6 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DCTL: packed struct {
@@ -10947,6 +12677,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         CGONAK: u1 = 0,
         POPRGDNE: u1 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DSTS: packed struct {
@@ -10956,6 +12688,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _0: u4 = 0,
         FNSOF: u14 = 0,
         _1: u10 = 0,
+
+        pub const set = set_masked;
     },
 
     _0: u32 = 0,
@@ -10972,6 +12706,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         TXFURM: u1 = 0,
         BIM: u1 = 0,
         _2: u22 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPMSK: packed struct {
@@ -10986,16 +12722,22 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         OPEM: u1 = 0,
         BOIM: u1 = 0,
         _3: u22 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DAINT: packed struct {
         IEPINT: u16 = 0,
         OEPINT: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DAINTMSK: packed struct {
         IEPM: u16 = 0,
         OEPM: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _1: u64 = 0,
@@ -11003,11 +12745,15 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
     OTG_HS_DVBUSDIS: packed struct {
         VBUSDT: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DVBUSPULSE: packed struct {
         DVBUSP: u12 = 0,
         _0: u20 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DTHRCTL: packed struct {
@@ -11020,11 +12766,15 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _1: u1 = 0,
         ARPEN: u1 = 0,
         _2: u4 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPEMPMSK: packed struct {
         INEPTXFEM: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DEACHINT: packed struct {
@@ -11033,6 +12783,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _1: u15 = 0,
         OEP1INT: u1 = 0,
         _2: u14 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DEACHINTMSK: packed struct {
@@ -11041,6 +12793,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _1: u15 = 0,
         OEP1INTM: u1 = 0,
         _2: u14 = 0,
+
+        pub const set = set_masked;
     },
 
     _2: u1536 = 0,
@@ -11061,6 +12815,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _3: u32 = 0,
@@ -11081,6 +12837,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         BERR: u1 = 0,
         NAK: u1 = 0,
         _3: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _4: u32 = 0,
@@ -11090,15 +12848,21 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _0: u12 = 0,
         PKTCNT: u2 = 0,
         _1: u11 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPDMA0: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DTXFSTS0: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _5: u32 = 0,
@@ -11119,6 +12883,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _6: u32 = 0,
@@ -11139,6 +12905,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         BERR: u1 = 0,
         NAK: u1 = 0,
         _3: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _7: u32 = 0,
@@ -11148,15 +12916,21 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPDMA1: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DTXFSTS1: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _8: u32 = 0,
@@ -11177,6 +12951,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _9: u32 = 0,
@@ -11197,6 +12973,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         BERR: u1 = 0,
         NAK: u1 = 0,
         _3: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _10: u32 = 0,
@@ -11206,15 +12984,21 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPDMA2: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DTXFSTS2: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _11: u32 = 0,
@@ -11235,6 +13019,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _12: u32 = 0,
@@ -11255,6 +13041,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         BERR: u1 = 0,
         NAK: u1 = 0,
         _3: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _13: u32 = 0,
@@ -11264,15 +13052,21 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPDMA3: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DTXFSTS3: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _14: u32 = 0,
@@ -11293,6 +13087,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _15: u32 = 0,
@@ -11313,6 +13109,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         BERR: u1 = 0,
         NAK: u1 = 0,
         _3: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _16: u32 = 0,
@@ -11322,15 +13120,21 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPDMA4: packed struct {
         DMAADDR: u32 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DTXFSTS4: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _17: u32 = 0,
@@ -11351,6 +13155,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _18: u32 = 0,
@@ -11371,6 +13177,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         BERR: u1 = 0,
         NAK: u1 = 0,
         _3: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _19: u32 = 0,
@@ -11380,6 +13188,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPDMA5: u32 = 0,
@@ -11387,6 +13197,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
     OTG_HS_DTXFSTS5: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _20: u32 = 0,
@@ -11407,6 +13219,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _21: u32 = 0,
@@ -11427,6 +13241,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         BERR: u1 = 0,
         NAK: u1 = 0,
         _3: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _22: u32 = 0,
@@ -11436,6 +13252,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPDMA6: u32 = 0,
@@ -11443,6 +13261,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
     OTG_HS_DTXFSTS6: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _23: u32 = 0,
@@ -11463,6 +13283,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _24: u32 = 0,
@@ -11483,6 +13305,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         BERR: u1 = 0,
         NAK: u1 = 0,
         _3: u18 = 0,
+
+        pub const set = set_masked;
     },
 
     _25: u32 = 0,
@@ -11492,6 +13316,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         MCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DIEPDMA7: u32 = 0,
@@ -11499,6 +13325,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
     OTG_HS_DTXFSTS7: packed struct {
         INEPTFSAV: u16 = 0,
         _0: u16 = 0,
+
+        pub const set = set_masked;
     },
 
     _26: u192 = 0,
@@ -11550,6 +13378,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _3: u2 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _35: u32 = 0,
@@ -11565,6 +13395,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _2: u7 = 0,
         NYET: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     _36: u32 = 0,
@@ -11576,6 +13408,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _1: u9 = 0,
         STUPCNT: u2 = 0,
         _2: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPDMA0: u32 = 0,
@@ -11598,6 +13432,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _38: u32 = 0,
@@ -11613,6 +13449,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _2: u7 = 0,
         NYET: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     _39: u32 = 0,
@@ -11622,6 +13460,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPDMA1: u32 = 0,
@@ -11644,6 +13484,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _41: u32 = 0,
@@ -11659,6 +13501,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _2: u7 = 0,
         NYET: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     _42: u32 = 0,
@@ -11668,6 +13512,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPDMA2: u32 = 0,
@@ -11690,6 +13536,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _44: u32 = 0,
@@ -11705,6 +13553,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _2: u7 = 0,
         NYET: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     _45: u32 = 0,
@@ -11714,6 +13564,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPDMA3: u32 = 0,
@@ -11736,6 +13588,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _47: u32 = 0,
@@ -11751,6 +13605,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _2: u7 = 0,
         NYET: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     _48: u32 = 0,
@@ -11760,6 +13616,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPDMA4: u32 = 0,
@@ -11782,6 +13640,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _50: u32 = 0,
@@ -11797,6 +13657,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _2: u7 = 0,
         NYET: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     _51: u32 = 0,
@@ -11806,6 +13668,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPDMA5: u32 = 0,
@@ -11828,6 +13692,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _53: u32 = 0,
@@ -11843,6 +13709,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _2: u7 = 0,
         NYET: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     _54: u32 = 0,
@@ -11852,6 +13720,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPDMA6: u32 = 0,
@@ -11874,6 +13744,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         SODDFRM: u1 = 0,
         EPDIS: u1 = 0,
         EPENA: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     _56: u32 = 0,
@@ -11889,6 +13761,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         _2: u7 = 0,
         NYET: u1 = 0,
         _3: u17 = 0,
+
+        pub const set = set_masked;
     },
 
     _57: u32 = 0,
@@ -11898,6 +13772,8 @@ pub const OTG_HS_DEVICE: *volatile packed struct {
         PKTCNT: u10 = 0,
         RXDPID_STUPCNT: u2 = 0,
         _0: u1 = 0,
+
+        pub const set = set_masked;
     },
 
     OTG_HS_DOEPDMA7: u32 = 0,
@@ -11940,6 +13816,8 @@ pub const WWDG: *volatile packed struct {
         T: u7 = 0,
         WDGA: u1 = 0,
         _0: u24 = 0,
+
+        pub const set = set_masked;
     },
 
     CFR: packed struct {
@@ -11948,11 +13826,15 @@ pub const WWDG: *volatile packed struct {
         WDGTB1: u1 = 0,
         EWI: u1 = 0,
         _0: u22 = 0,
+
+        pub const set = set_masked;
     },
 
     SR: packed struct {
         EWIF: u1 = 0,
         _0: u31 = 0,
+
+        pub const set = set_masked;
     },
 } = @ptrFromInt(0x40002c00);
 
