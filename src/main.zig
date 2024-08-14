@@ -16,8 +16,9 @@ comptime {
 fn init() !void {
     rcc.init();
     rcc.enablePeripheralsComp(&.{
-        .{ .per = .GPIOA },
-        .{ .per = .GPIOB },
+        .{ .per = "GPIOA" },
+        .{ .per = "GPIOB" },
+        .{ .per = "DAC" },
     });
 
     systick.init();

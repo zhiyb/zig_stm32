@@ -1,3 +1,4 @@
+const std = @import("std");
 const hal = @import("stm32f722.zig");
 
 pub fn init() void {
@@ -23,7 +24,7 @@ pub fn init() void {
     };
 
     // Enable power controller
-    hal.RCC.APB1ENR.PWREN = 1;
+    enablePeripheralsComp(&.{.{ .per = "PWR" }});
     // Regulator voltage scale 1
     hal.PWR.CR1.VOS = @intFromEnum(hal.PWR_CR1_VOS.SCALE_1);
     // Enable PLL
@@ -59,66 +60,50 @@ pub fn init() void {
     hal.RCC.DCKCFGR2 = .{};
 }
 
-pub const peripherals_t = enum {
-    GPIOA,
-    GPIOB,
-    GPIOC,
-    GPIOD,
-    GPIOE,
-    GPIOF,
-    GPIOG,
-    GPIOH,
-    GPIOI,
+const buses = .{ "ahb1", "ahb2", "ahb3", "apb1", "apb2" };
+const reg_set_t = struct {
+    ahb1enr_mask: @TypeOf(hal.RCC.AHB1ENR) = .{},
+    ahb1enr_val: @TypeOf(hal.RCC.AHB1ENR) = .{},
+    ahb2enr_mask: @TypeOf(hal.RCC.AHB2ENR) = .{},
+    ahb2enr_val: @TypeOf(hal.RCC.AHB2ENR) = .{},
+    ahb3enr_mask: @TypeOf(hal.RCC.AHB3ENR) = .{},
+    ahb3enr_val: @TypeOf(hal.RCC.AHB3ENR) = .{},
+    apb1enr_mask: @TypeOf(hal.RCC.APB1ENR) = .{},
+    apb1enr_val: @TypeOf(hal.RCC.APB1ENR) = .{},
+    apb2enr_mask: @TypeOf(hal.RCC.APB2ENR) = .{},
+    apb2enr_val: @TypeOf(hal.RCC.APB2ENR) = .{},
 };
 
 pub fn enablePeripheralsComp(comptime phs: []const struct {
-    per: peripherals_t,
+    per: []const u8,
     en: bool = true,
 }) void {
-    comptime var ahb1enr_mask: @TypeOf(hal.RCC.AHB1ENR) = .{};
-    comptime var ahb1enr_val: @TypeOf(hal.RCC.AHB1ENR) = .{};
-    comptime {
-        for (phs) |ph| {
-            const en = @intFromBool(ph.en);
-            switch (ph.per) {
-                .GPIOA => {
-                    ahb1enr_mask.GPIOAEN = 1;
-                    ahb1enr_val.GPIOAEN = en;
-                },
-                .GPIOB => {
-                    ahb1enr_mask.GPIOBEN = 1;
-                    ahb1enr_val.GPIOBEN = en;
-                },
-                .GPIOC => {
-                    ahb1enr_mask.GPIOCEN = 1;
-                    ahb1enr_val.GPIOCEN = en;
-                },
-                .GPIOD => {
-                    ahb1enr_mask.GPIODEN = 1;
-                    ahb1enr_val.GPIODEN = en;
-                },
-                .GPIOE => {
-                    ahb1enr_mask.GPIOEEN = 1;
-                    ahb1enr_val.GPIOEEN = en;
-                },
-                .GPIOF => {
-                    ahb1enr_mask.GPIOFEN = 1;
-                    ahb1enr_val.GPIOFEN = en;
-                },
-                .GPIOG => {
-                    ahb1enr_mask.GPIOGEN = 1;
-                    ahb1enr_val.GPIOGEN = en;
-                },
-                .GPIOH => {
-                    ahb1enr_mask.GPIOHEN = 1;
-                    ahb1enr_val.GPIOHEN = en;
-                },
-                .GPIOI => {
-                    ahb1enr_mask.GPIOIEN = 1;
-                    ahb1enr_val.GPIOIEN = en;
-                },
+    comptime var reg_set: reg_set_t = .{};
+    inline for (phs) |ph| {
+        const en = @intFromBool(ph.en);
+        const field = ph.per ++ "EN";
+        comptime var found = false;
+        inline for (buses) |r| {
+            const mask = &@field(reg_set, r ++ "enr_mask");
+            const val = &@field(reg_set, r ++ "enr_val");
+            if (@hasField(@TypeOf(mask.*), field)) {
+                @field(mask.*, field) = 1;
+                @field(val.*, field) = en;
+                found = true;
+                break;
             }
         }
+        if (!found)
+            @compileError("Unknown peripheral: " ++ ph.per);
     }
-    hal.RCC.AHB1ENR.set(ahb1enr_mask, ahb1enr_val);
+
+    inline for (buses) |r| {
+        const mask = &@field(reg_set, r ++ "enr_mask");
+        const val = &@field(reg_set, r ++ "enr_val");
+        const reg_name = comptime blk: {
+            var buf: [16]u8 = undefined;
+            break :blk std.ascii.upperString(&buf, r ++ "enr");
+        };
+        @field(hal.RCC, reg_name).set(mask.*, val.*);
+    }
 }
