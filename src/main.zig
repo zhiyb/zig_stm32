@@ -2,6 +2,7 @@ const std = @import("std");
 const rcc = @import("rcc.zig");
 // const nvic = @import("nvic.zig");
 const gpio = @import("gpio.zig");
+const dac = @import("dac.zig");
 // const timer = @import("timer.zig");
 const systick = @import("systick.zig");
 const semihosting = @import("semihosting.zig");
@@ -46,6 +47,8 @@ fn init() !void {
         .{ .pin = 15, .mode = .af_push_pull, .af = 12, .speed = .medium }, // USB_DP
     });
 
+    dac.init();
+
     // timer.timer1.initPwm(0x03ff);
     // timer.timer4.initIrRemote();
 
@@ -57,9 +60,13 @@ pub fn main() noreturn {
 
     semihosting.writer.print("Hello, world!\n", .{}) catch {};
 
+    var dac1: u12 = 0;
     // var ch: u8 = 1;
     while (true) {
-        @breakpoint();
+        const dac2: u12 = ~dac1;
+        dac.update(dac1, dac2);
+        systick.delay_us(100);
+        dac1 +%= 1;
 
         // const ir = timer.timer4.popIrRemote(1);
         // if (ir != 0) {
