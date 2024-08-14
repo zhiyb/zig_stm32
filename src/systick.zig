@@ -1,7 +1,9 @@
 const hal = @import("stm32f722.zig");
+const rcc = @import("rcc.zig");
 
 pub const tick_rate = 1_000;
-const freq_in = 72_000_000 / 8;
+// Clock source AHB/8
+const freq_in = rcc.clockHz(.ahb) / 8;
 const ratio = freq_in / tick_rate;
 
 var _tick: u32 = 0;
@@ -11,7 +13,6 @@ pub fn init() void {
     const reg = hal.SYST;
     ptick.* = 0;
 
-    // Clock source AHB/8 = 72/8 = 9 MHz
     reg.CSR = .{
         .CLKSOURCE = 0,
         .TICKINT = 1,
@@ -30,7 +31,7 @@ pub fn get_tick() struct { tick: u32, cnt: u32 } {
     var tick = ptick.*;
     var cnt: u32 = 0;
     while (true) {
-        cnt = hal.SYST.VAL.CURRENT;
+        cnt = hal.SYST.CVR.CURRENT;
         const now = ptick.*;
         if (now == tick) {
             break;

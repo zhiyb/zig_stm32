@@ -60,6 +60,24 @@ pub fn init() void {
     hal.RCC.DCKCFGR2 = .{};
 }
 
+const clock_t = enum {
+    ahb,
+    apb1,
+    apb1_timer,
+    apb2,
+    apb2_timer,
+};
+
+pub fn clockHz(clock: clock_t) u32 {
+    return switch (clock) {
+        .ahb => 216_000_000,
+        .apb1 => 54_000_000,
+        .apb1_timer => 108_000_000,
+        .apb2 => 108_000_000,
+        .apb2_timer => 216_000_000,
+    };
+}
+
 const buses = .{ "ahb1", "ahb2", "ahb3", "apb1", "apb2" };
 const reg_set_t = struct {
     ahb1enr_mask: @TypeOf(hal.RCC.AHB1ENR) = .{},
