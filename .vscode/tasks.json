@@ -1,0 +1,29 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "zig build",
+            "type": "shell",
+            "command": "zig build --release=safe --summary all && arm-none-eabi-size zig-out/bin/controller",
+            "problemMatcher": [],
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+        },
+        {
+            "label": "zig update-svd",
+            "type": "shell",
+            "command": "zig build update-svd --summary all",
+            "problemMatcher": [],
+        },
+        {
+            "label": "zig test",
+            "type": "shell",
+            "command": "zig build test --summary all",
+            "problemMatcher": [],
+        },
+    ]
+}
