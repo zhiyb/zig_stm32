@@ -59,7 +59,7 @@ fn callback(_: void, string: []const u8) error{}!usize {
 pub const writer = std.io.Writer(void, error{}, callback){ .context = {} };
 
 pub fn panic(msg: []const u8, error_return_trace: ?*std.builtin.StackTrace, ret_addr: ?usize) noreturn {
-    @setCold(true);
+    @branchHint(.cold);
 
     //_ = msg;
     _ = error_return_trace;
