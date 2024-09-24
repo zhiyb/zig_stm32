@@ -2,7 +2,6 @@ const std = @import("std");
 const rcc = @import("rcc.zig");
 // const nvic = @import("nvic.zig");
 const gpio = @import("gpio.zig");
-const dac = @import("dac.zig");
 // const timer = @import("timer.zig");
 const systick = @import("systick.zig");
 const semihosting = @import("semihosting.zig");
@@ -14,43 +13,84 @@ comptime {
     _ = @import("start.zig");
 }
 
+const pin_cfg = gpio.initCfg(.{
+    .GPIOA = .{
+        .PIN0 = .{ .name = "LED_G", .mode = .output_push_pull, .speed = .medium, .value = 1 },
+        .PIN1 = .{ .name = "LED_B", .mode = .output_push_pull, .speed = .medium, .value = 1 },
+        .PIN2 = .{ .name = "LED_R", .mode = .output_push_pull, .speed = .medium, .value = 1 },
+        .PIN3 = .{ .name = "OTG_HS_ULPI_D0", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN4 = .{ .name = null, .mode = .analog },
+        .PIN5 = .{ .name = "OTG_HS_ULPI_CK", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN6 = .{ .name = "ESP_INT", .mode = .analog },
+        .PIN7 = .{ .name = "IR", .mode = .input, .pull = .pull_up },
+        .PIN8 = .{ .name = "MCO_1", .mode = .af_push_pull, .af = 0, .speed = .high },
+        .PIN9 = .{ .name = "Y_SCK", .mode = .af_push_pull, .af = 5, .speed = .medium }, // SPI2_SCK
+        .PIN10 = .{ .name = "USB_OTG_FS_ID", .mode = .af_push_pull, .af = 10, .speed = .medium },
+        .PIN11 = .{ .name = "USB_OTG_FS_DM", .mode = .af_push_pull, .af = 10, .speed = .medium },
+        .PIN12 = .{ .name = "USB_OTG_FS_DP", .mode = .af_push_pull, .af = 10, .speed = .medium },
+        .PIN13 = .{ .name = "SWDIO", .mode = .af_push_pull, .af = 0, .speed = .medium },
+        .PIN14 = .{ .name = "SWCLK", .mode = .af_push_pull, .af = 0, .speed = .medium },
+        .PIN15 = .{ .name = "X_CS", .mode = .af_push_pull, .af = 6, .speed = .medium }, // SPI3_NSS
+    },
+    .GPIOB = .{
+        .PIN0 = .{ .name = "OTG_HS_ULPI_D1", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN1 = .{ .name = "OTG_HS_ULPI_D2", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN2 = .{ .name = "X_SDI", .mode = .af_push_pull, .af = 7, .speed = .medium }, // SPI3_MOSI
+        .PIN3 = .{ .name = "SWO", .mode = .af_push_pull, .af = 0, .speed = .medium },
+        .PIN4 = .{ .name = "Y_CS", .mode = .af_push_pull, .af = 7, .speed = .medium }, // SPI2_NSS
+        .PIN5 = .{ .name = "OTG_HS_ULPI_D7", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN6 = .{ .name = "I2C_SCL", .mode = .af_open_drain, .af = 4, .speed = .low }, // I2C1_SCL
+        .PIN7 = .{ .name = "I2C_SDA", .mode = .af_open_drain, .af = 4, .speed = .low }, // I2C1_SDA
+        .PIN8 = .{ .name = null, .mode = .analog },
+        .PIN9 = .{ .name = null, .mode = .analog },
+        .PIN10 = .{ .name = "OTG_HS_ULPI_D3", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN11 = .{ .name = "OTG_HS_ULPI_D4", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN12 = .{ .name = "OTG_HS_ULPI_D4", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN13 = .{ .name = "OTG_HS_ULPI_D6", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN14 = .{ .name = null, .mode = .analog },
+        .PIN15 = .{ .name = "Y_SDI", .mode = .af_push_pull, .af = 5, .speed = .medium }, // SPI2_MOSI
+    },
+    .GPIOC = .{
+        .PIN0 = .{ .name = "OTG_HS_ULPI_STP", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN1 = .{ .name = null, .mode = .analog },
+        .PIN2 = .{ .name = "OTG_HS_ULPI_DIR", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN3 = .{ .name = "OTG_HS_ULPI_NXT", .mode = .af_push_pull, .af = 10, .speed = .high },
+        .PIN4 = .{ .name = "V_SENSE", .mode = .analog }, // ADC1_IN14
+        .PIN5 = .{ .name = null, .mode = .analog },
+        .PIN6 = .{ .name = "DAC_LOAD", .mode = .output_push_pull, .speed = .medium, .value = 1 },
+        .PIN7 = .{ .name = "LASER_R", .mode = .output_push_pull, .speed = .medium, .value = 0 },
+        .PIN8 = .{ .name = "LASER_G", .mode = .output_push_pull, .speed = .medium, .value = 0 },
+        .PIN9 = .{ .name = "LASER_B", .mode = .output_push_pull, .speed = .medium, .value = 0 },
+        .PIN10 = .{ .name = "X_SDI", .mode = .af_push_pull, .af = 6, .speed = .medium }, // SPI3_SCK
+        .PIN11 = .{ .name = "", .mode = .analog },
+        .PIN12 = .{ .name = "", .mode = .analog },
+        .PIN13 = .{ .name = "BTN_1", .mode = .input, .pull = .pull_down },
+        .PIN14 = .{ .name = "BTN_2", .mode = .input, .pull = .pull_down },
+        .PIN15 = .{ .name = "", .mode = .analog },
+    },
+    .GPIOD = .{
+        .PIN2 = .{ .name = null, .mode = .analog },
+    },
+});
+
 fn init() !void {
     rcc.init();
     rcc.enablePeripheralsComp(&.{
         .{ .per = "GPIOA" },
         .{ .per = "GPIOB" },
-        .{ .per = "DAC" },
+        .{ .per = "GPIOC" },
+        .{ .per = "GPIOD" },
+        .{ .per = "SYSCFG" },
     });
 
     systick.init();
 
-    gpio.gpio_a.setPinModesComp(&.{
-        .{ .pin = 0, .mode = .analog },
-        .{ .pin = 1, .mode = .analog },
-        .{ .pin = 2, .mode = .analog },
-        .{ .pin = 3, .mode = .analog },
-        .{ .pin = 4, .mode = .analog }, // DAC_OUT1
-        .{ .pin = 5, .mode = .analog }, // DAC_OUT2
-        .{ .pin = 6, .mode = .analog },
-        .{ .pin = 7, .mode = .analog },
-        .{ .pin = 8, .mode = .analog },
-        .{ .pin = 9, .mode = .analog },
-        .{ .pin = 10, .mode = .analog },
-        .{ .pin = 11, .mode = .analog },
-        .{ .pin = 12, .mode = .analog },
-        .{ .pin = 13, .mode = .af_push_pull, .af = 0, .speed = .high }, // SWDIO
-        .{ .pin = 14, .mode = .af_push_pull, .af = 0, .speed = .high }, // SWCLK
-        .{ .pin = 15, .mode = .analog },
-    });
-    gpio.gpio_b.setPinModesComp(&.{
-        .{ .pin = 14, .mode = .af_push_pull, .af = 12, .speed = .medium }, // USB_DM
-        .{ .pin = 15, .mode = .af_push_pull, .af = 12, .speed = .medium }, // USB_DP
-    });
-
-    dac.init();
+    gpio.ioCompEnable(true);
+    pin_cfg.apply();
 
     // timer.timer1.initPwm(0x03ff);
     // timer.timer4.initIrRemote();
+    // timer.timer14.initIrRemote();
 
     // nvic.enable_irq(.TIM4, true);
 }
@@ -60,46 +100,96 @@ pub fn main() noreturn {
 
     semihosting.writer.print("Hello, world!\n", .{}) catch {};
 
-    var dac1: u12 = 0;
-    // var ch: u8 = 1;
+    const pins = pin_cfg.pins;
     while (true) {
-        const dac2: u12 = ~dac1;
-        dac.update(dac1, dac2);
-        systick.delay_us(100);
-        dac1 +%= 1;
+        pins.LED_R.write(pins.IR.read());
+        pins.LED_G.write(~pins.BTN_1.read());
+        pins.LED_B.write(~pins.BTN_2.read());
 
-        // const ir = timer.timer4.popIrRemote(1);
-        // if (ir != 0) {
-        //     const out = semihosting.writer;
-        //     out.print("IR: 0x{x:08}\n", .{ir}) catch {};
-
-        //     const mask = 0xfffffcfc;
-        //     const button = enum(u32) { // Sky NOW TV remote
-        //         back = 0x57436699 & mask,
-        //         home = 0x5743c03f & mask,
-        //         ok = 0x574354ab & mask,
-        //         up = 0x57439966 & mask,
-        //         down = 0x5743cd32 & mask,
-        //         left = 0x57437986 & mask,
-        //         right = 0x5743b54a & mask,
-        //         rewind = 0x57432dd2 & mask,
-        //         pause = 0x574333cc & mask,
-        //         ff = 0x5743ab54 & mask,
-        //         star = 0x57438679 & mask,
-        //         now = 0x574320df & mask,
-        //         store = 0x574318e7 & mask,
-        //     };
-        //     switch (@as(button, @enumFromInt(ir & mask))) {
-        //         .rewind => ch = 1,
-        //         .pause => ch = 2,
-        //         .ff => ch = 3,
-        //         .up => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 8),
-        //         .down => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 8) -% 8),
-        //         .left => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 1) -% 1),
-        //         .right => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 1),
-        //         .back => @breakpoint(),
-        //         else => {},
-        //     }
-        // }
+        pins.LASER_R.write(~pins.IR.read());
+        pins.LASER_G.write(pins.BTN_1.read());
+        pins.LASER_B.write(pins.BTN_2.read());
     }
+
+    // const seq = [_]struct { x: u16, y: u16, steps: u16 }{
+    //     .{ .x = 0, .y = 0, .steps = 1000 },
+    //     .{ .x = 0, .y = 0, .steps = 500 },
+    //     .{ .x = 0, .y = 0xfff, .steps = 1000 },
+    //     .{ .x = 0, .y = 0xfff, .steps = 500 },
+    //     .{ .x = 0xfff, .y = 0xfff, .steps = 1000 },
+    //     .{ .x = 0xfff, .y = 0xfff, .steps = 500 },
+    //     .{ .x = 0xfff, .y = 0, .steps = 1000 },
+    //     .{ .x = 0xfff, .y = 0, .steps = 500 },
+    // };
+
+    // const seq = [_]struct { x: u16, y: u16, steps: u16 }{
+    //     .{ .x = 100, .y = 100, .steps = 1 },
+    //     .{ .x = 100, .y = 100, .steps = 500 },
+    //     .{ .x = 100, .y = 1900, .steps = 1000 },
+    //     .{ .x = 100, .y = 1900, .steps = 500 },
+    //     .{ .x = 100, .y = 980, .steps = 1 },
+    //     .{ .x = 100, .y = 980, .steps = 500 },
+    //     .{ .x = 900, .y = 980, .steps = 100 },
+    //     .{ .x = 900, .y = 980, .steps = 500 },
+    //     .{ .x = 900, .y = 100, .steps = 1 },
+    //     .{ .x = 900, .y = 100, .steps = 500 },
+    //     .{ .x = 900, .y = 1900, .steps = 1000 },
+    //     .{ .x = 900, .y = 1900, .steps = 500 },
+    // };
+
+    // var last_x: u16 = seq[seq.len - 1].x;
+    // var last_y: u16 = seq[seq.len - 1].y;
+    // var iseq: u16 = 0;
+    // var step: u16 = 0;
+    // while (true) {
+    //     step += 1;
+    //     const s = seq[iseq];
+    //     const x: i32 = @as(i32, last_x) + @divTrunc((@as(i32, s.x) - @as(i32, last_x)) * @as(i32, step), s.steps);
+    //     const y: i32 = @as(i32, last_y) + @divTrunc((@as(i32, s.y) - @as(i32, last_y)) * @as(i32, step), s.steps);
+    //     //semihosting.writer.print("seq={} step={} x={} y={}\n", .{ iseq, step, x, y }) catch {};
+
+    //     if (step == s.steps) {
+    //         last_x = s.x;
+    //         last_y = s.y;
+    //         step = 0;
+    //         iseq = (iseq + 1) % @as(u16, seq.len);
+    //     }
+    // }
+
+    // var ch: u8 = 1;
+    // while (true) {
+    //     const ir = timer.timer4.popIrRemote(1);
+    //     if (ir != 0) {
+    //         const out = semihosting.writer;
+    //         out.print("IR: 0x{x:08}\n", .{ir}) catch {};
+
+    //         const mask = 0xfffffcfc;
+    //         const button = enum(u32) { // Sky NOW TV remote
+    //             back = 0x57436699 & mask,
+    //             home = 0x5743c03f & mask,
+    //             ok = 0x574354ab & mask,
+    //             up = 0x57439966 & mask,
+    //             down = 0x5743cd32 & mask,
+    //             left = 0x57437986 & mask,
+    //             right = 0x5743b54a & mask,
+    //             rewind = 0x57432dd2 & mask,
+    //             pause = 0x574333cc & mask,
+    //             ff = 0x5743ab54 & mask,
+    //             star = 0x57438679 & mask,
+    //             now = 0x574320df & mask,
+    //             store = 0x574318e7 & mask,
+    //         };
+    //         switch (@as(button, @enumFromInt(ir & mask))) {
+    //             .rewind => ch = 1,
+    //             .pause => ch = 2,
+    //             .ff => ch = 3,
+    //             .up => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 8),
+    //             .down => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 8) -% 8),
+    //             .left => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 1) -% 1),
+    //             .right => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 1),
+    //             .back => @breakpoint(),
+    //             else => {},
+    //         }
+    //     }
+    // }
 }

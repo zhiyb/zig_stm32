@@ -9,14 +9,14 @@
             /* Configuration for the application debug binary */
             "type": "cortex-debug",
             "request": "launch",
-            "name": "Debug application (zhiyb-rpi4:3333)",
+            "name": "Debug application (zhiyb-rpi0w:3333)",
             "servertype": "external",
             "cwd": "${workspaceRoot}",
             "preLaunchTask": "zig build",
             "runToEntryPoint": "main.main",
             "executable": "zig-out/bin/controller",
             "gdbPath": "gdb-multiarch",
-            "gdbTarget": "zhiyb-rpi4:3333",
+            "gdbTarget": "zhiyb-rpi0w:3333",
             "svdFile": "STM32F722.svd",
             "swoConfig": {
                 "enabled": false,

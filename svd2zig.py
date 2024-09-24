@@ -44,7 +44,7 @@ def parseFields(indent, pname, rname, addr, fields):
         if bofs > fbofs:
             # Insert reserved fields
             rbwidth = bofs - fbofs
-            fstrs.append(f"{' '*indent}_{fresv}: u{rbwidth} = 0,\n")
+            fstrs.append(f"{' '*indent}_RESERVED{fresv}: u{rbwidth} = 0,\n")
             fresv += 1
             fbofs += rbwidth
         fstrs.append(parseField(indent, pname, rname, addr, bofs, bwidth, field))
@@ -52,7 +52,7 @@ def parseFields(indent, pname, rname, addr, fields):
     if fbofs < 32:
         # Insert final reserved field
         rbwidth = 32 - fbofs
-        fstrs.append(f"{' '*indent}_{fresv}: u{rbwidth} = 0,\n")
+        fstrs.append(f"{' '*indent}_RESERVED{fresv}: u{rbwidth} = 0,\n")
     return "".join(fstrs)
 
 
@@ -70,12 +70,10 @@ def parseRegister(indent, pname, rname, addr, register):
 
     else:
         # Register with field definitions
-        rstr += f"{' '*indent}{rname}: packed struct {{\n"
+        rstr += f"{' '*indent}{rname}: mmio.Mmio(packed struct {{\n"
         findent = indent + indent_step
         rstr += parseFields(findent, pname, rname, addr, fields)
-        rstr += "\n"
-        rstr += f"{' '*findent}pub const set = set_masked;\n"
-        rstr += f"{' '*indent}}},\n"
+        rstr += f"{' '*indent}}}),\n"
 
     return rstr
 
@@ -104,7 +102,7 @@ def parseRegisters(indent, pname, base, registers):
                 # Maximum allowed Zig bit-width of an integer type is 65535
                 # Limit maximum to 32768
                 ricnt = min(rcnt, 32768 // 8)
-                rstrs.append(f"{' '*rindent}_{rresv}: u{8*ricnt} = 0,\n")
+                rstrs.append(f"{' '*rindent}_RESERVED{rresv}: u{8*ricnt} = 0,\n")
                 rresv += 1
                 raddr += ricnt
                 rcnt -= ricnt
@@ -115,7 +113,7 @@ def parseRegisters(indent, pname, base, registers):
         if len(regs) > 1:
             cname = commonprefix([rname for rname, _ in regs])
             cname = cname.strip("_")
-            rstr += f"{' '*rindent}{cname}: packed union {{\n"
+            rstr += f"{' '*rindent}{cname}: extern union {{\n"
             rindent += indent_step
 
         rrstrs = []
@@ -133,7 +131,7 @@ def parseRegisters(indent, pname, base, registers):
 
 
 def parsePeripheral(indent, pname, base, peripheral):
-    pstr = f"{' '*indent}pub const {pname}: *volatile packed struct {{\n"
+    pstr = f"{' '*indent}pub const {pname}: *volatile extern struct {{\n"
     registers = findElements(peripheral, "registers")[0]
     pstr += parseRegisters(indent, pname, base, registers)
     pstr += f"{' '*indent}}} = @ptrFromInt({base:#010x});\n"
@@ -192,6 +190,7 @@ def main():
 
     with open(args.output, "w") as fout:
         fout.write("""const std = @import("std");
+const mmio = @import("mmio.zig");
 
 // Common helper functions
 pub inline fn set_masked(self: anytype, mask: @TypeOf(self.*), val: @TypeOf(self.*)) void {

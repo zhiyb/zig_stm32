@@ -1,6 +1,5 @@
 const std = @import("std");
 const hal = @import("stm32f722.zig");
-const rcc = @import("rcc.zig");
 
 pub const mode_t = enum {
     analog,
@@ -24,34 +23,91 @@ pub const pull_t = enum {
     pull_down,
 };
 
-pub fn gpio_t(comptime port: []const u8) struct {
-    port: []const u8,
-    reg: @TypeOf(@field(hal, "GPIO" ++ port)),
+pub const gpio_pin_cfg_t = struct {
+    name: ?[:0]const u8 = null,
+    mode: mode_t,
+    af: u4 = 0,
+    pull: pull_t = .pull_none,
+    speed: speed_t = .low,
+    value: u1 = 0,
+};
 
-    pub fn setPinModesComp(self: @This(), comptime confs: []const struct {
-        pin: u5,
-        mode: mode_t,
-        af: u4 = 0,
-        pull: pull_t = .pull_none,
-        speed: speed_t = .low,
-        value: u1 = 0,
-    }) void {
-        comptime var moder_mask: @TypeOf(self.reg.MODER) = .{};
-        comptime var moder_val: @TypeOf(self.reg.MODER) = .{};
-        comptime var otyper_mask: @TypeOf(self.reg.OTYPER) = .{};
-        comptime var otyper_val: @TypeOf(self.reg.OTYPER) = .{};
-        comptime var ospeedr_mask: @TypeOf(self.reg.OSPEEDR) = .{};
-        comptime var ospeedr_val: @TypeOf(self.reg.OSPEEDR) = .{};
-        comptime var pupdr_mask: @TypeOf(self.reg.PUPDR) = .{};
-        comptime var pupdr_val: @TypeOf(self.reg.PUPDR) = .{};
-        comptime var bsrr_val: @TypeOf(self.reg.BSRR) = .{};
-        comptime var afrl_mask: @TypeOf(self.reg.AFRL) = .{};
-        comptime var afrl_val: @TypeOf(self.reg.AFRL) = .{};
-        comptime var afrh_mask: @TypeOf(self.reg.AFRH) = .{};
-        comptime var afrh_val: @TypeOf(self.reg.AFRH) = .{};
+pub const gpio_cfg_t = struct {
+    PIN0: ?gpio_pin_cfg_t = null,
+    PIN1: ?gpio_pin_cfg_t = null,
+    PIN2: ?gpio_pin_cfg_t = null,
+    PIN3: ?gpio_pin_cfg_t = null,
+    PIN4: ?gpio_pin_cfg_t = null,
+    PIN5: ?gpio_pin_cfg_t = null,
+    PIN6: ?gpio_pin_cfg_t = null,
+    PIN7: ?gpio_pin_cfg_t = null,
+    PIN8: ?gpio_pin_cfg_t = null,
+    PIN9: ?gpio_pin_cfg_t = null,
+    PIN10: ?gpio_pin_cfg_t = null,
+    PIN11: ?gpio_pin_cfg_t = null,
+    PIN12: ?gpio_pin_cfg_t = null,
+    PIN13: ?gpio_pin_cfg_t = null,
+    PIN14: ?gpio_pin_cfg_t = null,
+    PIN15: ?gpio_pin_cfg_t = null,
+};
 
-        comptime {
-            for (confs) |conf| {
+pub const cfg_t = struct {
+    GPIOA: ?gpio_cfg_t = null,
+    GPIOB: ?gpio_cfg_t = null,
+    GPIOC: ?gpio_cfg_t = null,
+    GPIOD: ?gpio_cfg_t = null,
+    GPIOE: ?gpio_cfg_t = null,
+    GPIOF: ?gpio_cfg_t = null,
+    GPIOG: ?gpio_cfg_t = null,
+    GPIOH: ?gpio_cfg_t = null,
+    GPIOI: ?gpio_cfg_t = null,
+};
+
+fn initPin(port: []const u8, pin: []const u8, cfg: gpio_pin_cfg_t) ?type {
+    if (cfg.name == null)
+        return null;
+    return switch (cfg.mode) {
+        .input => struct {
+            pub fn read() u1 {
+                const val = @field(hal, port).IDR.read();
+                return @field(val, "IDR" ++ pin);
+            }
+        },
+        .output_push_pull, .output_open_drain => struct {
+            pub fn write(val: u1) void {
+                const bsrr = &@field(hal, port).BSRR;
+                var bsrr_val = @TypeOf(bsrr.*).underlying_type{};
+                if (val != 0) {
+                    @field(bsrr_val, "BS" ++ pin) = 1;
+                } else {
+                    @field(bsrr_val, "BR" ++ pin) = 1;
+                }
+                bsrr.write(bsrr_val);
+            }
+        },
+        .analog, .af_open_drain, .af_push_pull => null,
+    };
+}
+
+pub fn initGpioCfg(comptime port: []const u8, comptime cfgs: gpio_cfg_t) void {
+    const reg = &@field(hal, port);
+    comptime var moder_mask: @TypeOf(reg.*.MODER).underlying_type = .{};
+    comptime var moder_val: @TypeOf(reg.*.MODER).underlying_type = .{};
+    comptime var otyper_mask: @TypeOf(reg.*.OTYPER).underlying_type = .{};
+    comptime var otyper_val: @TypeOf(reg.*.OTYPER).underlying_type = .{};
+    comptime var ospeedr_mask: @TypeOf(reg.*.OSPEEDR).underlying_type = .{};
+    comptime var ospeedr_val: @TypeOf(reg.*.OSPEEDR).underlying_type = .{};
+    comptime var pupdr_mask: @TypeOf(reg.*.PUPDR).underlying_type = .{};
+    comptime var pupdr_val: @TypeOf(reg.*.PUPDR).underlying_type = .{};
+    comptime var bsrr_val: @TypeOf(reg.*.BSRR).underlying_type = .{};
+    comptime var afrl_mask: @TypeOf(reg.*.AFRL).underlying_type = .{};
+    comptime var afrl_val: @TypeOf(reg.*.AFRL).underlying_type = .{};
+    comptime var afrh_mask: @TypeOf(reg.*.AFRH).underlying_type = .{};
+    comptime var afrh_val: @TypeOf(reg.*.AFRH).underlying_type = .{};
+
+    comptime {
+        for (@typeInfo(gpio_cfg_t).@"struct".fields) |cfg_field| {
+            if (@field(cfgs, cfg_field.name)) |conf| {
                 const moder = switch (conf.mode) {
                     .analog => hal.GPIO_MODER.ANALOG,
                     .input => hal.GPIO_MODER.INPUT,
@@ -73,7 +129,8 @@ pub fn gpio_t(comptime port: []const u8) struct {
                     },
                 };
 
-                const pin = std.fmt.comptimePrint("{}", .{conf.pin});
+                const pin = cfg_field.name[3..];
+                const pin_int = std.fmt.parseUnsigned(u4, pin, 0) catch {};
 
                 @field(moder_mask, "MODER" ++ pin) = 0b11;
                 @field(moder_val, "MODER" ++ pin) = @intFromEnum(moder);
@@ -101,7 +158,7 @@ pub fn gpio_t(comptime port: []const u8) struct {
                 }
 
                 if (conf.mode == .af_open_drain or conf.mode == .af_push_pull) {
-                    if (conf.pin >= 8) {
+                    if (pin_int >= 8) {
                         @field(afrh_mask, "AFRH" ++ pin) = 0b1111;
                         @field(afrh_val, "AFRH" ++ pin) = conf.af;
                     } else {
@@ -111,63 +168,62 @@ pub fn gpio_t(comptime port: []const u8) struct {
                 }
             }
         }
-
-        if (!std.meta.eql(bsrr_val, .{}))
-            self.reg.BSRR = bsrr_val;
-        self.reg.AFRL.set(afrl_mask, afrl_val);
-        self.reg.AFRH.set(afrh_mask, afrh_val);
-        self.reg.OTYPER.set(otyper_mask, otyper_val);
-        self.reg.PUPDR.set(pupdr_mask, pupdr_val);
-        self.reg.MODER.set(moder_mask, moder_val);
-        self.reg.OSPEEDR.set(ospeedr_mask, ospeedr_val);
     }
 
-    // pub fn setPinValue(self: gpio_t, p: u5, v: u1) void {
-    //     if (v == 0) {
-    //         self.reg.BSRR = @bitCast(@as(u32, 1) << (p + 16));
-    //     } else {
-    //         self.reg.BSRR = @bitCast(@as(u32, 1) << p);
-    //     }
-    // }
-
-    // pub fn setPinValues(self: gpio_t, values: []const struct { p: u5, v: u1 }) void {
-    //     var bsrr: u32 = 0;
-    //     for (values) |v| {
-    //         if (v.v == 0) {
-    //             bsrr |= @as(u32, 1) << (v.p + 16);
-    //         } else {
-    //             bsrr |= @as(u32, 1) << v.p;
-    //         }
-    //     }
-    //     self.reg.BSRR = @bitCast(bsrr);
-    // }
-
-    // pub fn setPinValuesComp(self: gpio_t, comptime values: []const struct { p: u5, v: u1 }) void {
-    //     comptime var bsrr: u32 = 0;
-    //     comptime {
-    //         for (values) |v| {
-    //             if (v.v == 0) {
-    //                 bsrr |= @as(u32, 1) << (v.p + 16);
-    //             } else {
-    //                 bsrr |= @as(u32, 1) << v.p;
-    //             }
-    //         }
-    //     }
-    //     self.reg.BSRR = @bitCast(bsrr);
-    // }
-} {
-    return .{
-        .port = port,
-        .reg = @field(hal, "GPIO" ++ port),
-    };
+    if (!std.meta.eql(bsrr_val, .{}))
+        reg.*.BSRR.write(bsrr_val);
+    reg.*.AFRL.modify_masked(afrl_mask, afrl_val);
+    reg.*.AFRH.modify_masked(afrh_mask, afrh_val);
+    reg.*.OTYPER.modify_masked(otyper_mask, otyper_val);
+    reg.*.PUPDR.modify_masked(pupdr_mask, pupdr_val);
+    reg.*.MODER.modify_masked(moder_mask, moder_val);
+    reg.*.OSPEEDR.modify_masked(ospeedr_mask, ospeedr_val);
 }
 
-pub const gpio_a = gpio_t("A");
-pub const gpio_b = gpio_t("B");
-pub const gpio_c = gpio_t("C");
-pub const gpio_d = gpio_t("D");
-pub const gpio_e = gpio_t("E");
-pub const gpio_f = gpio_t("F");
-pub const gpio_g = gpio_t("G");
-pub const gpio_h = gpio_t("H");
-pub const gpio_i = gpio_t("I");
+pub fn initCfg(comptime cfgs: cfg_t) type {
+    comptime var pin_fields: []const std.builtin.Type.StructField = &.{};
+    comptime {
+        for (@typeInfo(cfg_t).@"struct".fields) |gpio_field| {
+            if (@field(cfgs, gpio_field.name)) |gpio_config| {
+                for (@typeInfo(gpio_cfg_t).@"struct".fields) |cfg_field| {
+                    if (@field(gpio_config, cfg_field.name)) |cfg| {
+                        if (cfg.name) |name| {
+                            const pin = cfg_field.name[3..];
+                            const field_pin_type = initPin(gpio_field.name, pin, cfg);
+                            if (field_pin_type) |field_type| {
+                                pin_fields = pin_fields ++ &[_]std.builtin.Type.StructField{.{
+                                    .name = name,
+                                    .type = type,
+                                    .is_comptime = true,
+                                    .default_value = &field_type,
+                                    .alignment = @alignOf(gpio_cfg_t),
+                                }};
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        const pin_type = @Type(.{ .@"struct" = .{
+            .layout = .auto,
+            .is_tuple = false,
+            .fields = pin_fields,
+            .decls = &.{},
+        } });
+
+        return struct {
+            pub const pins = pin_type{};
+
+            pub fn apply() void {
+                inline for (@typeInfo(cfg_t).@"struct".fields) |gpio_field|
+                    if (@field(cfgs, gpio_field.name)) |gpio_config|
+                        initGpioCfg(gpio_field.name, gpio_config);
+            }
+        };
+    }
+}
+
+pub fn ioCompEnable(en: bool) void {
+    hal.SYSCFG.CMPCR.modify(.{ .CMP_PD = @intFromBool(en) });
+}

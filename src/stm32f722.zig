@@ -1,68 +1,70 @@
+const mmio = @import("mmio.zig");
+
 pub usingnamespace @import("stm32f722_svd.zig");
 
-pub const CoreDebug: *volatile packed struct {
-    DHCSR: packed struct {
+pub const CoreDebug: *volatile extern struct {
+    DHCSR: mmio.Mmio(packed struct {
         C_DEBUGEN: u1,
         C_HALT: u1,
         C_STEP: u1,
         C_MASKINTS: u1,
-        _0: u1,
+        _RESERVED0: u1,
         C_SNAPSTALL: u1,
-        _1: u10,
+        _RESERVED1: u10,
         DEBUG: packed union {
             S: packed struct {
                 S_REGRDY: u1,
                 S_HALT: u1,
                 S_SLEEP: u1,
                 S_LOCKUP: u1,
-                _2: u4,
+                _RESERVED2: u4,
                 S_RETIRE_ST: u1,
                 S_RESET_ST: u1,
-                _3: u6,
+                _RESERVED3: u6,
             },
             DBGKEY: u16,
         },
-    },
+    }),
 
-    DCRSR: packed struct {
-        _0: u32,
-    },
+    DCRSR: mmio.Mmio(packed struct {
+        _RESERVED0: u32,
+    }),
 
-    DCRDR: packed struct {
-        _0: u32,
-    },
+    DCRDR: mmio.Mmio(packed struct {
+        _RESERVED0: u32,
+    }),
 
-    DEMCR: packed struct {
-        _0: u32,
-    },
+    DEMCR: mmio.Mmio(packed struct {
+        _RESERVED0: u32,
+    }),
 } = @ptrFromInt(0xE000EDF0);
 
-pub const SYST: *volatile packed struct {
-    CSR: packed struct {
+pub const SYST: *volatile extern struct {
+    CSR: mmio.Mmio(packed struct {
         ENABLE: u1 = 0,
         TICKINT: u1 = 0,
         CLKSOURCE: u1 = 0,
-        _0: u13 = 0,
+        _RESERVED0: u13 = 0,
         COUNTFLAG: u1 = 0,
-        _1: u15 = 0,
-    },
+        _RESERVED1: u15 = 0,
+    }),
 
-    RVR: packed struct {
+    RVR: mmio.Mmio(packed struct {
         RELOAD: u24 = 0,
-        _0: u8 = 0,
-    },
+        _RESERVED0: u8 = 0,
+    }),
 
-    CVR: packed struct {
+    CVR: mmio.Mmio(packed struct {
         CURRENT: u24 = 0,
-        _0: u8 = 0,
-    },
+        _RESERVED0: u8 = 0,
+    }),
 
-    CALIB: packed struct {
+    CALIB: mmio.Mmio(packed struct {
         TENMS: u24 = 0,
-        _0: u6 = 0,
+        _RESERVED0: u6 = 0,
         SKEW: u1 = 0,
         NOREF: u1 = 0,
-    },
+    }),
 } = @ptrFromInt(0xE000E010);
 
 pub const PWR_CR1_VOS = enum(u2) {
@@ -197,5 +199,5 @@ pub const GPIO_PUPDR = enum(u2) {
 // };
 
 pub fn dbgEn() bool {
-    return CoreDebug.DHCSR.C_DEBUGEN != 0;
+    return CoreDebug.DHCSR.read().C_DEBUGEN != 0;
 }

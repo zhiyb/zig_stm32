@@ -13,14 +13,14 @@ pub fn init() void {
     const reg = hal.SYST;
     ptick.* = 0;
 
-    reg.CSR = .{
+    reg.CSR.write(.{
         .CLKSOURCE = 0,
         .TICKINT = 1,
         .ENABLE = 0,
-    };
-    reg.RVR = .{ .RELOAD = ratio - 1 };
-    reg.CVR = .{ .CURRENT = 0 };
-    reg.CSR.ENABLE = 1;
+    });
+    reg.RVR.write(.{ .RELOAD = ratio - 1 });
+    reg.CVR.write(.{ .CURRENT = 0 });
+    reg.CSR.modify(.{ .ENABLE = 1 });
 }
 
 pub fn irq() callconv(.C) void {
