@@ -60,22 +60,26 @@ pub fn init() void {
     hal.RCC.DCKCFGR2.write(.{});
 }
 
-const clock_t = enum {
-    ahb,
-    apb1,
-    apb1_timer,
-    apb2,
-    apb2_timer,
+pub const bus_t = enum {
+    AHB,
+    APB1,
+    APB1_TIMER,
+    APB2,
+    APB2_TIMER,
 };
 
-pub fn clockHz(clock: clock_t) u32 {
-    return switch (clock) {
-        .ahb => 216_000_000,
-        .apb1 => 54_000_000,
-        .apb1_timer => 108_000_000,
-        .apb2 => 108_000_000,
-        .apb2_timer => 216_000_000,
-    };
+pub fn clockHz(comptime bus: []const u8) u32 {
+    if (comptime std.meta.stringToEnum(bus_t, bus)) |bus_enum| {
+        return switch (bus_enum) {
+            .AHB => 216_000_000,
+            .APB1 => 54_000_000,
+            .APB1_TIMER => 108_000_000,
+            .APB2 => 108_000_000,
+            .APB2_TIMER => 216_000_000,
+        };
+    } else {
+        @compileError("Unknown bus type: " ++ bus);
+    }
 }
 
 const buses = .{ "ahb1", "ahb2", "ahb3", "apb1", "apb2" };

@@ -2,6 +2,7 @@ const std = @import("std");
 const rcc = @import("rcc.zig");
 // const nvic = @import("nvic.zig");
 const gpio = @import("gpio.zig");
+const spi = @import("spi.zig");
 // const timer = @import("timer.zig");
 const systick = @import("systick.zig");
 const semihosting = @import("semihosting.zig");
@@ -57,7 +58,7 @@ const pin_cfg = gpio.initCfg(.{
         .PIN3 = .{ .name = "OTG_HS_ULPI_NXT", .mode = .af_push_pull, .af = 10, .speed = .high },
         .PIN4 = .{ .name = "V_SENSE", .mode = .analog }, // ADC1_IN14
         .PIN5 = .{ .name = null, .mode = .analog },
-        .PIN6 = .{ .name = "DAC_LOAD", .mode = .output_push_pull, .speed = .medium, .value = 1 },
+        .PIN6 = .{ .name = "XY_LDAC", .mode = .output_push_pull, .speed = .medium, .value = 1 },
         .PIN7 = .{ .name = "LASER_R", .mode = .output_push_pull, .speed = .medium, .value = 0 },
         .PIN8 = .{ .name = "LASER_G", .mode = .output_push_pull, .speed = .medium, .value = 0 },
         .PIN9 = .{ .name = "LASER_B", .mode = .output_push_pull, .speed = .medium, .value = 0 },
@@ -73,6 +74,9 @@ const pin_cfg = gpio.initCfg(.{
     },
 });
 
+pub const x_spi = spi.master("SPI3");
+pub const y_spi = spi.master("SPI2");
+
 fn init() !void {
     rcc.init();
     rcc.enablePeripheralsComp(&.{
@@ -81,12 +85,23 @@ fn init() !void {
         .{ .per = "GPIOC" },
         .{ .per = "GPIOD" },
         .{ .per = "SYSCFG" },
+        .{ .per = "SPI2" },
+        .{ .per = "SPI3" },
     });
 
     systick.init();
 
     gpio.ioCompEnable(true);
     pin_cfg.apply();
+
+    const spi_cfg: spi.spi_cfg_t = .{
+        .cpha = 0,
+        .cpol = 0,
+        .bits = 16,
+        .freq_hz = 20_000_000,
+    };
+    x_spi.init(spi_cfg);
+    y_spi.init(spi_cfg);
 
     // timer.timer1.initPwm(0x03ff);
     // timer.timer4.initIrRemote();
@@ -101,7 +116,21 @@ pub fn main() noreturn {
     semihosting.writer.print("Hello, world!\n", .{}) catch {};
 
     const pins = pin_cfg.pins;
+    var v: u12 = 0;
     while (true) {
+        const x = v;
+        const y = v;
+        v +%= 1;
+        x_spi.transmit((0b0111 << 12) + @as(u16, x));
+        y_spi.transmit((0b0111 << 12) + @as(u16, y));
+        x_spi.transmit((0b1111 << 12) + @as(u16, ~x));
+        y_spi.transmit((0b1111 << 12) + @as(u16, ~y));
+        pins.XY_LDAC.write(0);
+        systick.delay_us(2);
+        pins.XY_LDAC.write(1);
+        systick.delay_us(2);
+        // systick.delay_ms(1);
+
         pins.LED_R.write(pins.IR.read());
         pins.LED_G.write(~pins.BTN_1.read());
         pins.LED_B.write(~pins.BTN_2.read());

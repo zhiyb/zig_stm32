@@ -3,7 +3,7 @@ const rcc = @import("rcc.zig");
 
 pub const tick_rate = 1_000;
 // Clock source AHB/8
-const freq_in = rcc.clockHz(.ahb) / 8;
+const freq_in = rcc.clockHz("AHB") / 8;
 const ratio = freq_in / tick_rate;
 
 var _tick: u32 = 0;
@@ -31,7 +31,7 @@ pub fn get_tick() struct { tick: u32, cnt: u32 } {
     var tick = ptick.*;
     var cnt: u32 = 0;
     while (true) {
-        cnt = hal.SYST.CVR.CURRENT;
+        cnt = hal.SYST.CVR.read().CURRENT;
         const now = ptick.*;
         if (now == tick) {
             break;
