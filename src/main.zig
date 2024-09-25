@@ -63,11 +63,11 @@ const pin_cfg = gpio.initCfg(.{
         .PIN8 = .{ .name = "LASER_G", .mode = .output_push_pull, .speed = .medium, .value = 0 },
         .PIN9 = .{ .name = "LASER_B", .mode = .output_push_pull, .speed = .medium, .value = 0 },
         .PIN10 = .{ .name = "X_SDI", .mode = .af_push_pull, .af = 6, .speed = .medium }, // SPI3_SCK
-        .PIN11 = .{ .name = "", .mode = .analog },
-        .PIN12 = .{ .name = "", .mode = .analog },
+        .PIN11 = .{ .name = null, .mode = .analog },
+        .PIN12 = .{ .name = null, .mode = .analog },
         .PIN13 = .{ .name = "BTN_1", .mode = .input, .pull = .pull_down },
         .PIN14 = .{ .name = "BTN_2", .mode = .input, .pull = .pull_down },
-        .PIN15 = .{ .name = "", .mode = .analog },
+        .PIN15 = .{ .name = null, .mode = .analog },
     },
     .GPIOD = .{
         .PIN2 = .{ .name = null, .mode = .analog },
@@ -115,31 +115,6 @@ pub fn main() noreturn {
 
     semihosting.writer.print("Hello, world!\n", .{}) catch {};
 
-    const pins = pin_cfg.pins;
-    var v: u12 = 0;
-    while (true) {
-        const x = v;
-        const y = v;
-        v +%= 1;
-        x_spi.transmit((0b0111 << 12) + @as(u16, x));
-        y_spi.transmit((0b0111 << 12) + @as(u16, y));
-        x_spi.transmit((0b1111 << 12) + @as(u16, ~x));
-        y_spi.transmit((0b1111 << 12) + @as(u16, ~y));
-        pins.XY_LDAC.write(0);
-        systick.delay_us(2);
-        pins.XY_LDAC.write(1);
-        systick.delay_us(2);
-        // systick.delay_ms(1);
-
-        pins.LED_R.write(pins.IR.read());
-        pins.LED_G.write(~pins.BTN_1.read());
-        pins.LED_B.write(~pins.BTN_2.read());
-
-        pins.LASER_R.write(~pins.IR.read());
-        pins.LASER_G.write(pins.BTN_1.read());
-        pins.LASER_B.write(pins.BTN_2.read());
-    }
-
     // const seq = [_]struct { x: u16, y: u16, steps: u16 }{
     //     .{ .x = 0, .y = 0, .steps = 1000 },
     //     .{ .x = 0, .y = 0, .steps = 500 },
@@ -151,39 +126,73 @@ pub fn main() noreturn {
     //     .{ .x = 0xfff, .y = 0, .steps = 500 },
     // };
 
-    // const seq = [_]struct { x: u16, y: u16, steps: u16 }{
-    //     .{ .x = 100, .y = 100, .steps = 1 },
-    //     .{ .x = 100, .y = 100, .steps = 500 },
-    //     .{ .x = 100, .y = 1900, .steps = 1000 },
-    //     .{ .x = 100, .y = 1900, .steps = 500 },
-    //     .{ .x = 100, .y = 980, .steps = 1 },
-    //     .{ .x = 100, .y = 980, .steps = 500 },
-    //     .{ .x = 900, .y = 980, .steps = 100 },
-    //     .{ .x = 900, .y = 980, .steps = 500 },
-    //     .{ .x = 900, .y = 100, .steps = 1 },
-    //     .{ .x = 900, .y = 100, .steps = 500 },
-    //     .{ .x = 900, .y = 1900, .steps = 1000 },
-    //     .{ .x = 900, .y = 1900, .steps = 500 },
-    // };
+    const seq = [_]struct {
+        x: u16,
+        y: u16,
+        steps: u16,
+        on: bool = true,
+    }{
+        .{ .x = 100, .y = 100, .steps = 100, .on = false },
+        .{ .x = 100, .y = 100, .steps = 100, .on = false },
+        .{ .x = 100, .y = 100, .steps = 100 },
+        .{ .x = 100, .y = 1900, .steps = 200 },
+        .{ .x = 100, .y = 1900, .steps = 100 },
+        .{ .x = 100, .y = 980, .steps = 1 },
+        .{ .x = 100, .y = 980, .steps = 100 },
+        .{ .x = 900, .y = 980, .steps = 20 },
+        .{ .x = 900, .y = 980, .steps = 100 },
+        .{ .x = 900, .y = 100, .steps = 1 },
+        .{ .x = 900, .y = 100, .steps = 100 },
+        .{ .x = 900, .y = 1900, .steps = 200 },
+        .{ .x = 900, .y = 1900, .steps = 100 },
+    };
 
-    // var last_x: u16 = seq[seq.len - 1].x;
-    // var last_y: u16 = seq[seq.len - 1].y;
-    // var iseq: u16 = 0;
-    // var step: u16 = 0;
-    // while (true) {
-    //     step += 1;
-    //     const s = seq[iseq];
-    //     const x: i32 = @as(i32, last_x) + @divTrunc((@as(i32, s.x) - @as(i32, last_x)) * @as(i32, step), s.steps);
-    //     const y: i32 = @as(i32, last_y) + @divTrunc((@as(i32, s.y) - @as(i32, last_y)) * @as(i32, step), s.steps);
-    //     //semihosting.writer.print("seq={} step={} x={} y={}\n", .{ iseq, step, x, y }) catch {};
+    var last_x: u16 = seq[seq.len - 1].x;
+    var last_y: u16 = seq[seq.len - 1].y;
+    var iseq: u16 = 0;
+    var step: u16 = 0;
 
-    //     if (step == s.steps) {
-    //         last_x = s.x;
-    //         last_y = s.y;
-    //         step = 0;
-    //         iseq = (iseq + 1) % @as(u16, seq.len);
-    //     }
-    // }
+    const pins = pin_cfg.pins;
+    while (true) {
+        step += 1;
+        const s = seq[iseq];
+        const x: i32 = @as(i32, last_x) + @divTrunc((@as(i32, s.x) - @as(i32, last_x)) * @as(i32, step), s.steps);
+        const y: i32 = @as(i32, last_y) + @divTrunc((@as(i32, s.y) - @as(i32, last_y)) * @as(i32, step), s.steps);
+
+        if (step == s.steps) {
+            last_x = s.x;
+            last_y = s.y;
+            step = 0;
+            iseq = (iseq + 1) % @as(u16, seq.len);
+        }
+
+        if (!s.on) {
+            pins.LASER_R.write(0);
+            pins.LASER_G.write(0);
+            pins.LASER_B.write(0);
+        }
+
+        const ux = @as(u12, @intCast(x));
+        const uy = @as(u12, @intCast(y));
+        x_spi.transmit((0b0111 << 12) + @as(u16, ux));
+        y_spi.transmit((0b0111 << 12) + @as(u16, uy));
+        x_spi.transmit((0b1111 << 12) + @as(u16, ~ux));
+        y_spi.transmit((0b1111 << 12) + @as(u16, ~uy));
+        pins.XY_LDAC.write(0);
+        systick.delay_us(2);
+        pins.XY_LDAC.write(1);
+        systick.delay_us(2);
+
+        pins.LED_R.write(pins.IR.read());
+        pins.LED_G.write(~pins.BTN_1.read());
+        pins.LED_B.write(~pins.BTN_2.read());
+
+        if (s.on) {
+            pins.LASER_R.write(~pins.IR.read());
+            pins.LASER_G.write(pins.BTN_1.read());
+            pins.LASER_B.write(pins.BTN_2.read());
+        }
+    }
 
     // var ch: u8 = 1;
     // while (true) {
