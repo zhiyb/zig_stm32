@@ -145,7 +145,7 @@ comptime {
     @export(&default_irq, .{ .name = "SVC_Handler" });
     @export(&default_irq, .{ .name = "DebugMon_Handler" });
     @export(&default_irq, .{ .name = "PendSV_Handler" });
-    @export(&systick.irq, .{ .name = "SysTick_Handler" });
+    // @export(&default_irq, .{ .name = "SysTick_Handler" });
     @export(&default_irq, .{ .name = "WWDG_IRQHandler" });
     @export(&default_irq, .{ .name = "PVD_IRQHandler" });
     @export(&default_irq, .{ .name = "TAMP_STAMP_IRQHandler" });

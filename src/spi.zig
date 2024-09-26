@@ -3,11 +3,11 @@ const hal = @import("stm32f722.zig");
 const rcc = @import("rcc.zig");
 
 pub const spi_bus_map_t = struct {
-    const SPI1 = "APB2";
-    const SPI2 = "APB1";
-    const SPI3 = "APB1";
-    const SPI4 = "APB2";
-    const SPI5 = "APB2";
+    const SPI1 = rcc.bus_t.APB2;
+    const SPI2 = rcc.bus_t.APB1;
+    const SPI3 = rcc.bus_t.APB1;
+    const SPI4 = rcc.bus_t.APB2;
+    const SPI5 = rcc.bus_t.APB2;
 };
 
 pub const spi_cfg_t = struct {
@@ -34,9 +34,9 @@ fn baudRateDiv(ratio: u32) u3 {
 pub fn master(comptime spix: []const u8) type {
     const reg = @field(hal, spix);
     return struct {
-        pub fn init(comptime cfg: spi_cfg_t) void {
+        pub fn init(rcc_inst: type, comptime cfg: spi_cfg_t) void {
             // Configure SPI
-            const bus_freq_hz = comptime rcc.clockHz(@field(spi_bus_map_t, spix));
+            const bus_freq_hz = comptime rcc_inst.clockHz(@field(spi_bus_map_t, spix));
             const ratio = comptime bus_freq_hz / cfg.freq_hz;
             const br = comptime baudRateDiv(ratio);
             reg.CR1.write(comptime .{

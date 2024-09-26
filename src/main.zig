@@ -14,7 +14,17 @@ comptime {
     _ = @import("start.zig");
 }
 
-const pin_cfg = gpio.initCfg(.{
+const rcc_inst = rcc.config(.{
+    .mode = .pll_hse,
+    .hse_freq_hz = 19_200_000,
+    .pll_freq_hz = 216_000_000,
+});
+
+const systick_inst = systick.config(rcc_inst, .{
+    .tick_rate_hz = 1_000,
+});
+
+const pin_inst = gpio.initCfg(.{
     .GPIOA = .{
         .PIN0 = .{ .name = "LED_G", .mode = .output_push_pull, .speed = .medium, .value = 1 },
         .PIN1 = .{ .name = "LED_B", .mode = .output_push_pull, .speed = .medium, .value = 1 },
@@ -78,7 +88,7 @@ pub const x_spi = spi.master("SPI3");
 pub const y_spi = spi.master("SPI2");
 
 fn init() !void {
-    rcc.init();
+    rcc_inst.apply();
     rcc.enablePeripheralsComp(&.{
         .{ .per = "GPIOA" },
         .{ .per = "GPIOB" },
@@ -89,10 +99,10 @@ fn init() !void {
         .{ .per = "SPI3" },
     });
 
-    systick.init();
+    systick_inst.apply();
 
     gpio.ioCompEnable(true);
-    pin_cfg.apply();
+    pin_inst.apply();
 
     const spi_cfg: spi.spi_cfg_t = .{
         .cpha = 0,
@@ -100,8 +110,8 @@ fn init() !void {
         .bits = 16,
         .freq_hz = 20_000_000,
     };
-    x_spi.init(spi_cfg);
-    y_spi.init(spi_cfg);
+    x_spi.init(rcc_inst, spi_cfg);
+    y_spi.init(rcc_inst, spi_cfg);
 
     // timer.timer1.initPwm(0x03ff);
     // timer.timer4.initIrRemote();
@@ -152,7 +162,7 @@ pub fn main() noreturn {
     var iseq: u16 = 0;
     var step: u16 = 0;
 
-    const pins = pin_cfg.pins;
+    const pins = pin_inst.pins;
     while (true) {
         step += 1;
         const s = seq[iseq];
@@ -179,9 +189,9 @@ pub fn main() noreturn {
         x_spi.transmit((0b1111 << 12) + @as(u16, ~ux));
         y_spi.transmit((0b1111 << 12) + @as(u16, ~uy));
         pins.XY_LDAC.write(0);
-        systick.delay_us(2);
+        systick_inst.delay_us(2);
         pins.XY_LDAC.write(1);
-        systick.delay_us(2);
+        systick_inst.delay_us(2);
 
         pins.LED_R.write(pins.IR.read());
         pins.LED_G.write(~pins.BTN_1.read());
