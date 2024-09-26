@@ -23,7 +23,7 @@ const pin_cfg = gpio.initCfg(.{
         .PIN4 = .{ .name = null, .mode = .analog },
         .PIN5 = .{ .name = "OTG_HS_ULPI_CK", .mode = .af_push_pull, .af = 10, .speed = .high },
         .PIN6 = .{ .name = "ESP_INT", .mode = .analog },
-        .PIN7 = .{ .name = "IR", .mode = .input, .pull = .pull_up },
+        .PIN7 = .{ .name = "IR", .mode = .input, .af = 9, .pull = .pull_up }, // TIM14_CH1
         .PIN8 = .{ .name = "MCO_1", .mode = .af_push_pull, .af = 0, .speed = .high },
         .PIN9 = .{ .name = "Y_SCK", .mode = .af_push_pull, .af = 5, .speed = .medium }, // SPI2_SCK
         .PIN10 = .{ .name = "USB_OTG_FS_ID", .mode = .af_push_pull, .af = 10, .speed = .medium },

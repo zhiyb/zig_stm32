@@ -157,14 +157,12 @@ pub fn initGpioCfg(comptime port: []const u8, comptime cfgs: gpio_cfg_t) void {
                     }
                 }
 
-                if (conf.mode == .af_open_drain or conf.mode == .af_push_pull) {
-                    if (pin_int >= 8) {
-                        @field(afrh_mask, "AFRH" ++ pin) = 0b1111;
-                        @field(afrh_val, "AFRH" ++ pin) = conf.af;
-                    } else {
-                        @field(afrl_mask, "AFRL" ++ pin) = 0b1111;
-                        @field(afrl_val, "AFRL" ++ pin) = conf.af;
-                    }
+                if (pin_int >= 8) {
+                    @field(afrh_mask, "AFRH" ++ pin) = 0b1111;
+                    @field(afrh_val, "AFRH" ++ pin) = conf.af;
+                } else {
+                    @field(afrl_mask, "AFRL" ++ pin) = 0b1111;
+                    @field(afrl_val, "AFRL" ++ pin) = conf.af;
                 }
             }
         }
