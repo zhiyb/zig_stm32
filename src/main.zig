@@ -1,4 +1,5 @@
 const std = @import("std");
+const hal = @import("stm32f722.zig");
 const rcc = @import("rcc.zig");
 // const nvic = @import("nvic.zig");
 const gpio = @import("gpio.zig");
@@ -8,11 +9,6 @@ const systick = @import("systick.zig");
 const semihosting = @import("semihosting.zig");
 
 pub const panic = semihosting.panic;
-
-comptime {
-    // Force import start.zig
-    _ = @import("start.zig");
-}
 
 const rcc_inst = rcc.config(.{
     .mode = .pll_hse,
@@ -86,6 +82,12 @@ const pin_inst = gpio.initCfg(.{
 
 pub const x_spi = spi.master("SPI3");
 pub const y_spi = spi.master("SPI2");
+
+comptime {
+    hal.createIrqVect(.{
+        .SysTick = &systick_inst.irq,
+    });
+}
 
 fn init() !void {
     rcc_inst.apply();

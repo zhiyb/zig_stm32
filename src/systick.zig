@@ -29,10 +29,6 @@ pub fn config(rcc_inst: type, cfg: cfg_t) type {
             _ = @atomicRmw(@TypeOf(_tick), &_tick, .Add, 1, .monotonic);
         }
 
-        comptime {
-            @export(&irq, .{ .name = "SysTick_Handler" });
-        }
-
         pub fn get_tick() struct { tick: u32, cnt: u32 } {
             var tick = @atomicLoad(@TypeOf(_tick), &_tick, .unordered);
             var cnt: u32 = 0;
