@@ -129,10 +129,10 @@ pub const TIM1: *volatile extern struct {
 
         Input: mmio.Mmio(packed struct {
             CC1S: u2 = 0,
-            ICPCS: u2 = 0,
+            IC1PSC: u2 = 0,
             IC1F: u4 = 0,
             CC2S: u2 = 0,
-            IC2PCS: u2 = 0,
+            IC2PSC: u2 = 0,
             IC2F: u4 = 0,
             _RESERVED0: u16 = 0,
         }),
@@ -260,7 +260,7 @@ pub const TIM1: *volatile extern struct {
         DMAB: u32 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     CCMR3_Output: mmio.Mmio(packed struct {
         _RESERVED0: u2 = 0,
@@ -467,7 +467,7 @@ pub const TIM6: *volatile extern struct {
         _RESERVED1: u25 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     DIER: mmio.Mmio(packed struct {
         UIE: u1 = 0,
@@ -486,7 +486,7 @@ pub const TIM6: *volatile extern struct {
         _RESERVED0: u31 = 0,
     }),
 
-    _RESERVED1: u96 = 0,
+    _RESERVED1: [12]u8 = undefined,
 
     CNT: mmio.Mmio(packed struct {
         CNT: u16 = 0,
@@ -671,7 +671,7 @@ pub const CAN1: *volatile extern struct {
         SILM: u1 = 0,
     }),
 
-    _RESERVED0: u2816 = 0,
+    _RESERVED0: [352]u8 = undefined,
 
     TI0R: mmio.Mmio(packed struct {
         TXRQ: u1 = 0,
@@ -821,7 +821,7 @@ pub const CAN1: *volatile extern struct {
         DATA7: u8 = 0,
     }),
 
-    _RESERVED1: u384 = 0,
+    _RESERVED1: [48]u8 = undefined,
 
     FMR: mmio.Mmio(packed struct {
         FINIT: u1 = 0,
@@ -846,7 +846,7 @@ pub const CAN1: *volatile extern struct {
         _RESERVED0: u18 = 0,
     }),
 
-    _RESERVED2: u32 = 0,
+    _RESERVED2: [4]u8 = undefined,
 
     FS1R: mmio.Mmio(packed struct {
         FSC0: u1 = 0,
@@ -866,7 +866,7 @@ pub const CAN1: *volatile extern struct {
         _RESERVED0: u18 = 0,
     }),
 
-    _RESERVED3: u32 = 0,
+    _RESERVED3: [4]u8 = undefined,
 
     FFA1R: mmio.Mmio(packed struct {
         FFA0: u1 = 0,
@@ -886,7 +886,7 @@ pub const CAN1: *volatile extern struct {
         _RESERVED0: u18 = 0,
     }),
 
-    _RESERVED4: u32 = 0,
+    _RESERVED4: [4]u8 = undefined,
 
     FA1R: mmio.Mmio(packed struct {
         FACT0: u1 = 0,
@@ -906,7 +906,7 @@ pub const CAN1: *volatile extern struct {
         _RESERVED0: u18 = 0,
     }),
 
-    _RESERVED5: u256 = 0,
+    _RESERVED5: [32]u8 = undefined,
 
     F0R1: mmio.Mmio(packed struct {
         FB0: u1 = 0,
@@ -2888,7 +2888,7 @@ pub const CRC: *volatile extern struct {
         _RESERVED1: u24 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     INIT: mmio.Mmio(packed struct {
         CRC_INIT: u32 = 0,
@@ -4058,7 +4058,7 @@ pub const FMC: *volatile extern struct {
         _RESERVED0: u2 = 0,
     }),
 
-    _RESERVED0: u768 = 0,
+    _RESERVED0: [96]u8 = undefined,
 
     PCR: mmio.Mmio(packed struct {
         _RESERVED0: u1 = 0,
@@ -4099,13 +4099,13 @@ pub const FMC: *volatile extern struct {
         ATTHIZx: u8 = 0,
     }),
 
-    _RESERVED1: u32 = 0,
+    _RESERVED1: [4]u8 = undefined,
 
     ECCR: mmio.Mmio(packed struct {
         ECCx: u32 = 0,
     }),
 
-    _RESERVED2: u864 = 0,
+    _RESERVED2: [108]u8 = undefined,
 
     BWTR1: mmio.Mmio(packed struct {
         ADDSET: u4 = 0,
@@ -4117,7 +4117,7 @@ pub const FMC: *volatile extern struct {
         _RESERVED1: u2 = 0,
     }),
 
-    _RESERVED3: u32 = 0,
+    _RESERVED3: [4]u8 = undefined,
 
     BWTR2: mmio.Mmio(packed struct {
         ADDSET: u4 = 0,
@@ -4129,7 +4129,7 @@ pub const FMC: *volatile extern struct {
         _RESERVED1: u2 = 0,
     }),
 
-    _RESERVED4: u32 = 0,
+    _RESERVED4: [4]u8 = undefined,
 
     BWTR3: mmio.Mmio(packed struct {
         ADDSET: u4 = 0,
@@ -4141,7 +4141,7 @@ pub const FMC: *volatile extern struct {
         _RESERVED1: u2 = 0,
     }),
 
-    _RESERVED5: u32 = 0,
+    _RESERVED5: [4]u8 = undefined,
 
     BWTR4: mmio.Mmio(packed struct {
         ADDSET: u4 = 0,
@@ -4153,7 +4153,7 @@ pub const FMC: *volatile extern struct {
         _RESERVED1: u2 = 0,
     }),
 
-    _RESERVED6: u256 = 0,
+    _RESERVED6: [32]u8 = undefined,
 
     SDCR1: mmio.Mmio(packed struct {
         NC: u2 = 0,
@@ -4239,7 +4239,7 @@ pub const TIM9: *volatile extern struct {
         _RESERVED1: u22 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     SMCR: mmio.Mmio(packed struct {
         SMS: u3 = 0,
@@ -4299,17 +4299,17 @@ pub const TIM9: *volatile extern struct {
 
         Input: mmio.Mmio(packed struct {
             CC1S: u2 = 0,
-            ICPCS: u2 = 0,
+            IC1PSC: u2 = 0,
             IC1F: u3 = 0,
             _RESERVED0: u1 = 0,
             CC2S: u2 = 0,
-            IC2PCS: u2 = 0,
+            IC2PSC: u2 = 0,
             IC2F: u3 = 0,
             _RESERVED1: u17 = 0,
         }),
     },
 
-    _RESERVED1: u32 = 0,
+    _RESERVED1: [4]u8 = undefined,
 
     CCER: mmio.Mmio(packed struct {
         CC1E: u1 = 0,
@@ -4338,7 +4338,7 @@ pub const TIM9: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED2: u32 = 0,
+    _RESERVED2: [4]u8 = undefined,
 
     CCR1: mmio.Mmio(packed struct {
         CCR1: u16 = 0,
@@ -4455,10 +4455,10 @@ pub const TIM2: *volatile extern struct {
 
         Input: mmio.Mmio(packed struct {
             CC1S: u2 = 0,
-            ICPCS: u2 = 0,
+            IC1PSC: u2 = 0,
             IC1F: u4 = 0,
             CC2S: u2 = 0,
-            IC2PCS: u2 = 0,
+            IC2PSC: u2 = 0,
             IC2F: u4 = 0,
             _RESERVED0: u16 = 0,
         }),
@@ -4475,7 +4475,7 @@ pub const TIM2: *volatile extern struct {
             OC4FE: u1 = 0,
             OC4PE: u1 = 0,
             OC4M: u3 = 0,
-            O24CE: u1 = 0,
+            OC4CE: u1 = 0,
             OC3M_3: u1 = 0,
             _RESERVED0: u7 = 0,
             OC4M_3: u1 = 0,
@@ -4528,7 +4528,7 @@ pub const TIM2: *volatile extern struct {
         ARR_H: u16 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     CCR1: mmio.Mmio(packed struct {
         CCR1_L: u16 = 0,
@@ -4550,7 +4550,7 @@ pub const TIM2: *volatile extern struct {
         CCR4_H: u16 = 0,
     }),
 
-    _RESERVED1: u32 = 0,
+    _RESERVED1: [4]u8 = undefined,
 
     DCR: mmio.Mmio(packed struct {
         DBA: u5 = 0,
@@ -4673,10 +4673,10 @@ pub const TIM3: *volatile extern struct {
 
         Input: mmio.Mmio(packed struct {
             CC1S: u2 = 0,
-            ICPCS: u2 = 0,
+            IC1PSC: u2 = 0,
             IC1F: u4 = 0,
             CC2S: u2 = 0,
-            IC2PCS: u2 = 0,
+            IC2PSC: u2 = 0,
             IC2F: u4 = 0,
             _RESERVED0: u16 = 0,
         }),
@@ -4693,7 +4693,7 @@ pub const TIM3: *volatile extern struct {
             OC4FE: u1 = 0,
             OC4PE: u1 = 0,
             OC4M: u3 = 0,
-            O24CE: u1 = 0,
+            OC4CE: u1 = 0,
             OC3M_3: u1 = 0,
             _RESERVED0: u7 = 0,
             OC4M_3: u1 = 0,
@@ -4746,7 +4746,7 @@ pub const TIM3: *volatile extern struct {
         ARR_H: u16 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     CCR1: mmio.Mmio(packed struct {
         CCR1_L: u16 = 0,
@@ -4768,7 +4768,7 @@ pub const TIM3: *volatile extern struct {
         CCR4_H: u16 = 0,
     }),
 
-    _RESERVED1: u32 = 0,
+    _RESERVED1: [4]u8 = undefined,
 
     DCR: mmio.Mmio(packed struct {
         DBA: u5 = 0,
@@ -4887,10 +4887,10 @@ pub const TIM5: *volatile extern struct {
 
         Input: mmio.Mmio(packed struct {
             CC1S: u2 = 0,
-            ICPCS: u2 = 0,
+            IC1PSC: u2 = 0,
             IC1F: u4 = 0,
             CC2S: u2 = 0,
-            IC2PCS: u2 = 0,
+            IC2PSC: u2 = 0,
             IC2F: u4 = 0,
             _RESERVED0: u16 = 0,
         }),
@@ -4907,7 +4907,7 @@ pub const TIM5: *volatile extern struct {
             OC4FE: u1 = 0,
             OC4PE: u1 = 0,
             OC4M: u3 = 0,
-            O24CE: u1 = 0,
+            OC4CE: u1 = 0,
             OC3M_3: u1 = 0,
             _RESERVED0: u7 = 0,
             OC4M_3: u1 = 0,
@@ -4960,7 +4960,7 @@ pub const TIM5: *volatile extern struct {
         ARR_H: u16 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     CCR1: mmio.Mmio(packed struct {
         CCR1_L: u16 = 0,
@@ -4982,7 +4982,7 @@ pub const TIM5: *volatile extern struct {
         CCR4_H: u16 = 0,
     }),
 
-    _RESERVED1: u32 = 0,
+    _RESERVED1: [4]u8 = undefined,
 
     DCR: mmio.Mmio(packed struct {
         DBA: u5 = 0,
@@ -5618,7 +5618,7 @@ pub const TIM13: *volatile extern struct {
         _RESERVED1: u22 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     SMCR: mmio.Mmio(packed struct {
         Res: u32 = 0,
@@ -5657,13 +5657,13 @@ pub const TIM13: *volatile extern struct {
 
         Input: mmio.Mmio(packed struct {
             CC1S: u2 = 0,
-            ICPCS: u2 = 0,
+            IC1PSC: u2 = 0,
             IC1F: u4 = 0,
             _RESERVED0: u24 = 0,
         }),
     },
 
-    _RESERVED1: u32 = 0,
+    _RESERVED1: [4]u8 = undefined,
 
     CCER: mmio.Mmio(packed struct {
         CC1E: u1 = 0,
@@ -5688,14 +5688,14 @@ pub const TIM13: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED2: u32 = 0,
+    _RESERVED2: [4]u8 = undefined,
 
     CCR1: mmio.Mmio(packed struct {
         CCR1: u16 = 0,
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED3: u192 = 0,
+    _RESERVED3: [24]u8 = undefined,
 
     OR: mmio.Mmio(packed struct {
         TI1_RMP: u2 = 0,
@@ -6237,7 +6237,7 @@ pub const RTC: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     ALRMAR: mmio.Mmio(packed struct {
         SU: u4 = 0,
@@ -6613,7 +6613,7 @@ pub const RCC: *volatile extern struct {
         _RESERVED0: u30 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     APB1RSTR: mmio.Mmio(packed struct {
         TIM2RST: u1 = 0,
@@ -6676,7 +6676,7 @@ pub const RCC: *volatile extern struct {
         USBPHYCRST: u1 = 0,
     }),
 
-    _RESERVED1: u64 = 0,
+    _RESERVED1: [8]u8 = undefined,
 
     AHB1ENR: mmio.Mmio(packed struct {
         GPIOAEN: u1 = 0,
@@ -6717,7 +6717,7 @@ pub const RCC: *volatile extern struct {
         _RESERVED0: u30 = 0,
     }),
 
-    _RESERVED2: u32 = 0,
+    _RESERVED2: [4]u8 = undefined,
 
     APB1ENR: mmio.Mmio(packed struct {
         TIM2EN: u1 = 0,
@@ -6780,7 +6780,7 @@ pub const RCC: *volatile extern struct {
         USBPHYCEN: u1 = 0,
     }),
 
-    _RESERVED3: u64 = 0,
+    _RESERVED3: [8]u8 = undefined,
 
     AHB1LPENR: mmio.Mmio(packed struct {
         GPIOALPEN: u1 = 0,
@@ -6832,7 +6832,7 @@ pub const RCC: *volatile extern struct {
         _RESERVED0: u30 = 0,
     }),
 
-    _RESERVED4: u32 = 0,
+    _RESERVED4: [4]u8 = undefined,
 
     APB1LPENR: mmio.Mmio(packed struct {
         TIM2LPEN: u1 = 0,
@@ -6895,7 +6895,7 @@ pub const RCC: *volatile extern struct {
         _RESERVED5: u8 = 0,
     }),
 
-    _RESERVED5: u64 = 0,
+    _RESERVED5: [8]u8 = undefined,
 
     BDCR: mmio.Mmio(packed struct {
         LSEON: u1 = 0,
@@ -6924,7 +6924,7 @@ pub const RCC: *volatile extern struct {
         LPWRRSTF: u1 = 0,
     }),
 
-    _RESERVED6: u64 = 0,
+    _RESERVED6: [8]u8 = undefined,
 
     SSCGR: mmio.Mmio(packed struct {
         MODPER: u13 = 0,
@@ -7136,14 +7136,14 @@ pub const SDMMC1: *volatile extern struct {
         _RESERVED1: u9 = 0,
     }),
 
-    _RESERVED0: u64 = 0,
+    _RESERVED0: [8]u8 = undefined,
 
     FIFOCNT: mmio.Mmio(packed struct {
         FIFOCOUNT: u24 = 0,
         _RESERVED0: u8 = 0,
     }),
 
-    _RESERVED1: u416 = 0,
+    _RESERVED1: [52]u8 = undefined,
 
     FIFO: mmio.Mmio(packed struct {
         FIFOData: u32 = 0,
@@ -7495,7 +7495,7 @@ pub const SYSCFG: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED0: u64 = 0,
+    _RESERVED0: [8]u8 = undefined,
 
     CMPCR: mmio.Mmio(packed struct {
         CMP_PD: u1 = 0,
@@ -8061,7 +8061,7 @@ pub const OTG_FS_GLOBAL: *volatile extern struct {
         BSYDNE: u1 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     OTG_FS_GCCFG: mmio.Mmio(packed struct {
         DCDET: u1 = 0,
@@ -8082,7 +8082,7 @@ pub const OTG_FS_GLOBAL: *volatile extern struct {
         PRODUCT_ID: u32 = 0,
     }),
 
-    _RESERVED1: u160 = 0,
+    _RESERVED1: [20]u8 = undefined,
 
     OTG_FS_GLPMCFG: mmio.Mmio(packed struct {
         LPMEN: u1 = 0,
@@ -8103,7 +8103,7 @@ pub const OTG_FS_GLOBAL: *volatile extern struct {
         _RESERVED0: u3 = 0,
     }),
 
-    _RESERVED2: u1344 = 0,
+    _RESERVED2: [168]u8 = undefined,
 
     OTG_FS_HPTXFSIZ: mmio.Mmio(packed struct {
         PTXSA: u16 = 0,
@@ -8153,7 +8153,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         FTREM: u16 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     OTG_FS_HPTXSTS: mmio.Mmio(packed struct {
         PTXFSAVL: u16 = 0,
@@ -8171,7 +8171,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED1: u288 = 0,
+    _RESERVED1: [36]u8 = undefined,
 
     OTG_FS_HPRT: mmio.Mmio(packed struct {
         PCSTS: u1 = 0,
@@ -8191,7 +8191,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED1: u13 = 0,
     }),
 
-    _RESERVED2: u1504 = 0,
+    _RESERVED2: [188]u8 = undefined,
 
     OTG_FS_HCCHAR0: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8207,7 +8207,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED3: u32 = 0,
+    _RESERVED3: [4]u8 = undefined,
 
     OTG_FS_HCINT0: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8246,7 +8246,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED4: u96 = 0,
+    _RESERVED4: [12]u8 = undefined,
 
     OTG_FS_HCCHAR1: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8262,7 +8262,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED5: u32 = 0,
+    _RESERVED5: [4]u8 = undefined,
 
     OTG_FS_HCINT1: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8301,7 +8301,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED6: u96 = 0,
+    _RESERVED6: [12]u8 = undefined,
 
     OTG_FS_HCCHAR2: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8317,7 +8317,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED7: u32 = 0,
+    _RESERVED7: [4]u8 = undefined,
 
     OTG_FS_HCINT2: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8356,7 +8356,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED8: u96 = 0,
+    _RESERVED8: [12]u8 = undefined,
 
     OTG_FS_HCCHAR3: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8372,7 +8372,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED9: u32 = 0,
+    _RESERVED9: [4]u8 = undefined,
 
     OTG_FS_HCINT3: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8411,7 +8411,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED10: u96 = 0,
+    _RESERVED10: [12]u8 = undefined,
 
     OTG_FS_HCCHAR4: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8427,7 +8427,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED11: u32 = 0,
+    _RESERVED11: [4]u8 = undefined,
 
     OTG_FS_HCINT4: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8466,7 +8466,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED12: u96 = 0,
+    _RESERVED12: [12]u8 = undefined,
 
     OTG_FS_HCCHAR5: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8482,7 +8482,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED13: u32 = 0,
+    _RESERVED13: [4]u8 = undefined,
 
     OTG_FS_HCINT5: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8521,7 +8521,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED14: u96 = 0,
+    _RESERVED14: [12]u8 = undefined,
 
     OTG_FS_HCCHAR6: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8537,7 +8537,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED15: u32 = 0,
+    _RESERVED15: [4]u8 = undefined,
 
     OTG_FS_HCINT6: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8576,7 +8576,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED16: u96 = 0,
+    _RESERVED16: [12]u8 = undefined,
 
     OTG_FS_HCCHAR7: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8592,7 +8592,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED17: u32 = 0,
+    _RESERVED17: [4]u8 = undefined,
 
     OTG_FS_HCINT7: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8631,7 +8631,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED18: u96 = 0,
+    _RESERVED18: [12]u8 = undefined,
 
     OTG_FS_HCCHAR8: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8647,7 +8647,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED19: u32 = 0,
+    _RESERVED19: [4]u8 = undefined,
 
     OTG_FS_HCINT8: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8686,7 +8686,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED20: u96 = 0,
+    _RESERVED20: [12]u8 = undefined,
 
     OTG_FS_HCCHAR9: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8702,7 +8702,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED21: u32 = 0,
+    _RESERVED21: [4]u8 = undefined,
 
     OTG_FS_HCINT9: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8741,7 +8741,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED22: u96 = 0,
+    _RESERVED22: [12]u8 = undefined,
 
     OTG_FS_HCCHAR10: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8757,7 +8757,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED23: u32 = 0,
+    _RESERVED23: [4]u8 = undefined,
 
     OTG_FS_HCINT10: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8796,7 +8796,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED24: u96 = 0,
+    _RESERVED24: [12]u8 = undefined,
 
     OTG_FS_HCCHAR11: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -8812,7 +8812,7 @@ pub const OTG_FS_HOST: *volatile extern struct {
         CHENA: u1 = 0,
     }),
 
-    _RESERVED25: u32 = 0,
+    _RESERVED25: [4]u8 = undefined,
 
     OTG_FS_HCINT11: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8885,7 +8885,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED1: u10 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     OTG_FS_DIEPMSK: mmio.Mmio(packed struct {
         XFRCM: u1 = 0,
@@ -8917,7 +8917,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         OEPINT: u16 = 0,
     }),
 
-    _RESERVED1: u64 = 0,
+    _RESERVED1: [8]u8 = undefined,
 
     OTG_FS_DVBUSDIS: mmio.Mmio(packed struct {
         VBUSDT: u16 = 0,
@@ -8929,14 +8929,14 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u20 = 0,
     }),
 
-    _RESERVED2: u32 = 0,
+    _RESERVED2: [4]u8 = undefined,
 
     OTG_FS_DIEPEMPMSK: mmio.Mmio(packed struct {
         INEPTXFEM: u16 = 0,
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED3: u1600 = 0,
+    _RESERVED3: [200]u8 = undefined,
 
     OTG_FS_DIEPCTL0: mmio.Mmio(packed struct {
         MPSIZ: u2 = 0,
@@ -8955,7 +8955,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED4: u32 = 0,
+    _RESERVED4: [4]u8 = undefined,
 
     OTG_FS_DIEPINT0: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -8969,7 +8969,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u24 = 0,
     }),
 
-    _RESERVED5: u32 = 0,
+    _RESERVED5: [4]u8 = undefined,
 
     OTG_FS_DIEPTSIZ0: mmio.Mmio(packed struct {
         XFRSIZ: u7 = 0,
@@ -8978,14 +8978,14 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED1: u11 = 0,
     }),
 
-    _RESERVED6: u32 = 0,
+    _RESERVED6: [4]u8 = undefined,
 
     OTG_FS_DTXFSTS0: mmio.Mmio(packed struct {
         INEPTFSAV: u16 = 0,
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED7: u32 = 0,
+    _RESERVED7: [4]u8 = undefined,
 
     OTG_FS_DIEPCTL1: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9005,7 +9005,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED8: u32 = 0,
+    _RESERVED8: [4]u8 = undefined,
 
     OTG_FS_DIEPINT1: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9019,7 +9019,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u24 = 0,
     }),
 
-    _RESERVED9: u32 = 0,
+    _RESERVED9: [4]u8 = undefined,
 
     OTG_FS_DIEPTSIZ1: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9028,14 +9028,14 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED10: u32 = 0,
+    _RESERVED10: [4]u8 = undefined,
 
     OTG_FS_DTXFSTS1: mmio.Mmio(packed struct {
         INEPTFSAV: u16 = 0,
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED11: u32 = 0,
+    _RESERVED11: [4]u8 = undefined,
 
     OTG_FS_DIEPCTL2: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9055,7 +9055,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED12: u32 = 0,
+    _RESERVED12: [4]u8 = undefined,
 
     OTG_FS_DIEPINT2: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9069,7 +9069,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u24 = 0,
     }),
 
-    _RESERVED13: u32 = 0,
+    _RESERVED13: [4]u8 = undefined,
 
     OTG_FS_DIEPTSIZ2: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9078,14 +9078,14 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED14: u32 = 0,
+    _RESERVED14: [4]u8 = undefined,
 
     OTG_FS_DTXFSTS2: mmio.Mmio(packed struct {
         INEPTFSAV: u16 = 0,
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED15: u32 = 0,
+    _RESERVED15: [4]u8 = undefined,
 
     OTG_FS_DIEPCTL3: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9105,7 +9105,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED16: u32 = 0,
+    _RESERVED16: [4]u8 = undefined,
 
     OTG_FS_DIEPINT3: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9119,7 +9119,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u24 = 0,
     }),
 
-    _RESERVED17: u32 = 0,
+    _RESERVED17: [4]u8 = undefined,
 
     OTG_FS_DIEPTSIZ3: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9128,14 +9128,14 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED18: u32 = 0,
+    _RESERVED18: [4]u8 = undefined,
 
     OTG_FS_DTXFSTS3: mmio.Mmio(packed struct {
         INEPTFSAV: u16 = 0,
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED19: u32 = 0,
+    _RESERVED19: [4]u8 = undefined,
 
     OTG_FS_DIEPCTL4: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9155,7 +9155,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED20: u32 = 0,
+    _RESERVED20: [4]u8 = undefined,
 
     OTG_FS_DIEPINT4: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9169,7 +9169,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u24 = 0,
     }),
 
-    _RESERVED21: u32 = 0,
+    _RESERVED21: [4]u8 = undefined,
 
     OTG_FS_DIEPTSIZ4: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9178,14 +9178,14 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED22: u32 = 0,
+    _RESERVED22: [4]u8 = undefined,
 
     OTG_FS_DTXFSTS4: mmio.Mmio(packed struct {
         INEPTFSAV: u16 = 0,
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED23: u32 = 0,
+    _RESERVED23: [4]u8 = undefined,
 
     OTG_FS_DIEPCTL5: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9205,7 +9205,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED24: u32 = 0,
+    _RESERVED24: [4]u8 = undefined,
 
     OTG_FS_DIEPINT5: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9219,7 +9219,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u24 = 0,
     }),
 
-    _RESERVED25: u32 = 0,
+    _RESERVED25: [4]u8 = undefined,
 
     OTG_FS_DIEPTSIZ5: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9228,14 +9228,14 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED26: u32 = 0,
+    _RESERVED26: [4]u8 = undefined,
 
     OTG_FS_DTXFSTS5: mmio.Mmio(packed struct {
         INEPTFSAV: u16 = 0,
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED27: u2592 = 0,
+    _RESERVED27: [324]u8 = undefined,
 
     OTG_FS_DOEPCTL0: mmio.Mmio(packed struct {
         MPSIZ: u2 = 0,
@@ -9254,7 +9254,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED28: u32 = 0,
+    _RESERVED28: [4]u8 = undefined,
 
     OTG_FS_DOEPINT0: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9267,7 +9267,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u25 = 0,
     }),
 
-    _RESERVED29: u32 = 0,
+    _RESERVED29: [4]u8 = undefined,
 
     OTG_FS_DOEPTSIZ0: mmio.Mmio(packed struct {
         XFRSIZ: u7 = 0,
@@ -9278,7 +9278,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u1 = 0,
     }),
 
-    _RESERVED30: u96 = 0,
+    _RESERVED30: [12]u8 = undefined,
 
     OTG_FS_DOEPCTL1: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9298,7 +9298,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED31: u32 = 0,
+    _RESERVED31: [4]u8 = undefined,
 
     OTG_FS_DOEPINT1: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9311,7 +9311,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u25 = 0,
     }),
 
-    _RESERVED32: u32 = 0,
+    _RESERVED32: [4]u8 = undefined,
 
     OTG_FS_DOEPTSIZ1: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9320,7 +9320,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED33: u96 = 0,
+    _RESERVED33: [12]u8 = undefined,
 
     OTG_FS_DOEPCTL2: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9340,7 +9340,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED34: u32 = 0,
+    _RESERVED34: [4]u8 = undefined,
 
     OTG_FS_DOEPINT2: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9353,7 +9353,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u25 = 0,
     }),
 
-    _RESERVED35: u32 = 0,
+    _RESERVED35: [4]u8 = undefined,
 
     OTG_FS_DOEPTSIZ2: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9362,7 +9362,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED36: u96 = 0,
+    _RESERVED36: [12]u8 = undefined,
 
     OTG_FS_DOEPCTL3: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9382,7 +9382,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED37: u32 = 0,
+    _RESERVED37: [4]u8 = undefined,
 
     OTG_FS_DOEPINT3: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9395,7 +9395,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u25 = 0,
     }),
 
-    _RESERVED38: u32 = 0,
+    _RESERVED38: [4]u8 = undefined,
 
     OTG_FS_DOEPTSIZ3: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9404,7 +9404,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED39: u96 = 0,
+    _RESERVED39: [12]u8 = undefined,
 
     OTG_FS_DOEPCTL4: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9424,7 +9424,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED40: u32 = 0,
+    _RESERVED40: [4]u8 = undefined,
 
     OTG_FS_DOEPINT4: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9437,7 +9437,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u25 = 0,
     }),
 
-    _RESERVED41: u32 = 0,
+    _RESERVED41: [4]u8 = undefined,
 
     OTG_FS_DOEPTSIZ4: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9446,7 +9446,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED0: u1 = 0,
     }),
 
-    _RESERVED42: u96 = 0,
+    _RESERVED42: [12]u8 = undefined,
 
     OTG_FS_DOEPCTL5: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9466,7 +9466,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED43: u32 = 0,
+    _RESERVED43: [4]u8 = undefined,
 
     OTG_FS_DOEPINT5: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -9479,7 +9479,7 @@ pub const OTG_FS_DEVICE: *volatile extern struct {
         _RESERVED2: u25 = 0,
     }),
 
-    _RESERVED44: u32 = 0,
+    _RESERVED44: [4]u8 = undefined,
 
     OTG_FS_DOEPTSIZ5: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -9516,7 +9516,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         FTREM: u16 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     OTG_HS_HPTXSTS: mmio.Mmio(packed struct {
         PTXFSAVL: u16 = 0,
@@ -9534,7 +9534,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED1: u288 = 0,
+    _RESERVED1: [36]u8 = undefined,
 
     OTG_HS_HPRT: mmio.Mmio(packed struct {
         PCSTS: u1 = 0,
@@ -9554,7 +9554,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         _RESERVED1: u13 = 0,
     }),
 
-    _RESERVED2: u1504 = 0,
+    _RESERVED2: [188]u8 = undefined,
 
     OTG_HS_HCCHAR0: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9620,7 +9620,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED3: u64 = 0,
+    _RESERVED3: [8]u8 = undefined,
 
     OTG_HS_HCCHAR1: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9686,7 +9686,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED4: u64 = 0,
+    _RESERVED4: [8]u8 = undefined,
 
     OTG_HS_HCCHAR2: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9752,7 +9752,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED5: u64 = 0,
+    _RESERVED5: [8]u8 = undefined,
 
     OTG_HS_HCCHAR3: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9818,7 +9818,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED6: u64 = 0,
+    _RESERVED6: [8]u8 = undefined,
 
     OTG_HS_HCCHAR4: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9884,7 +9884,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED7: u64 = 0,
+    _RESERVED7: [8]u8 = undefined,
 
     OTG_HS_HCCHAR5: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -9950,7 +9950,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED8: u64 = 0,
+    _RESERVED8: [8]u8 = undefined,
 
     OTG_HS_HCCHAR6: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10016,7 +10016,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED9: u64 = 0,
+    _RESERVED9: [8]u8 = undefined,
 
     OTG_HS_HCCHAR7: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10082,7 +10082,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED10: u64 = 0,
+    _RESERVED10: [8]u8 = undefined,
 
     OTG_HS_HCCHAR8: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10148,7 +10148,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED11: u64 = 0,
+    _RESERVED11: [8]u8 = undefined,
 
     OTG_HS_HCCHAR9: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10214,7 +10214,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED12: u64 = 0,
+    _RESERVED12: [8]u8 = undefined,
 
     OTG_HS_HCCHAR10: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10280,7 +10280,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED13: u64 = 0,
+    _RESERVED13: [8]u8 = undefined,
 
     OTG_HS_HCCHAR11: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10346,7 +10346,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED14: u64 = 0,
+    _RESERVED14: [8]u8 = undefined,
 
     OTG_HS_HCCHAR12: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10412,7 +10412,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED15: u64 = 0,
+    _RESERVED15: [8]u8 = undefined,
 
     OTG_HS_HCCHAR13: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10478,7 +10478,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED16: u64 = 0,
+    _RESERVED16: [8]u8 = undefined,
 
     OTG_HS_HCCHAR14: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10544,7 +10544,7 @@ pub const OTG_HS_HOST: *volatile extern struct {
         DMAADDR: u32 = 0,
     }),
 
-    _RESERVED17: u64 = 0,
+    _RESERVED17: [8]u8 = undefined,
 
     OTG_HS_HCCHAR15: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -10834,7 +10834,7 @@ pub const OTG_HS_GLOBAL: *volatile extern struct {
         BSYDNE: u1 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     OTG_HS_GCCFG: mmio.Mmio(packed struct {
         DCDET: u1 = 0,
@@ -10855,7 +10855,7 @@ pub const OTG_HS_GLOBAL: *volatile extern struct {
         PRODUCT_ID: u32 = 0,
     }),
 
-    _RESERVED1: u160 = 0,
+    _RESERVED1: [20]u8 = undefined,
 
     OTG_HS_GLPMCFG: mmio.Mmio(packed struct {
         LPMEN: u1 = 0,
@@ -10876,7 +10876,7 @@ pub const OTG_HS_GLOBAL: *volatile extern struct {
         _RESERVED0: u3 = 0,
     }),
 
-    _RESERVED2: u1344 = 0,
+    _RESERVED2: [168]u8 = undefined,
 
     OTG_HS_HPTXFSIZ: mmio.Mmio(packed struct {
         PTXSA: u16 = 0,
@@ -10969,7 +10969,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED1: u10 = 0,
     }),
 
-    _RESERVED0: u32 = 0,
+    _RESERVED0: [4]u8 = undefined,
 
     OTG_HS_DIEPMSK: mmio.Mmio(packed struct {
         XFRCM: u1 = 0,
@@ -11009,7 +11009,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         OEPM: u16 = 0,
     }),
 
-    _RESERVED1: u64 = 0,
+    _RESERVED1: [8]u8 = undefined,
 
     OTG_HS_DVBUSDIS: mmio.Mmio(packed struct {
         VBUSDT: u16 = 0,
@@ -11054,7 +11054,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED2: u14 = 0,
     }),
 
-    _RESERVED2: u1536 = 0,
+    _RESERVED2: [192]u8 = undefined,
 
     OTG_HS_DIEPCTL0: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11074,7 +11074,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED3: u32 = 0,
+    _RESERVED3: [4]u8 = undefined,
 
     OTG_HS_DIEPINT0: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11094,7 +11094,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u18 = 0,
     }),
 
-    _RESERVED4: u32 = 0,
+    _RESERVED4: [4]u8 = undefined,
 
     OTG_HS_DIEPTSIZ0: mmio.Mmio(packed struct {
         XFRSIZ: u7 = 0,
@@ -11112,7 +11112,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED5: u32 = 0,
+    _RESERVED5: [4]u8 = undefined,
 
     OTG_HS_DIEPCTL1: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11132,7 +11132,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED6: u32 = 0,
+    _RESERVED6: [4]u8 = undefined,
 
     OTG_HS_DIEPINT1: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11152,7 +11152,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u18 = 0,
     }),
 
-    _RESERVED7: u32 = 0,
+    _RESERVED7: [4]u8 = undefined,
 
     OTG_HS_DIEPTSIZ1: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11170,7 +11170,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED8: u32 = 0,
+    _RESERVED8: [4]u8 = undefined,
 
     OTG_HS_DIEPCTL2: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11190,7 +11190,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED9: u32 = 0,
+    _RESERVED9: [4]u8 = undefined,
 
     OTG_HS_DIEPINT2: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11210,7 +11210,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u18 = 0,
     }),
 
-    _RESERVED10: u32 = 0,
+    _RESERVED10: [4]u8 = undefined,
 
     OTG_HS_DIEPTSIZ2: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11228,7 +11228,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED11: u32 = 0,
+    _RESERVED11: [4]u8 = undefined,
 
     OTG_HS_DIEPCTL3: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11248,7 +11248,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED12: u32 = 0,
+    _RESERVED12: [4]u8 = undefined,
 
     OTG_HS_DIEPINT3: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11268,7 +11268,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u18 = 0,
     }),
 
-    _RESERVED13: u32 = 0,
+    _RESERVED13: [4]u8 = undefined,
 
     OTG_HS_DIEPTSIZ3: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11286,7 +11286,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED14: u32 = 0,
+    _RESERVED14: [4]u8 = undefined,
 
     OTG_HS_DIEPCTL4: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11306,7 +11306,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED15: u32 = 0,
+    _RESERVED15: [4]u8 = undefined,
 
     OTG_HS_DIEPINT4: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11326,7 +11326,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u18 = 0,
     }),
 
-    _RESERVED16: u32 = 0,
+    _RESERVED16: [4]u8 = undefined,
 
     OTG_HS_DIEPTSIZ4: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11344,7 +11344,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED17: u32 = 0,
+    _RESERVED17: [4]u8 = undefined,
 
     OTG_HS_DIEPCTL5: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11364,7 +11364,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED18: u32 = 0,
+    _RESERVED18: [4]u8 = undefined,
 
     OTG_HS_DIEPINT5: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11384,7 +11384,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u18 = 0,
     }),
 
-    _RESERVED19: u32 = 0,
+    _RESERVED19: [4]u8 = undefined,
 
     OTG_HS_DIEPTSIZ5: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11400,7 +11400,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED20: u32 = 0,
+    _RESERVED20: [4]u8 = undefined,
 
     OTG_HS_DIEPCTL6: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11420,7 +11420,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED21: u32 = 0,
+    _RESERVED21: [4]u8 = undefined,
 
     OTG_HS_DIEPINT6: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11440,7 +11440,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u18 = 0,
     }),
 
-    _RESERVED22: u32 = 0,
+    _RESERVED22: [4]u8 = undefined,
 
     OTG_HS_DIEPTSIZ6: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11456,7 +11456,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED23: u32 = 0,
+    _RESERVED23: [4]u8 = undefined,
 
     OTG_HS_DIEPCTL7: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11476,7 +11476,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED24: u32 = 0,
+    _RESERVED24: [4]u8 = undefined,
 
     OTG_HS_DIEPINT7: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11496,7 +11496,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u18 = 0,
     }),
 
-    _RESERVED25: u32 = 0,
+    _RESERVED25: [4]u8 = undefined,
 
     OTG_HS_DIEPTSIZ7: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11512,39 +11512,39 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED0: u16 = 0,
     }),
 
-    _RESERVED26: u192 = 0,
+    _RESERVED26: [24]u8 = undefined,
 
     OTG_HS_DIEPDMA8: u32 = 0,
 
-    _RESERVED27: u224 = 0,
+    _RESERVED27: [28]u8 = undefined,
 
     OTG_HS_DIEPDMA9: u32 = 0,
 
-    _RESERVED28: u224 = 0,
+    _RESERVED28: [28]u8 = undefined,
 
     OTG_HS_DIEPDMA10: u32 = 0,
 
-    _RESERVED29: u224 = 0,
+    _RESERVED29: [28]u8 = undefined,
 
     OTG_HS_DIEPDMA11: u32 = 0,
 
-    _RESERVED30: u224 = 0,
+    _RESERVED30: [28]u8 = undefined,
 
     OTG_HS_DIEPDMA12: u32 = 0,
 
-    _RESERVED31: u224 = 0,
+    _RESERVED31: [28]u8 = undefined,
 
     OTG_HS_DIEPDMA13: u32 = 0,
 
-    _RESERVED32: u224 = 0,
+    _RESERVED32: [28]u8 = undefined,
 
     OTG_HS_DIEPDMA14: u32 = 0,
 
-    _RESERVED33: u224 = 0,
+    _RESERVED33: [28]u8 = undefined,
 
     OTG_HS_DIEPDMA15: u32 = 0,
 
-    _RESERVED34: u64 = 0,
+    _RESERVED34: [8]u8 = undefined,
 
     OTG_HS_DOEPCTL0: mmio.Mmio(packed struct {
         MPSIZ: u2 = 0,
@@ -11563,7 +11563,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED35: u32 = 0,
+    _RESERVED35: [4]u8 = undefined,
 
     OTG_HS_DOEPINT0: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11578,7 +11578,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u17 = 0,
     }),
 
-    _RESERVED36: u32 = 0,
+    _RESERVED36: [4]u8 = undefined,
 
     OTG_HS_DOEPTSIZ0: mmio.Mmio(packed struct {
         XFRSIZ: u7 = 0,
@@ -11591,7 +11591,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
 
     OTG_HS_DOEPDMA0: u32 = 0,
 
-    _RESERVED37: u64 = 0,
+    _RESERVED37: [8]u8 = undefined,
 
     OTG_HS_DOEPCTL1: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11611,7 +11611,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED38: u32 = 0,
+    _RESERVED38: [4]u8 = undefined,
 
     OTG_HS_DOEPINT1: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11626,7 +11626,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u17 = 0,
     }),
 
-    _RESERVED39: u32 = 0,
+    _RESERVED39: [4]u8 = undefined,
 
     OTG_HS_DOEPTSIZ1: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11637,7 +11637,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
 
     OTG_HS_DOEPDMA1: u32 = 0,
 
-    _RESERVED40: u64 = 0,
+    _RESERVED40: [8]u8 = undefined,
 
     OTG_HS_DOEPCTL2: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11657,7 +11657,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED41: u32 = 0,
+    _RESERVED41: [4]u8 = undefined,
 
     OTG_HS_DOEPINT2: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11672,7 +11672,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u17 = 0,
     }),
 
-    _RESERVED42: u32 = 0,
+    _RESERVED42: [4]u8 = undefined,
 
     OTG_HS_DOEPTSIZ2: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11683,7 +11683,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
 
     OTG_HS_DOEPDMA2: u32 = 0,
 
-    _RESERVED43: u64 = 0,
+    _RESERVED43: [8]u8 = undefined,
 
     OTG_HS_DOEPCTL3: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11703,7 +11703,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED44: u32 = 0,
+    _RESERVED44: [4]u8 = undefined,
 
     OTG_HS_DOEPINT3: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11718,7 +11718,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u17 = 0,
     }),
 
-    _RESERVED45: u32 = 0,
+    _RESERVED45: [4]u8 = undefined,
 
     OTG_HS_DOEPTSIZ3: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11729,7 +11729,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
 
     OTG_HS_DOEPDMA3: u32 = 0,
 
-    _RESERVED46: u64 = 0,
+    _RESERVED46: [8]u8 = undefined,
 
     OTG_HS_DOEPCTL4: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11749,7 +11749,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED47: u32 = 0,
+    _RESERVED47: [4]u8 = undefined,
 
     OTG_HS_DOEPINT4: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11764,7 +11764,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u17 = 0,
     }),
 
-    _RESERVED48: u32 = 0,
+    _RESERVED48: [4]u8 = undefined,
 
     OTG_HS_DOEPTSIZ4: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11775,7 +11775,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
 
     OTG_HS_DOEPDMA4: u32 = 0,
 
-    _RESERVED49: u64 = 0,
+    _RESERVED49: [8]u8 = undefined,
 
     OTG_HS_DOEPCTL5: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11795,7 +11795,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED50: u32 = 0,
+    _RESERVED50: [4]u8 = undefined,
 
     OTG_HS_DOEPINT5: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11810,7 +11810,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u17 = 0,
     }),
 
-    _RESERVED51: u32 = 0,
+    _RESERVED51: [4]u8 = undefined,
 
     OTG_HS_DOEPTSIZ5: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11821,7 +11821,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
 
     OTG_HS_DOEPDMA5: u32 = 0,
 
-    _RESERVED52: u64 = 0,
+    _RESERVED52: [8]u8 = undefined,
 
     OTG_HS_DOEPCTL6: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11841,7 +11841,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED53: u32 = 0,
+    _RESERVED53: [4]u8 = undefined,
 
     OTG_HS_DOEPINT6: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11856,7 +11856,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u17 = 0,
     }),
 
-    _RESERVED54: u32 = 0,
+    _RESERVED54: [4]u8 = undefined,
 
     OTG_HS_DOEPTSIZ6: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11867,7 +11867,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
 
     OTG_HS_DOEPDMA6: u32 = 0,
 
-    _RESERVED55: u64 = 0,
+    _RESERVED55: [8]u8 = undefined,
 
     OTG_HS_DOEPCTL7: mmio.Mmio(packed struct {
         MPSIZ: u11 = 0,
@@ -11887,7 +11887,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         EPENA: u1 = 0,
     }),
 
-    _RESERVED56: u32 = 0,
+    _RESERVED56: [4]u8 = undefined,
 
     OTG_HS_DOEPINT7: mmio.Mmio(packed struct {
         XFRC: u1 = 0,
@@ -11902,7 +11902,7 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
         _RESERVED3: u17 = 0,
     }),
 
-    _RESERVED57: u32 = 0,
+    _RESERVED57: [4]u8 = undefined,
 
     OTG_HS_DOEPTSIZ7: mmio.Mmio(packed struct {
         XFRSIZ: u19 = 0,
@@ -11913,35 +11913,35 @@ pub const OTG_HS_DEVICE: *volatile extern struct {
 
     OTG_HS_DOEPDMA7: u32 = 0,
 
-    _RESERVED58: u224 = 0,
+    _RESERVED58: [28]u8 = undefined,
 
     OTG_HS_DOEPDMA8: u32 = 0,
 
-    _RESERVED59: u224 = 0,
+    _RESERVED59: [28]u8 = undefined,
 
     OTG_HS_DOEPDMA9: u32 = 0,
 
-    _RESERVED60: u224 = 0,
+    _RESERVED60: [28]u8 = undefined,
 
     OTG_HS_DOEPDMA10: u32 = 0,
 
-    _RESERVED61: u224 = 0,
+    _RESERVED61: [28]u8 = undefined,
 
     OTG_HS_DOEPDMA11: u32 = 0,
 
-    _RESERVED62: u224 = 0,
+    _RESERVED62: [28]u8 = undefined,
 
     OTG_HS_DOEPDMA12: u32 = 0,
 
-    _RESERVED63: u224 = 0,
+    _RESERVED63: [28]u8 = undefined,
 
     OTG_HS_DOEPDMA13: u32 = 0,
 
-    _RESERVED64: u224 = 0,
+    _RESERVED64: [28]u8 = undefined,
 
     OTG_HS_DOEPDMA14: u32 = 0,
 
-    _RESERVED65: u224 = 0,
+    _RESERVED65: [28]u8 = undefined,
 
     OTG_HS_DOEPDMA15: u32 = 0,
 } = @ptrFromInt(0x40040800);

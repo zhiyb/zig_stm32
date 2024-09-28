@@ -4,7 +4,7 @@ const rcc = @import("rcc.zig");
 // const nvic = @import("nvic.zig");
 const gpio = @import("gpio.zig");
 const spi = @import("spi.zig");
-// const timer = @import("timer.zig");
+const timer = @import("timer.zig");
 const systick = @import("systick.zig");
 const semihosting = @import("semihosting.zig");
 
@@ -22,9 +22,9 @@ const systick_inst = systick.config(rcc_inst, .{
 
 const pin_inst = gpio.initCfg(.{
     .GPIOA = .{
-        .PIN0 = .{ .name = "LED_G", .mode = .output_push_pull, .speed = .medium, .value = 1 },
-        .PIN1 = .{ .name = "LED_B", .mode = .output_push_pull, .speed = .medium, .value = 1 },
-        .PIN2 = .{ .name = "LED_R", .mode = .output_push_pull, .speed = .medium, .value = 1 },
+        .PIN0 = .{ .name = "LED_G", .mode = .af_push_pull, .af = 2, .speed = .medium, .value = 1 }, // TIM5_CH1
+        .PIN1 = .{ .name = "LED_B", .mode = .af_push_pull, .af = 2, .speed = .medium, .value = 1 }, // TIM5_CH2
+        .PIN2 = .{ .name = "LED_R", .mode = .af_push_pull, .af = 2, .speed = .medium, .value = 1 }, // TIM5_CH3
         .PIN3 = .{ .name = "OTG_HS_ULPI_D0", .mode = .af_push_pull, .af = 10, .speed = .high },
         .PIN4 = .{ .name = null, .mode = .analog },
         .PIN5 = .{ .name = "OTG_HS_ULPI_CK", .mode = .af_push_pull, .af = 10, .speed = .high },
@@ -64,10 +64,10 @@ const pin_inst = gpio.initCfg(.{
         .PIN3 = .{ .name = "OTG_HS_ULPI_NXT", .mode = .af_push_pull, .af = 10, .speed = .high },
         .PIN4 = .{ .name = "V_SENSE", .mode = .analog }, // ADC1_IN14
         .PIN5 = .{ .name = null, .mode = .analog },
-        .PIN6 = .{ .name = "XY_LDAC", .mode = .output_push_pull, .speed = .medium, .value = 1 },
-        .PIN7 = .{ .name = "LASER_R", .mode = .output_push_pull, .speed = .medium, .value = 0 },
-        .PIN8 = .{ .name = "LASER_G", .mode = .output_push_pull, .speed = .medium, .value = 0 },
-        .PIN9 = .{ .name = "LASER_B", .mode = .output_push_pull, .speed = .medium, .value = 0 },
+        .PIN6 = .{ .name = "XY_LDAC", .mode = .output_push_pull, .speed = .medium, .value = 1 }, // TIM3_CH1
+        .PIN7 = .{ .name = "LASER_R", .mode = .output_push_pull, .speed = .medium, .value = 0 }, // TIM8_CH2
+        .PIN8 = .{ .name = "LASER_G", .mode = .output_push_pull, .speed = .medium, .value = 0 }, // TIM8_CH3
+        .PIN9 = .{ .name = "LASER_B", .mode = .output_push_pull, .speed = .medium, .value = 0 }, // TIM8_CH4
         .PIN10 = .{ .name = "X_SDI", .mode = .af_push_pull, .af = 6, .speed = .medium }, // SPI3_SCK
         .PIN11 = .{ .name = null, .mode = .analog },
         .PIN12 = .{ .name = null, .mode = .analog },
@@ -80,8 +80,53 @@ const pin_inst = gpio.initCfg(.{
     },
 });
 
-pub const x_spi = spi.master("SPI3");
-pub const y_spi = spi.master("SPI2");
+const laser_pin_inst = gpio.initCfg(.{
+    .GPIOC = .{
+        .PIN6 = .{ .name = "XY_LDAC", .mode = .af_push_pull, .af = 2, .speed = .medium, .value = 1 }, // TIM3_CH1
+        .PIN7 = .{ .name = "LASER_R", .mode = .af_push_pull, .af = 3, .speed = .medium, .value = 0 }, // TIM8_CH2
+        .PIN8 = .{ .name = "LASER_G", .mode = .af_push_pull, .af = 3, .speed = .medium, .value = 0 }, // TIM8_CH3
+        .PIN9 = .{ .name = "LASER_B", .mode = .af_push_pull, .af = 3, .speed = .medium, .value = 0 }, // TIM8_CH4
+    },
+});
+
+const x_spi = spi.master("SPI3");
+const y_spi = spi.master("SPI2");
+
+const timer3 = timer.config(rcc_inst, .{
+    .timer = 3,
+    .freq_hz = 1_000_000,
+    .channels = &.{
+        .{ .num = 1, .mode = .pwm },
+    },
+});
+
+const timer5 = timer.config(rcc_inst, .{
+    .timer = 5,
+    .freq_hz = 1_000_000,
+    .channels = &.{
+        .{ .num = 1, .mode = .pwm },
+        .{ .num = 2, .mode = .pwm },
+        .{ .num = 3, .mode = .pwm },
+    },
+});
+
+const timer8 = timer.config(rcc_inst, .{
+    .timer = 8,
+    .freq_hz = 1_000_000,
+    .channels = &.{
+        .{ .num = 2, .mode = .pwm },
+        .{ .num = 3, .mode = .pwm },
+        .{ .num = 4, .mode = .pwm },
+    },
+});
+
+const timer14 = timer.config(rcc_inst, .{
+    .timer = 14,
+    .freq_hz = 1_000_000,
+    .channels = &.{
+        .{ .num = 1, .mode = .input_capture },
+    },
+});
 
 comptime {
     hal.createIrqVect(.{
@@ -99,6 +144,10 @@ fn init() !void {
         .{ .per = "SYSCFG" },
         .{ .per = "SPI2" },
         .{ .per = "SPI3" },
+        .{ .per = "TIM3" },
+        .{ .per = "TIM5" },
+        .{ .per = "TIM8" },
+        .{ .per = "TIM14" },
     });
 
     systick_inst.apply();
@@ -114,6 +163,14 @@ fn init() !void {
     };
     x_spi.init(rcc_inst, spi_cfg);
     y_spi.init(rcc_inst, spi_cfg);
+
+    timer3.init();
+    timer5.init();
+    timer8.init();
+    timer14.init();
+
+    // Connect laser pins after configured timer
+    laser_pin_inst.apply();
 
     // timer.timer1.initPwm(0x03ff);
     // timer.timer4.initIrRemote();
@@ -195,9 +252,9 @@ pub fn main() noreturn {
         pins.XY_LDAC.write(1);
         systick_inst.delay_us(2);
 
-        pins.LED_R.write(pins.IR.read());
-        pins.LED_G.write(~pins.BTN_1.read());
-        pins.LED_B.write(~pins.BTN_2.read());
+        // pins.LED_R.write(pins.IR.read());
+        // pins.LED_G.write(~pins.BTN_1.read());
+        // pins.LED_B.write(~pins.BTN_2.read());
 
         if (s.on) {
             pins.LASER_R.write(~pins.IR.read());

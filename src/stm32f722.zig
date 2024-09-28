@@ -134,6 +134,17 @@ comptime {
         \\      .word     SDMMC2_IRQHandler                 /* SDMMC2                       */
         \\      .size g_pfnVectors, .-g_pfnVectors
     );
+
+    asm (
+        \\      .section .text.Reset_Handler,"ax",%progbits
+        \\      .weak Reset_Handler
+        \\      .type Reset_Handler, %function
+        \\  Reset_Handler:
+        \\      ldr sp, =__stack_end
+        \\      bl _entry
+        \\      b Reset_Handler
+        \\      .size Reset_Handler, .-Reset_Handler
+    );
 }
 
 pub const irq_t = @Type(std.builtin.Type{ .@"enum" = .{
@@ -154,7 +165,7 @@ pub const irq_t = @Type(std.builtin.Type{ .@"enum" = .{
 } });
 
 pub fn createIrqVect(comptime vect_list: anytype) void {
-    @export(&start.entry, .{ .name = "Reset_Handler" });
+    @export(&start.entry, .{ .name = "_entry" });
     inline for (@typeInfo(irq_t).@"enum".fields) |field| {
         const func = if (@hasField(@TypeOf(vect_list), field.name))
             @field(vect_list, field.name)
@@ -298,67 +309,73 @@ pub const GPIO_PUPDR = enum(u2) {
     PULL_DOWN = 0b10,
 };
 
-// pub const TIM_CR1_CKD = enum(u2) {
-//     DIV1 = 0b00,
-//     DIV2 = 0b01,
-//     DIV4 = 0b10,
-// };
+pub const TIM_CR1_CKD = enum(u2) {
+    DIV1 = 0b00,
+    DIV2 = 0b01,
+    DIV4 = 0b10,
+};
 
-// pub const TIM_CR1_CMS = enum(u2) {
-//     EDGE = 0b00,
-//     CENTER_DOWN = 0b01, // CC set when counter counting down
-//     CENTER_UP = 0b10, // CC set when counter counting up
-//     CENTER_BOTH = 0b11, // CC set when counter counting up or down
-// };
+pub const TIM_CR1_CMS = enum(u2) {
+    EDGE = 0b00,
+    CENTER_DOWN = 0b01, // CC set when counter counting down
+    CENTER_UP = 0b10, // CC set when counter counting up
+    CENTER_BOTH = 0b11, // CC set when counter counting up or down
+};
 
-// pub const TIM_CR1_DIR = enum(u1) {
-//     UP = 0,
-//     DOWN = 1,
-// };
+pub const TIM_CR1_DIR = enum(u1) {
+    UP = 0,
+    DOWN = 1,
+};
 
-// pub const TIM_CCMR_CCS = enum(u2) {
-//     OUTPUT = 0b00,
-//     INPUT_SAME = 0b01, // Same input channel
-//     INPUT_COMP = 0b10, // Complementary input channel
-//     INPUT_TRC = 0b11,
-// };
+pub const TIM_CCMR_CCS = enum(u2) {
+    OUTPUT = 0b00,
+    INPUT_SAME = 0b01, // Same input channel
+    INPUT_COMP = 0b10, // Complementary input channel
+    INPUT_TRC = 0b11,
+};
 
-// pub const TIM_CCMR_OCM = enum(u3) {
-//     FROZEN = 0b000,
-//     MATCH_ACT = 0b001,
-//     MATCH_INACT = 0b010,
-//     MATCH_TOGGLE = 0b011,
-//     FORCE_INACT = 0b100,
-//     FORCE_ACT = 0b101,
-//     PWM_1 = 0b110,
-//     PWM_2 = 0b111,
-// };
+pub const TIM_CCMR_OCM = enum(u4) {
+    FROZEN = 0b0000,
+    MATCH_ACT = 0b0001,
+    MATCH_INACT = 0b0010,
+    MATCH_TOGGLE = 0b0011,
+    FORCE_INACT = 0b0100,
+    FORCE_ACT = 0b0101,
+    PWM_1 = 0b0110,
+    PWM_2 = 0b0111,
+    RETRIG_OPM_1 = 0b1000,
+    RETRIG_OPM_2 = 0b1001,
+    COMBINED_PWM_1 = 0b1100,
+    COMBINED_PWM_2 = 0b1101,
+    ASYM_PWM_1 = 0b1110,
+    ASYM_PWM_2 = 0b1111,
+};
 
-// pub const TIM_CCMR_ICF = enum(u4) {
-//     DTS_DIV1_N1 = 0b0000,
-//     INT_N2 = 0b0001,
-//     INT_N4 = 0b0010,
-//     INT_N8 = 0b0011,
-//     DTS_DIV2_N6 = 0b0100,
-//     DTS_DIV2_N8 = 0b0101,
-//     DTS_DIV4_N6 = 0b0110,
-//     DTS_DIV4_N8 = 0b0111,
-//     DTS_DIV8_N6 = 0b1000,
-//     DTS_DIV8_N8 = 0b1001,
-//     DTS_DIV16_N5 = 0b1010,
-//     DTS_DIV16_N6 = 0b1011,
-//     DTS_DIV16_N8 = 0b1100,
-//     DTS_DIV32_N5 = 0b1101,
-//     DTS_DIV32_N6 = 0b1110,
-//     DTS_DIV32_N8 = 0b1111,
-// };
+pub const TIM_CCMR_IC_F = enum(u4) {
+    DTS_DIV1_N1 = 0b0000,
+    INT_N2 = 0b0001,
+    INT_N4 = 0b0010,
+    INT_N8 = 0b0011,
+    DTS_DIV2_N6 = 0b0100,
+    DTS_DIV2_N8 = 0b0101,
+    DTS_DIV4_N6 = 0b0110,
+    DTS_DIV4_N8 = 0b0111,
+    DTS_DIV8_N6 = 0b1000,
+    DTS_DIV8_N8 = 0b1001,
+    DTS_DIV16_N5 = 0b1010,
+    DTS_DIV16_N6 = 0b1011,
+    DTS_DIV16_N8 = 0b1100,
+    DTS_DIV32_N5 = 0b1101,
+    DTS_DIV32_N6 = 0b1110,
+    DTS_DIV32_N8 = 0b1111,
+};
 
-// pub const TIM_CCMR_ICPSC = enum(u2) {
-//     DIV1 = 0b00,
-//     DIV2 = 0b01,
-//     DIV4 = 0b10,
-//     DIV8 = 0b11,
-// };
+pub const TIM_CCMR_IC_PSC = enum(u2) {
+    DIV1 = 0b00,
+    DIV2 = 0b01,
+    DIV4 = 0b10,
+    DIV8 = 0b11,
+};
 
 pub fn dbgEn() bool {
     return CoreDebug.DHCSR.read().C_DEBUGEN != 0;

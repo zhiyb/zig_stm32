@@ -102,7 +102,7 @@ def parseRegisters(indent, pname, base, registers):
                 # Maximum allowed Zig bit-width of an integer type is 65535
                 # Limit maximum to 32768
                 ricnt = min(rcnt, 32768 // 8)
-                rstrs.append(f"{' '*rindent}_RESERVED{rresv}: u{8*ricnt} = 0,\n")
+                rstrs.append(f"{' '*rindent}_RESERVED{rresv}: [{ricnt}]u8 = undefined,\n")
                 rresv += 1
                 raddr += ricnt
                 rcnt -= ricnt
