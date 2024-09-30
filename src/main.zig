@@ -92,41 +92,67 @@ const laser_pin_inst = gpio.initCfg(.{
 const x_spi = spi.master("SPI3");
 const y_spi = spi.master("SPI2");
 
-const timer3 = timer.config(rcc_inst, .{
-    .timer = 3,
-    .freq_hz = 1_000_000,
-    .channels = &.{
-        .{ .num = 1, .mode = .pwm },
-    },
-});
-
 const timer5 = timer.config(rcc_inst, .{
     .timer = 5,
-    .freq_hz = 1_000_000,
-    .channels = &.{
-        .{ .num = 1, .mode = .pwm },
-        .{ .num = 2, .mode = .pwm },
-        .{ .num = 3, .mode = .pwm },
+    .freq_hz = 108_000_000,
+    .init_top = 65536 / 4 - 1,
+    .ch = &.{
+        .{ .num = 1, .name = "LED_G", .mode = .{ .output = .{
+            .oc = .inverted,
+            .ocn = .disabled,
+            .mode = .{ .pwm = .{} },
+        } } },
+        .{ .num = 2, .name = "LED_B", .mode = .{ .output = .{
+            .oc = .inverted,
+            .ocn = .disabled,
+            .mode = .{ .pwm = .{} },
+        } } },
+        .{ .num = 3, .name = "LED_R", .mode = .{ .output = .{
+            .oc = .inverted,
+            .ocn = .disabled,
+            .mode = .{ .pwm = .{} },
+        } } },
     },
 });
 
 const timer8 = timer.config(rcc_inst, .{
     .timer = 8,
-    .freq_hz = 1_000_000,
-    .channels = &.{
-        .{ .num = 2, .mode = .pwm },
-        .{ .num = 3, .mode = .pwm },
-        .{ .num = 4, .mode = .pwm },
+    .freq_hz = 108_000_000,
+    .init_top = 65536 - 1,
+    .ch = &.{
+        .{ .num = 2, .name = "LASER_R", .mode = .{ .output = .{
+            .oc = .enabled,
+            .ocn = .disabled,
+            .mode = .{ .pwm = .{} },
+        } } },
+        .{ .num = 3, .name = "LASER_G", .mode = .{ .output = .{
+            .oc = .enabled,
+            .ocn = .disabled,
+            .mode = .{ .pwm = .{} },
+        } } },
+        .{ .num = 4, .name = "LASER_B", .mode = .{ .output = .{
+            .oc = .enabled,
+            .ocn = .disabled,
+            .mode = .{ .pwm = .{} },
+        } } },
     },
 });
 
-const timer14 = timer.config(rcc_inst, .{
-    .timer = 14,
-    .freq_hz = 1_000_000,
-    .channels = &.{
-        .{ .num = 1, .mode = .input_capture },
-    },
-});
+// const timer3 = timer.config(rcc_inst, .{
+//     .timer = 3,
+//     .freq_hz = 1_000_000,
+//     .channels = &.{
+//         .{ .num = 1, .mode = .pwm },
+//     },
+// });
+
+// const timer14 = timer.config(rcc_inst, .{
+//     .timer = 14,
+//     .freq_hz = 1_000_000,
+//     .channels = &.{
+//         .{ .num = 1, .mode = .input_capture },
+//     },
+// });
 
 comptime {
     hal.createIrqVect(.{
@@ -164,12 +190,12 @@ fn init() !void {
     x_spi.init(rcc_inst, spi_cfg);
     y_spi.init(rcc_inst, spi_cfg);
 
-    timer3.init();
+    // timer3.init();
     timer5.init();
     timer8.init();
-    timer14.init();
+    // timer14.init();
 
-    // Connect laser pins after configured timer
+    // Connect laser pins after initialised timer
     laser_pin_inst.apply();
 
     // timer.timer1.initPwm(0x03ff);
@@ -182,7 +208,31 @@ fn init() !void {
 pub fn main() noreturn {
     init() catch {};
 
-    semihosting.writer.print("Hello, world!\n", .{}) catch {};
+    // semihosting.writer.print("Hello, world!\n", .{}) catch {};
+
+    var tick = systick_inst.get_ms();
+    const top = timer8.getTop();
+    var cmp: u32 = 0;
+    while (true) {
+        const now = systick_inst.get_ms();
+        if (now != tick) {
+            tick = now;
+            if (pin_inst.pins.BTN_1.read() != 0) {
+                if (cmp != top)
+                    cmp += 1;
+            }
+            if (pin_inst.pins.BTN_2.read() != 0) {
+                if (cmp != 0)
+                    cmp -= 1;
+            }
+            timer5.channels.LED_R.setCmp(cmp);
+            timer5.channels.LED_G.setCmp(cmp);
+            timer5.channels.LED_B.setCmp(cmp);
+            timer8.channels.LASER_R.setCmp(cmp);
+            timer8.channels.LASER_G.setCmp(cmp);
+            timer8.channels.LASER_B.setCmp(cmp);
+        }
+    }
 
     // const seq = [_]struct { x: u16, y: u16, steps: u16 }{
     //     .{ .x = 0, .y = 0, .steps = 1000 },
@@ -195,73 +245,73 @@ pub fn main() noreturn {
     //     .{ .x = 0xfff, .y = 0, .steps = 500 },
     // };
 
-    const seq = [_]struct {
-        x: u16,
-        y: u16,
-        steps: u16,
-        on: bool = true,
-    }{
-        .{ .x = 100, .y = 100, .steps = 100, .on = false },
-        .{ .x = 100, .y = 100, .steps = 100, .on = false },
-        .{ .x = 100, .y = 100, .steps = 100 },
-        .{ .x = 100, .y = 1900, .steps = 200 },
-        .{ .x = 100, .y = 1900, .steps = 100 },
-        .{ .x = 100, .y = 980, .steps = 1 },
-        .{ .x = 100, .y = 980, .steps = 100 },
-        .{ .x = 900, .y = 980, .steps = 20 },
-        .{ .x = 900, .y = 980, .steps = 100 },
-        .{ .x = 900, .y = 100, .steps = 1 },
-        .{ .x = 900, .y = 100, .steps = 100 },
-        .{ .x = 900, .y = 1900, .steps = 200 },
-        .{ .x = 900, .y = 1900, .steps = 100 },
-    };
+    // const seq = [_]struct {
+    //     x: u16,
+    //     y: u16,
+    //     steps: u16,
+    //     on: bool = true,
+    // }{
+    //     .{ .x = 100, .y = 100, .steps = 100, .on = false },
+    //     .{ .x = 100, .y = 100, .steps = 100, .on = false },
+    //     .{ .x = 100, .y = 100, .steps = 100 },
+    //     .{ .x = 100, .y = 1900, .steps = 200 },
+    //     .{ .x = 100, .y = 1900, .steps = 100 },
+    //     .{ .x = 100, .y = 980, .steps = 1 },
+    //     .{ .x = 100, .y = 980, .steps = 100 },
+    //     .{ .x = 900, .y = 980, .steps = 20 },
+    //     .{ .x = 900, .y = 980, .steps = 100 },
+    //     .{ .x = 900, .y = 100, .steps = 1 },
+    //     .{ .x = 900, .y = 100, .steps = 100 },
+    //     .{ .x = 900, .y = 1900, .steps = 200 },
+    //     .{ .x = 900, .y = 1900, .steps = 100 },
+    // };
 
-    var last_x: u16 = seq[seq.len - 1].x;
-    var last_y: u16 = seq[seq.len - 1].y;
-    var iseq: u16 = 0;
-    var step: u16 = 0;
+    // var last_x: u16 = seq[seq.len - 1].x;
+    // var last_y: u16 = seq[seq.len - 1].y;
+    // var iseq: u16 = 0;
+    // var step: u16 = 0;
 
-    const pins = pin_inst.pins;
-    while (true) {
-        step += 1;
-        const s = seq[iseq];
-        const x: i32 = @as(i32, last_x) + @divTrunc((@as(i32, s.x) - @as(i32, last_x)) * @as(i32, step), s.steps);
-        const y: i32 = @as(i32, last_y) + @divTrunc((@as(i32, s.y) - @as(i32, last_y)) * @as(i32, step), s.steps);
+    // const pins = pin_inst.pins;
+    // while (true) {
+    //     step += 1;
+    //     const s = seq[iseq];
+    //     const x: i32 = @as(i32, last_x) + @divTrunc((@as(i32, s.x) - @as(i32, last_x)) * @as(i32, step), s.steps);
+    //     const y: i32 = @as(i32, last_y) + @divTrunc((@as(i32, s.y) - @as(i32, last_y)) * @as(i32, step), s.steps);
 
-        if (step == s.steps) {
-            last_x = s.x;
-            last_y = s.y;
-            step = 0;
-            iseq = (iseq + 1) % @as(u16, seq.len);
-        }
+    //     if (step == s.steps) {
+    //         last_x = s.x;
+    //         last_y = s.y;
+    //         step = 0;
+    //         iseq = (iseq + 1) % @as(u16, seq.len);
+    //     }
 
-        if (!s.on) {
-            pins.LASER_R.write(0);
-            pins.LASER_G.write(0);
-            pins.LASER_B.write(0);
-        }
+    //     if (!s.on) {
+    //         pins.LASER_R.write(0);
+    //         pins.LASER_G.write(0);
+    //         pins.LASER_B.write(0);
+    //     }
 
-        const ux = @as(u12, @intCast(x));
-        const uy = @as(u12, @intCast(y));
-        x_spi.transmit((0b0111 << 12) + @as(u16, ux));
-        y_spi.transmit((0b0111 << 12) + @as(u16, uy));
-        x_spi.transmit((0b1111 << 12) + @as(u16, ~ux));
-        y_spi.transmit((0b1111 << 12) + @as(u16, ~uy));
-        pins.XY_LDAC.write(0);
-        systick_inst.delay_us(2);
-        pins.XY_LDAC.write(1);
-        systick_inst.delay_us(2);
+    //     const ux = @as(u12, @intCast(x));
+    //     const uy = @as(u12, @intCast(y));
+    //     x_spi.transmit((0b0111 << 12) + @as(u16, ux));
+    //     y_spi.transmit((0b0111 << 12) + @as(u16, uy));
+    //     x_spi.transmit((0b1111 << 12) + @as(u16, ~ux));
+    //     y_spi.transmit((0b1111 << 12) + @as(u16, ~uy));
+    //     pins.XY_LDAC.write(0);
+    //     systick_inst.delay_us(2);
+    //     pins.XY_LDAC.write(1);
+    //     systick_inst.delay_us(2);
 
-        // pins.LED_R.write(pins.IR.read());
-        // pins.LED_G.write(~pins.BTN_1.read());
-        // pins.LED_B.write(~pins.BTN_2.read());
+    //     // pins.LED_R.write(pins.IR.read());
+    //     // pins.LED_G.write(~pins.BTN_1.read());
+    //     // pins.LED_B.write(~pins.BTN_2.read());
 
-        if (s.on) {
-            pins.LASER_R.write(~pins.IR.read());
-            pins.LASER_G.write(pins.BTN_1.read());
-            pins.LASER_B.write(pins.BTN_2.read());
-        }
-    }
+    //     if (s.on) {
+    //         pins.LASER_R.write(~pins.IR.read());
+    //         pins.LASER_G.write(pins.BTN_1.read());
+    //         pins.LASER_B.write(pins.BTN_2.read());
+    //     }
+    // }
 
     // var ch: u8 = 1;
     // while (true) {

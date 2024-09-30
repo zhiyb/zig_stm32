@@ -25,44 +25,140 @@ pub const timer_channel_mode_t = enum {
     pwm,
 };
 
-pub const timer_cfg_t = struct {
-    timer: comptime_int,
-    freq_hz: comptime_int,
-    interrupt: bool = false,
-    channels: []const struct {
-        num: comptime_int,
-        mode: timer_channel_mode_t = .disabled,
-        interrupt: bool = false,
+pub const timer_channel_input_mode_t = enum {
+    disabled,
+    rising,
+    falling,
+    both_edges,
+};
+
+pub const timer_channel_output_mode_t = enum {
+    disabled,
+    enabled,
+    inverted,
+};
+
+pub const timer_channel_t = struct {
+    num: comptime_int,
+    name: ?[:0]const u8 = null,
+    mode: union(enum) {
+        output: struct {
+            oc: timer_channel_output_mode_t,
+            ocn: timer_channel_output_mode_t,
+            init_cmp: comptime_int = 0,
+            mode: union(enum) {
+                pwm: struct {},
+            },
+        },
+        input: struct {
+            ic: timer_channel_input_mode_t,
+            mode: union(enum) {},
+        },
     },
 };
 
-pub fn config(rcc_inst: anytype, cfg: timer_cfg_t) type {
+pub const timer_cfg_t = struct {
+    timer: comptime_int,
+    interrupt: bool = false,
+    freq_hz: comptime_int,
+    init_top: comptime_int = 0,
+    ch: []const timer_channel_t,
+};
+
+fn channelType(comptime timer: [:0]const u8, comptime ch_cfg: timer_channel_t) type {
+    const reg = @field(hal, timer);
+    const ch = ch_cfg.num;
+    const chs = std.fmt.comptimePrint("{}", .{ch});
+
+    switch (ch_cfg.mode) {
+        .input => {
+            @compileError("TODO");
+        },
+        .output => {
+            const out_cfg = ch_cfg.mode.output;
+            switch (out_cfg.mode) {
+                .pwm => return struct {
+                    pub fn getTop() u32 {
+                        return reg.ARR.raw;
+                    }
+
+                    pub fn getCmp() u32 {
+                        return @field(reg, "CCR" ++ chs).raw;
+                    }
+
+                    pub fn setCmp(v: u32) void {
+                        @field(reg, "CCR" ++ chs).write_raw(v);
+                    }
+                },
+            }
+        },
+    }
+}
+
+pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
+    const timer = std.fmt.comptimePrint("TIM{}", .{cfg.timer});
+
+    // Create struct for channels
+    comptime var channels_type: type = undefined;
+    comptime {
+        var ch_fields: []const std.builtin.Type.StructField = &.{};
+        for (cfg.ch) |ch_cfg| {
+            if (ch_cfg.name) |name| {
+                ch_fields = ch_fields ++ &[_]std.builtin.Type.StructField{.{
+                    .name = name,
+                    .type = type,
+                    .is_comptime = true,
+                    .default_value = &channelType(timer, ch_cfg),
+                    .alignment = @alignOf(timer_channel_t),
+                }};
+            }
+        }
+        channels_type = @Type(.{ .@"struct" = .{
+            .layout = .auto,
+            .is_tuple = false,
+            .fields = ch_fields,
+            .decls = &.{},
+        } });
+    }
+
     return struct {
-        const timer = std.fmt.comptimePrint("TIM{}", .{cfg.timer});
+        pub const channels = channels_type{};
+
         const reg = @field(hal, timer);
         const freq_in = rcc_inst.clockHz(@field(timer_bus_map_t, timer));
+
+        pub fn getTop() u32 {
+            return reg.ARR.raw;
+        }
 
         pub fn init() void {
             reg.CR1.write(.{ .CEN = 0 });
             reg.DIER.write(.{});
             reg.SR.write(.{});
+
+            const psc_ratio = @max(1, (freq_in + cfg.freq_hz - 1) / cfg.freq_hz);
+            reg.PSC.write(.{ .PSC = psc_ratio - 1 });
+            reg.ARR.write_raw(cfg.init_top);
+            reg.CNT.write_raw(0);
+
             inline for (@typeInfo(@TypeOf(reg.*)).@"struct".fields) |reg_field| {
                 // @compileLog(reg_field.name);
-                if (comptime std.mem.startsWith(u8, reg_field.name, "CCMR")) {
-                    if (comptime std.mem.endsWith(u8, reg_field.name, "_Output")) {
-                        // TODO
-                        continue;
-                    }
+                if (comptime !std.mem.startsWith(u8, reg_field.name, "CCMR"))
+                    continue;
+                // TODO
+                if (comptime std.mem.endsWith(u8, reg_field.name, "_Output"))
+                    continue;
 
-                    comptime var CCMR_in: (@TypeOf(@field(reg.*, reg_field.name).Input).underlying_type) = .{};
-                    comptime var CCMR_in_mask: (@TypeOf(@field(reg, reg_field.name).Input).underlying_type) = .{};
-                    inline for (@typeInfo(@TypeOf(CCMR_in)).@"struct".fields) |field| {
-                        if (comptime std.mem.startsWith(u8, field.name, "_RESERVED"))
+                comptime var CCMR_in: (@TypeOf(@field(reg.*, reg_field.name).Input).underlying_type) = .{};
+                comptime var CCMR_in_mask: (@TypeOf(@field(reg, reg_field.name).Input).underlying_type) = .{};
+                comptime {
+                    for (@typeInfo(@TypeOf(CCMR_in)).@"struct".fields) |field| {
+                        if (std.mem.startsWith(u8, field.name, "_RESERVED"))
                             continue;
 
-                        comptime var ch = 0;
-                        inline for (field.name) |c| {
-                            if (comptime std.ascii.isDigit(c)) {
+                        var ch = 0;
+                        for (field.name) |c| {
+                            if (std.ascii.isDigit(c)) {
                                 ch = c - '0';
                                 break;
                             }
@@ -71,43 +167,45 @@ pub fn config(rcc_inst: anytype, cfg: timer_cfg_t) type {
                             @compileError("Unkown field: " ++ reg_field.name ++ "." ++ field.name);
                         const chs = std.fmt.comptimePrint("{}", .{ch});
 
-                        inline for (cfg.channels) |channel| {
-                            if (comptime channel.num != ch)
+                        for (cfg.ch) |ch_cfg| {
+                            if (ch_cfg.num != ch)
                                 continue;
                             const f_ccs = "CC" ++ chs ++ "S";
                             const f_ic_psc = "IC" ++ chs ++ "PSC";
                             const f_ic_f = "IC" ++ chs ++ "F";
-                            switch (channel.mode) {
-                                .input_capture => {
-                                    if (comptime std.mem.eql(u8, field.name, f_ccs)) {
+                            switch (ch_cfg.mode) {
+                                .input => {
+                                    if (std.mem.eql(u8, field.name, f_ccs)) {
                                         @field(CCMR_in, f_ccs) = @intFromEnum(hal.TIM_CCMR_CCS.INPUT_SAME);
                                         @field(CCMR_in_mask, f_ccs) = 1;
-                                    } else if (comptime std.mem.eql(u8, field.name, f_ic_psc)) {
+                                    } else if (std.mem.eql(u8, field.name, f_ic_psc)) {
                                         @field(CCMR_in, f_ic_psc) = @intFromEnum(hal.TIM_CCMR_IC_PSC.DIV1);
                                         @field(CCMR_in_mask, f_ic_psc) = 1;
-                                    } else if (comptime std.mem.eql(u8, field.name, f_ic_f)) {
+                                    } else if (std.mem.eql(u8, field.name, f_ic_f)) {
                                         @field(CCMR_in, f_ic_f) = @intFromEnum(hal.TIM_CCMR_IC_F.DTS_DIV1_N1);
                                         @field(CCMR_in_mask, f_ic_f) = 1;
                                     } else {
-                                        @compileLog("TODO", channel, field.name);
+                                        @compileLog("TODO", ch_cfg, field.name);
                                     }
                                 },
                                 else => {},
                             }
                         }
                     }
-                    if (comptime !std.meta.eql(CCMR_in_mask, .{}))
-                        @field(reg.*, reg_field.name).Input.modify_masked(CCMR_in_mask, CCMR_in);
+                }
+                if (comptime !std.meta.eql(CCMR_in_mask, .{}))
+                    @field(reg.*, reg_field.name).Input.modify_masked(CCMR_in_mask, CCMR_in);
 
-                    comptime var CCMR_out: (@TypeOf(@field(reg, reg_field.name).Output).underlying_type) = .{};
-                    comptime var CCMR_out_mask: (@TypeOf(@field(reg, reg_field.name).Output).underlying_type) = .{};
-                    inline for (@typeInfo(@TypeOf(CCMR_out)).@"struct".fields) |field| {
-                        if (comptime std.mem.startsWith(u8, field.name, "_RESERVED"))
+                comptime var CCMR_out: (@TypeOf(@field(reg, reg_field.name).Output).underlying_type) = .{};
+                comptime var CCMR_out_mask: (@TypeOf(@field(reg, reg_field.name).Output).underlying_type) = .{};
+                comptime {
+                    for (@typeInfo(@TypeOf(CCMR_out)).@"struct".fields) |field| {
+                        if (std.mem.startsWith(u8, field.name, "_RESERVED"))
                             continue;
 
-                        comptime var ch = 0;
-                        inline for (field.name) |c| {
-                            if (comptime std.ascii.isDigit(c)) {
+                        var ch = 0;
+                        for (field.name) |c| {
+                            if (std.ascii.isDigit(c)) {
                                 ch = c - '0';
                                 break;
                             }
@@ -116,8 +214,8 @@ pub fn config(rcc_inst: anytype, cfg: timer_cfg_t) type {
                             @compileError("Unkown field: " ++ reg_field.name ++ "." ++ field.name);
                         const chs = std.fmt.comptimePrint("{}", .{ch});
 
-                        inline for (cfg.channels) |channel| {
-                            if (comptime channel.num != ch)
+                        for (cfg.ch) |ch_cfg| {
+                            if (ch_cfg.num != ch)
                                 continue;
                             const f_ccs = "CC" ++ chs ++ "S";
                             const f_oc_ce = "OC" ++ chs ++ "CE";
@@ -125,39 +223,76 @@ pub fn config(rcc_inst: anytype, cfg: timer_cfg_t) type {
                             const f_oc_pe = "OC" ++ chs ++ "PE";
                             const f_oc_m = "OC" ++ chs ++ "M";
                             const f_oc_m3 = "OC" ++ chs ++ "M_3";
-                            switch (channel.mode) {
-                                .pwm => {
+                            switch (ch_cfg.mode) {
+                                .output => {
                                     const oc_m = @intFromEnum(hal.TIM_CCMR_OCM.PWM_1);
-                                    if (comptime std.mem.eql(u8, field.name, f_ccs)) {
+                                    if (std.mem.eql(u8, field.name, f_ccs)) {
                                         @field(CCMR_out, f_ccs) = @intFromEnum(hal.TIM_CCMR_CCS.OUTPUT);
                                         @field(CCMR_out_mask, f_ccs) = 1;
-                                    } else if (comptime std.mem.eql(u8, field.name, f_oc_ce)) {
+                                    } else if (std.mem.eql(u8, field.name, f_oc_ce)) {
                                         @field(CCMR_out, f_oc_ce) = 0;
                                         @field(CCMR_out_mask, f_oc_ce) = 1;
-                                    } else if (comptime std.mem.eql(u8, field.name, f_oc_fe)) {
+                                    } else if (std.mem.eql(u8, field.name, f_oc_fe)) {
                                         @field(CCMR_out, f_oc_fe) = 0;
                                         @field(CCMR_out_mask, f_oc_fe) = 1;
-                                    } else if (comptime std.mem.eql(u8, field.name, f_oc_pe)) {
+                                    } else if (std.mem.eql(u8, field.name, f_oc_pe)) {
                                         @field(CCMR_out, f_oc_pe) = 0;
                                         @field(CCMR_out_mask, f_oc_pe) = 1;
-                                    } else if (comptime std.mem.eql(u8, field.name, f_oc_m)) {
+                                    } else if (std.mem.eql(u8, field.name, f_oc_m)) {
                                         @field(CCMR_out, f_oc_m) = oc_m & 7;
                                         @field(CCMR_out_mask, f_oc_m) = 1;
-                                    } else if (comptime std.mem.eql(u8, field.name, f_oc_m3)) {
+                                    } else if (std.mem.eql(u8, field.name, f_oc_m3)) {
                                         @field(CCMR_out, f_oc_m3) = oc_m >> 3;
                                         @field(CCMR_out_mask, f_oc_m3) = 1;
                                     } else {
-                                        @compileLog("TODO", channel, field.name);
+                                        @compileLog("TODO", ch_cfg, field.name);
                                     }
                                 },
                                 else => {},
                             }
                         }
                     }
-                    if (comptime !std.meta.eql(CCMR_out_mask, .{}))
-                        @field(reg.*, reg_field.name).Output.modify_masked(CCMR_out_mask, CCMR_out);
+                }
+                if (comptime !std.meta.eql(CCMR_out_mask, .{}))
+                    @field(reg.*, reg_field.name).Output.modify_masked(CCMR_out_mask, CCMR_out);
+            }
+
+            comptime var CCER: (@TypeOf(reg.CCER).underlying_type) = .{};
+            comptime var CCER_modified = false;
+            inline for (cfg.ch) |ch_cfg| {
+                const ch = ch_cfg.num;
+                const chs = std.fmt.comptimePrint("{}", .{ch});
+                switch (ch_cfg.mode) {
+                    .input => {
+                        @compileLog("TODO");
+                    },
+                    .output => {
+                        const out_cfg = ch_cfg.mode.output;
+                        const f_cce = "CC" ++ chs ++ "E";
+                        @field(CCER, f_cce) = if (out_cfg.oc != .disabled) 1 else 0;
+                        const f_ccp = "CC" ++ chs ++ "P";
+                        @field(CCER, f_ccp) = if (out_cfg.oc == .inverted) 1 else 0;
+                        const f_ccne = "CC" ++ chs ++ "NE";
+                        if (@hasField(@TypeOf(CCER), f_ccne)) {
+                            @field(CCER, f_ccne) = if (out_cfg.ocn != .disabled) 1 else 0;
+                            const f_ccnp = "CC" ++ chs ++ "NE";
+                            @field(CCER, f_ccnp) = if (out_cfg.ocn == .inverted) 1 else 0;
+                        } else if (out_cfg.ocn != .disabled) {
+                            @compileError("Timer does not support OCN output");
+                        }
+                        CCER_modified = true;
+
+                        @field(reg, "CCR" ++ chs).write_raw(out_cfg.init_cmp);
+                    },
                 }
             }
+            if (CCER_modified)
+                reg.CCER.write(CCER);
+
+            if (@hasField(@TypeOf(reg.*), "BDTR"))
+                reg.BDTR.write(.{ .MOE = 1 });
+            // Enable timer
+            reg.CR1.write(.{ .CEN = 1 });
         }
     };
 }
@@ -264,79 +399,6 @@ pub fn config(rcc_inst: anytype, cfg: timer_cfg_t) type {
 //     mode: mode_t = .Uninitialised,
 //     data: data_t = .{ .unused = 0 },
 
-//     fn initPwm(self: anytype, top: u16) void {
-//         const reg = self.reg;
-//         self.common.mode = .OutputPWM;
-
-//         // Edge counting up
-//         reg.CR1 = .{
-//             .ARPE = 0,
-//             .CMS = @intFromEnum(hal.TIM_CR1_CMS.EDGE),
-//             .DIR = @intFromEnum(hal.TIM_CR1_DIR.UP),
-//             .OPM = 0,
-//             .URS = 0,
-//             .UDIS = 0,
-//         };
-//         reg.CR2 = .{};
-//         reg.SMCR = .{};
-//         reg.DIER = .{};
-//         // Enable CC output 2, 3, 4
-//         reg.CCMR1.Output = .{
-//             .CC1S = @intFromEnum(hal.TIM_CCMR_CCS.OUTPUT),
-//             .OC1M = @intFromEnum(hal.TIM_CCMR_OCM.PWM_1),
-//             .OC1PE = 0,
-//             .OC1FE = 0,
-//             .CC2S = @intFromEnum(hal.TIM_CCMR_CCS.OUTPUT),
-//             .OC2M = @intFromEnum(hal.TIM_CCMR_OCM.PWM_1),
-//             .OC2PE = 0,
-//             .OC2FE = 0,
-//         };
-//         reg.CCMR2.Output = .{
-//             .CC3S = @intFromEnum(hal.TIM_CCMR_CCS.OUTPUT),
-//             .OC3M = @intFromEnum(hal.TIM_CCMR_OCM.PWM_1),
-//             .OC3PE = 0,
-//             .OC3FE = 0,
-//             .CC4S = @intFromEnum(hal.TIM_CCMR_CCS.OUTPUT),
-//             .OC4M = @intFromEnum(hal.TIM_CCMR_OCM.PWM_1),
-//             .OC4PE = 0,
-//             .OC4FE = 0,
-//         };
-//         reg.CCER = .{
-//             .CC1E = 1,
-//             .CC1P = 0,
-//             .CC2E = 1,
-//             .CC2P = 0,
-//             .CC3E = 1,
-//             .CC3P = 0,
-//             .CC4E = 1,
-//             .CC4P = 0,
-//         };
-//         if (@TypeOf(self.*) == timer_type1_t)
-//             reg.BDTR.MOE = 1;
-
-//         if (false) {
-//             // Timer overflow frequency
-//             const freq = 480;
-//             // TIM1 from APB2 @ 72 MHz
-//             const freq_in = 72_000_000;
-//             const ratio = @max(1, freq_in / freq / 65536);
-//             reg.PSC.PSC = @intCast(ratio - 1);
-//             reg.ARR.ARR = 65536 - 1;
-//         } else {
-//             reg.PSC.PSC = 1;
-//             reg.ARR.ARR = top;
-//         }
-
-//         // Compare values
-//         reg.CCR1.CCR1 = 1;
-//         reg.CCR2.CCR2 = 1;
-//         reg.CCR3.CCR3 = 1;
-//         reg.CCR4.CCR4 = 1;
-
-//         // Enable timer
-//         reg.CR1.CEN = 1;
-//     }
-
 //     fn initIrRemote(self: anytype) void {
 //         const reg = self.reg;
 //         self.common.mode = .InputIrRemote;
@@ -405,25 +467,6 @@ pub fn config(rcc_inst: anytype, cfg: timer_cfg_t) type {
 //         const data = log[r];
 //         ridx.* = (r +% 1) % ir_remote_log;
 //         return data;
-//     }
-
-//     fn getCC(self: anytype, ch: u8) u16 {
-//         return switch (ch) {
-//             1 => self.reg.CCR1.CCR1,
-//             2 => self.reg.CCR2.CCR2,
-//             3 => self.reg.CCR3.CCR3,
-//             4 => self.reg.CCR4.CCR4,
-//             else => 0,
-//         };
-//     }
-
-//     fn setCC(self: anytype, ch: u8, val: u16) void {
-//         (switch (ch) {
-//             1 => self.reg.CCR1.CCR1,
-//             2 => self.reg.CCR2.CCR2,
-//             3 => self.reg.CCR3.CCR3,
-//             else => self.reg.CCR4.CCR4,
-//         }) = val;
 //     }
 
 //     fn irq(self: anytype) void {

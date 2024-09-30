@@ -179,8 +179,8 @@ pub fn initGpioCfg(comptime port: []const u8, comptime cfgs: gpio_cfg_t) void {
 }
 
 pub fn initCfg(comptime cfgs: cfg_t) type {
-    comptime var pin_fields: []const std.builtin.Type.StructField = &.{};
     comptime {
+        var pin_fields: []const std.builtin.Type.StructField = &.{};
         for (@typeInfo(cfg_t).@"struct".fields) |gpio_field| {
             if (@field(cfgs, gpio_field.name)) |gpio_config| {
                 for (@typeInfo(gpio_cfg_t).@"struct".fields) |cfg_field| {
