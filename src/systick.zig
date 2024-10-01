@@ -21,7 +21,7 @@ pub fn config(rcc_inst: type, cfg: cfg_t) type {
             var cnt: u32 = 0;
             while (true) {
                 cnt = @atomicLoad(u32, &hal.SYST.CVR.raw, .acquire);
-                const now = tick_cnt.load(.monotonic);
+                const now = tick_cnt.load(.acquire);
                 if (now == tick) {
                     break;
                 } else {
