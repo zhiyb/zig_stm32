@@ -6,6 +6,7 @@ const gpio = @import("gpio.zig");
 const spi = @import("spi.zig");
 const timer = @import("timer.zig");
 const systick = @import("systick.zig");
+const ir_remote = @import("ir_remote.zig");
 const semihosting = @import("semihosting.zig");
 
 pub const panic = semihosting.panic;
@@ -92,9 +93,6 @@ const timer_pin_inst = gpio.initCfg(.{
     },
 });
 
-const x_spi = spi.master("SPI3");
-const y_spi = spi.master("SPI2");
-
 const timer5 = timer.config(rcc_inst, .{
     .timer = 5,
     .freq_hz = 108_000_000,
@@ -148,6 +146,7 @@ const timer14 = timer.config(rcc_inst, .{
     .ch = &.{
         .{ .num = 1, .name = "IR", .interrupt = true, .mode = .{ .input = .{
             .ic = .both_edges,
+            .irq_cc = &ir_remote_inst.irq,
             .mode = .{ .capture = .{} },
         } } },
     },
@@ -161,15 +160,15 @@ const timer14 = timer.config(rcc_inst, .{
 //     },
 // });
 
-pub fn timer14_irq() callconv(.C) void {
-    semihosting.writer.print("timer14_irq\n", .{}) catch {};
-    hal.TIM14.SR.write(.{ .CC1OF = 0, .CC1IF = 0 });
-}
+const ir_remote_inst = ir_remote.config();
+
+const x_spi = spi.master("SPI3");
+const y_spi = spi.master("SPI2");
 
 comptime {
     hal.createIrqVect(.{
         .SysTick = &systick_inst.irq,
-        .TIM8_TRG_COM_TIM14 = &timer14_irq,
+        .TIM8_TRG_COM_TIM14 = &timer14.irq,
     });
 }
 
@@ -212,12 +211,12 @@ fn init() !void {
     timer_pin_inst.apply();
 
     nvic.enable_irq(.TIM8_TRG_COM_TIM14, true);
+
+    // semihosting.writer.print("Hello, world!\n", .{}) catch {};
 }
 
 pub fn main() noreturn {
     init() catch {};
-
-    // semihosting.writer.print("Hello, world!\n", .{}) catch {};
 
     var tick = systick_inst.get_ms();
     const top = timer8.getTop();
@@ -240,6 +239,15 @@ pub fn main() noreturn {
             timer8.channels.LASER_R.setCmp(cmp);
             timer8.channels.LASER_G.setCmp(cmp);
             timer8.channels.LASER_B.setCmp(cmp);
+        }
+
+        const val = ir_remote_inst.dequeue();
+        if (val) |v| {
+            const remote = ir_remote.remote_sky_now_tv.decode(v);
+            semihosting.writer.print(
+                "{s} rep={}\n",
+                .{ @tagName(remote.button), remote.repeat },
+            ) catch {};
         }
     }
 

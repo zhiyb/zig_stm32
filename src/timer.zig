@@ -53,6 +53,7 @@ pub const timer_channel_t = struct {
         },
         input: struct {
             ic: timer_channel_input_mode_t,
+            irq_cc: ?*const fn (anytype, u32, bool) void,
             mode: union(enum) {
                 capture: struct {},
             },
@@ -68,7 +69,11 @@ pub const timer_cfg_t = struct {
     ch: []const timer_channel_t,
 };
 
-fn channelType(comptime timer: [:0]const u8, comptime ch_cfg: timer_channel_t) type {
+fn channelType(
+    comptime timer: [:0]const u8,
+    comptime ch_cfg: timer_channel_t,
+    comptime timer_cnt_freq_hz: comptime_int,
+) type {
     const reg = @field(hal, timer);
     const ch = ch_cfg.num;
     const chs = std.fmt.comptimePrint("{}", .{ch});
@@ -77,7 +82,13 @@ fn channelType(comptime timer: [:0]const u8, comptime ch_cfg: timer_channel_t) t
         .input => {
             const in_cfg = ch_cfg.mode.input;
             switch (in_cfg.mode) {
-                .capture => return struct {},
+                .capture => return struct {
+                    pub const cnt_freq_hz = timer_cnt_freq_hz;
+
+                    pub fn getTop() u32 {
+                        return reg.ARR.raw;
+                    }
+                },
             }
         },
         .output => {
@@ -104,6 +115,11 @@ fn channelType(comptime timer: [:0]const u8, comptime ch_cfg: timer_channel_t) t
 pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
     const timer = std.fmt.comptimePrint("TIM{}", .{cfg.timer});
 
+    const reg = @field(hal, timer);
+    const freq_in = rcc_inst.clockHz(@field(timer_bus_map_t, timer));
+    const psc_ratio = @max(1, (freq_in + cfg.freq_hz - 1) / cfg.freq_hz);
+    const timer_cnt_freq_hz = freq_in / psc_ratio;
+
     // Create struct for channels
     comptime var channels_type: type = undefined;
     comptime {
@@ -114,7 +130,11 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                     .name = name,
                     .type = type,
                     .is_comptime = true,
-                    .default_value = &channelType(timer, ch_cfg),
+                    .default_value = &channelType(
+                        timer,
+                        ch_cfg,
+                        timer_cnt_freq_hz,
+                    ),
                     .alignment = @alignOf(timer_channel_t),
                 }};
             }
@@ -128,15 +148,50 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
     }
 
     return struct {
+        pub const cnt_freq_hz = timer_cnt_freq_hz;
         pub const channels = channels_type{};
-
-        const reg = @field(hal, timer);
-        const freq_in = rcc_inst.clockHz(@field(timer_bus_map_t, timer));
-        const psc_ratio = @max(1, (freq_in + cfg.freq_hz - 1) / cfg.freq_hz);
-        pub const clk_freq_hz = freq_in / psc_ratio;
 
         pub fn getTop() u32 {
             return reg.ARR.raw;
+        }
+
+        pub fn irq() callconv(.C) void {
+            // Interrupt flags
+            const sr = reg.SR.read();
+
+            // Default all interrupt flags to 1 (not clear)
+            comptime var SR_clr: @TypeOf(reg.SR).underlying_type = .{};
+            inline for (@typeInfo(@TypeOf(SR_clr)).@"struct".fields) |field|
+                @field(SR_clr, field.name) = 1;
+
+            // Clear SR channel flags first
+            var cc_cnt: [8]u32 = undefined;
+            inline for (cfg.ch) |ch_cfg| {
+                const chs = std.fmt.comptimePrint("{}", .{ch_cfg.num});
+                cc_cnt[ch_cfg.num] = @field(
+                    @field(reg.*, "CCR" ++ chs).read(),
+                    "CCR" ++ chs,
+                );
+                @field(SR_clr, "CC" ++ chs ++ "IF") = 0;
+                @field(SR_clr, "CC" ++ chs ++ "OF") = 0;
+            }
+            reg.SR.write(SR_clr);
+
+            // Loop over configured channels
+            inline for (cfg.ch) |ch_cfg| {
+                const chs = std.fmt.comptimePrint("{}", .{ch_cfg.num});
+                const f_ccif = "CC" ++ chs ++ "IF";
+                const f_ccof = "CC" ++ chs ++ "OF";
+                const cnt = cc_cnt[ch_cfg.num];
+                if (ch_cfg.mode.input.irq_cc) |irq_func|
+                    if (ch_cfg.name) |name|
+                        if (@field(sr, f_ccif) != 0)
+                            irq_func(
+                                @field(channels, name),
+                                cnt,
+                                @field(sr, f_ccof) != 0,
+                            );
+            }
         }
 
         pub fn init() void {
@@ -149,13 +204,13 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
             reg.CNT.write_raw(0);
 
             inline for (@typeInfo(@TypeOf(reg.*)).@"struct".fields) |reg_field| {
-                // @compileLog(reg_field.name);
                 if (comptime !std.mem.startsWith(u8, reg_field.name, "CCMR"))
                     continue;
-                // TODO
+                // TODO Support for timer channel 5 and 6
                 if (comptime std.mem.endsWith(u8, reg_field.name, "_Output"))
                     continue;
 
+                // Input mode channels
                 comptime var CCMR_in: (@TypeOf(@field(reg.*, reg_field.name).Input).underlying_type) = .{};
                 comptime var CCMR_in_mask: (@TypeOf(@field(reg, reg_field.name).Input).underlying_type) = .{};
                 comptime {
@@ -203,6 +258,7 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                 if (comptime !std.meta.eql(CCMR_in_mask, .{}))
                     @field(reg.*, reg_field.name).Input.modify_masked(CCMR_in_mask, CCMR_in);
 
+                // Output mode channels
                 comptime var CCMR_out: (@TypeOf(@field(reg, reg_field.name).Output).underlying_type) = .{};
                 comptime var CCMR_out_mask: (@TypeOf(@field(reg, reg_field.name).Output).underlying_type) = .{};
                 comptime {
@@ -264,6 +320,7 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                     @field(reg.*, reg_field.name).Output.modify_masked(CCMR_out_mask, CCMR_out);
             }
 
+            // Common timer registers
             comptime var CCER: (@TypeOf(reg.CCER).underlying_type) = .{};
             comptime var DIER: (@TypeOf(reg.DIER).underlying_type) = .{};
             inline for (cfg.ch) |ch_cfg| {
@@ -292,6 +349,7 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                                 @field(CCER, f_ccnp) = 1;
                             },
                         }
+                        @field(DIER, "CC" ++ chs ++ "IE") = if (in_cfg.irq_cc != null) 1 else 0;
                     },
                     .output => {
                         const out_cfg = ch_cfg.mode.output;
@@ -306,7 +364,6 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                         @field(reg, "CCR" ++ chs).write_raw(out_cfg.init_cmp);
                     },
                 }
-                @field(DIER, "CC" ++ chs ++ "IE") = 1;
             }
             reg.CCER.write(CCER);
             reg.DIER.write(DIER);
@@ -318,244 +375,3 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
         }
     };
 }
-
-// const ir_remote_debug = false;
-// const ir_remote_log = 8;
-
-// const common_t = struct {
-//     const mode_t = enum { Uninitialised, OutputPWM, InputIrRemote };
-
-//     const data_t = union {
-//         const ir_remote_t = struct {
-//             // 10us tick resolution
-//             const tick_freq = 100_000;
-
-//             const source_t = struct {
-//                 debug: if (ir_remote_debug) struct {
-//                     const debug_t = struct {
-//                         burst: i32 = 0,
-//                         space: i32 = 0,
-//                         data: u32 = 0,
-//                         bit: i8 = 0,
-//                     };
-
-//                     log: [64]debug_t = [_]debug_t{.{}} ** 64,
-//                     idx: u6 = 0,
-//                 } else struct {} = .{},
-
-//                 _log: [ir_remote_log]u32 = [_]u32{0} ** ir_remote_log,
-//                 _widx: u8 = 0,
-//                 _ridx: u8 = 0,
-
-//                 last_tick: u16 = 0,
-//                 burst_ticks: u16 = 0,
-//                 data: u32 = 0,
-//                 bit: i8 = 0,
-
-//                 /// NEC decoder
-//                 fn checkBit(self: *source_t, space_ticks: u16) void {
-//                     const start_burst = 9_000 * tick_freq / 1000_000; // 9ms
-//                     const start_space = 4_500 * tick_freq / 1000_000; // 4.5ms
-//                     const b0_burst = 563 * tick_freq / 1000_000; // 562.5us
-//                     const b0_space = b0_burst;
-//                     const b1_burst = b0_burst;
-//                     const b1_space = 1_688 * tick_freq / 1000_000; // 1.6875ms
-//                     const tolerance = 100 / 30; // 30% tolerance
-
-//                     const burst: i32 = self.burst_ticks;
-//                     const space: i32 = space_ticks;
-
-//                     if (@abs(burst - start_burst) < start_burst / tolerance and
-//                         @abs(space - start_space) < start_space / tolerance)
-//                     {
-//                         self.bit = 0;
-//                     } else if (self.bit >= 0) {
-//                         if (@abs(burst - b0_burst) < b0_burst / tolerance and
-//                             @abs(space - b0_space) < b0_space / tolerance)
-//                         {
-//                             self.data = self.data << 1;
-//                             self.bit += 1;
-//                         } else if (@abs(burst - b1_burst) < b1_burst / tolerance and
-//                             @abs(space - b1_space) < b1_space / tolerance)
-//                         {
-//                             self.data = (self.data << 1) | 1;
-//                             self.bit += 1;
-//                         } else {
-//                             self.bit = -1;
-//                         }
-//                     }
-
-//                     if (ir_remote_debug) {
-//                         const dbg: @TypeOf(self.debug).debug_t = .{
-//                             .burst = burst,
-//                             .space = space,
-//                             .data = self.data,
-//                             .bit = self.bit,
-//                         };
-//                         self.debug.log[self.debug.idx] = dbg;
-//                         self.debug.idx +%= 1;
-//                     }
-
-//                     if (self.bit == 32) {
-//                         // 32-bit data complete
-//                         const widx = @as(*volatile @TypeOf(self._widx), &self._widx);
-//                         const ridx = @as(*volatile @TypeOf(self._ridx), &self._ridx);
-//                         const log = @as(*volatile @TypeOf(self._log), &self._log);
-//                         const w = widx.*;
-//                         if (w +% 1 != ridx.*) {
-//                             log[w] = self.data;
-//                             widx.* = (w +% 1) % ir_remote_log;
-//                         }
-//                         self.bit = -1;
-//                     }
-//                 }
-//             };
-
-//             source: [2]source_t = [_]source_t{.{}} ** 2,
-//         };
-
-//         unused: u0,
-//         ir_remote: ir_remote_t,
-//     };
-
-//     mode: mode_t = .Uninitialised,
-//     data: data_t = .{ .unused = 0 },
-
-//     fn initIrRemote(self: anytype) void {
-//         const reg = self.reg;
-//         self.common.mode = .InputIrRemote;
-//         self.common.data = .{ .ir_remote = .{} };
-
-//         // Setup PWM input capture timer using CC inputs 2 and 4
-//         reg.CR1 = .{
-//             .CMS = @intFromEnum(hal.TIM_CR1_CMS.EDGE),
-//             .DIR = @intFromEnum(hal.TIM_CR1_DIR.UP),
-//         };
-//         reg.CR2 = .{};
-//         reg.SMCR = .{};
-//         reg.DIER = .{
-//             .CC1IE = 1,
-//             .CC2IE = 1,
-//             .CC3IE = 1,
-//             .CC4IE = 1,
-//         };
-//         reg.SR = .{}; // Clear flags
-//         reg.CCMR1.Input = .{
-//             .CC1S = @intFromEnum(hal.TIM_CCMR_CCS.INPUT_COMP),
-//             .IC1F = @intFromEnum(hal.TIM_CCMR_ICF.INT_N8),
-//             .IC1PSC = @intFromEnum(hal.TIM_CCMR_ICPSC.DIV1),
-//             .CC2S = @intFromEnum(hal.TIM_CCMR_CCS.INPUT_SAME),
-//             .IC2F = @intFromEnum(hal.TIM_CCMR_ICF.INT_N8),
-//             .IC2PSC = @intFromEnum(hal.TIM_CCMR_ICPSC.DIV1),
-//         };
-//         reg.CCMR2.Input = .{
-//             .CC3S = @intFromEnum(hal.TIM_CCMR_CCS.INPUT_COMP),
-//             .IC3F = @intFromEnum(hal.TIM_CCMR_ICF.INT_N8),
-//             .IC3PSC = @intFromEnum(hal.TIM_CCMR_ICPSC.DIV1),
-//             .CC4S = @intFromEnum(hal.TIM_CCMR_CCS.INPUT_SAME),
-//             .IC4F = @intFromEnum(hal.TIM_CCMR_ICF.INT_N8),
-//             .IC4PSC = @intFromEnum(hal.TIM_CCMR_ICPSC.DIV1),
-//         };
-//         reg.CCER = .{
-//             .CC1E = 1,
-//             .CC1P = 1,
-//             .CC2E = 1,
-//             .CC2P = 0,
-//             .CC3E = 1,
-//             .CC3P = 1,
-//             .CC4E = 1,
-//             .CC4P = 0,
-//         };
-
-//         // TIM @ 72 MHz
-//         const freq_in = 72_000_000;
-//         const ratio = freq_in / data_t.ir_remote_t.tick_freq;
-//         reg.PSC.PSC = ratio - 1;
-//         reg.ARR.ARR = 65535;
-
-//         // Enable timer
-//         reg.CR1.CEN = 1;
-//     }
-
-//     fn popIrRemote(self: anytype, src: u8) u32 {
-//         const ir_remote: *data_t.ir_remote_t = &self.common.data.ir_remote;
-//         const source = &ir_remote.source[src];
-//         const widx = @as(*volatile @TypeOf(source._widx), &source._widx);
-//         const ridx = @as(*volatile @TypeOf(source._ridx), &source._ridx);
-//         const log = @as(*volatile @TypeOf(source._log), &source._log);
-//         const r = ridx.*;
-//         if (r == widx.*)
-//             return 0;
-//         const data = log[r];
-//         ridx.* = (r +% 1) % ir_remote_log;
-//         return data;
-//     }
-
-//     fn irq(self: anytype) void {
-//         const reg = self.reg;
-//         switch (self.common.mode) {
-//             .InputIrRemote => {
-//                 const sr = reg.SR;
-//                 const ir_remote = &self.common.data.ir_remote;
-//                 for (0..2) |i| {
-//                     const source = &ir_remote.source[i];
-//                     if ((if (i == 0) sr.CC2IF else sr.CC4IF) != 0) {
-//                         const tick = (if (i == 0) reg.CCR2.CCR2 else reg.CCR4.CCR4);
-//                         source.burst_ticks = tick -% source.last_tick;
-//                         source.last_tick = tick;
-//                     }
-//                     if ((if (i == 0) sr.CC1IF else sr.CC3IF) != 0) {
-//                         const tick = (if (i == 0) reg.CCR1.CCR1 else reg.CCR3.CCR3);
-//                         const ticks = tick -% source.last_tick;
-//                         source.last_tick = tick;
-//                         ir_remote.source[i].checkBit(ticks);
-//                     }
-//                 }
-//                 reg.SR = @bitCast(~@as(u32, @bitCast(sr)));
-//             },
-
-//             else => unreachable,
-//         }
-//     }
-// };
-
-// pub const timer_type1_t = struct {
-//     common: common_t = .{},
-//     reg: @TypeOf(hal.TIM1),
-
-//     pub const initPwm = common_t.initPwm;
-//     pub const initIrRemote = common_t.initIrRemote;
-//     pub const popIrRemote = common_t.popIrRemote;
-//     pub const getCC = common_t.getCC;
-//     pub const setCC = common_t.setCC;
-//     pub const irq = common_t.irq;
-// };
-
-// pub const timer_type2_t = struct {
-//     common: common_t = .{},
-//     reg: @TypeOf(hal.TIM2),
-
-//     pub const initPwm = common_t.initPwm;
-//     pub const initIrRemote = common_t.initIrRemote;
-//     pub const popIrRemote = common_t.popIrRemote;
-//     pub const getCC = common_t.getCC;
-//     pub const setCC = common_t.setCC;
-//     pub const irq = common_t.irq;
-// };
-
-// pub var timer1: timer_type1_t = .{ .reg = hal.TIM1 };
-// pub var timer2: timer_type2_t = .{ .reg = hal.TIM2 };
-// pub var timer3: timer_type2_t = .{ .reg = hal.TIM3 };
-// pub var timer4: timer_type2_t = .{ .reg = hal.TIM4 };
-
-// pub fn timer2_irq() callconv(.C) void {
-//     timer2.irq();
-// }
-
-// pub fn timer3_irq() callconv(.C) void {
-//     timer3.irq();
-// }
-
-// pub fn timer4_irq() callconv(.C) void {
-//     timer4.irq();
-// }
