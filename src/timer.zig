@@ -41,6 +41,7 @@ pub const timer_channel_output_mode_t = enum {
 pub const timer_channel_t = struct {
     num: comptime_int,
     name: ?[:0]const u8 = null,
+    interrupt: bool = false,
     mode: union(enum) {
         output: struct {
             oc: timer_channel_output_mode_t,
@@ -52,7 +53,9 @@ pub const timer_channel_t = struct {
         },
         input: struct {
             ic: timer_channel_input_mode_t,
-            mode: union(enum) {},
+            mode: union(enum) {
+                capture: struct {},
+            },
         },
     },
 };
@@ -72,7 +75,10 @@ fn channelType(comptime timer: [:0]const u8, comptime ch_cfg: timer_channel_t) t
 
     switch (ch_cfg.mode) {
         .input => {
-            @compileError("TODO");
+            const in_cfg = ch_cfg.mode.input;
+            switch (in_cfg.mode) {
+                .capture => return struct {},
+            }
         },
         .output => {
             const out_cfg = ch_cfg.mode.output;
@@ -126,6 +132,8 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
 
         const reg = @field(hal, timer);
         const freq_in = rcc_inst.clockHz(@field(timer_bus_map_t, timer));
+        const psc_ratio = @max(1, (freq_in + cfg.freq_hz - 1) / cfg.freq_hz);
+        pub const clk_freq_hz = freq_in / psc_ratio;
 
         pub fn getTop() u32 {
             return reg.ARR.raw;
@@ -136,7 +144,6 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
             reg.DIER.write(.{});
             reg.SR.write(.{});
 
-            const psc_ratio = @max(1, (freq_in + cfg.freq_hz - 1) / cfg.freq_hz);
             reg.PSC.write(.{ .PSC = psc_ratio - 1 });
             reg.ARR.write_raw(cfg.init_top);
             reg.CNT.write_raw(0);
@@ -258,40 +265,55 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
             }
 
             comptime var CCER: (@TypeOf(reg.CCER).underlying_type) = .{};
-            comptime var CCER_modified = false;
+            comptime var DIER: (@TypeOf(reg.DIER).underlying_type) = .{};
             inline for (cfg.ch) |ch_cfg| {
                 const ch = ch_cfg.num;
                 const chs = std.fmt.comptimePrint("{}", .{ch});
+                const f_cce = "CC" ++ chs ++ "E";
+                const f_ccp = "CC" ++ chs ++ "P";
+                const f_ccne = "CC" ++ chs ++ "NE";
+                const f_ccnp = "CC" ++ chs ++ "NP";
                 switch (ch_cfg.mode) {
                     .input => {
-                        @compileLog("TODO");
+                        const in_cfg = ch_cfg.mode.input;
+                        @field(CCER, f_cce) = if (in_cfg.ic != .disabled) 1 else 0;
+                        switch (in_cfg.ic) {
+                            .disabled => {},
+                            .rising => {
+                                @field(CCER, f_ccp) = 0;
+                                @field(CCER, f_ccnp) = 0;
+                            },
+                            .falling => {
+                                @field(CCER, f_ccp) = 0;
+                                @field(CCER, f_ccnp) = 1;
+                            },
+                            .both_edges => {
+                                @field(CCER, f_ccp) = 1;
+                                @field(CCER, f_ccnp) = 1;
+                            },
+                        }
                     },
                     .output => {
                         const out_cfg = ch_cfg.mode.output;
-                        const f_cce = "CC" ++ chs ++ "E";
                         @field(CCER, f_cce) = if (out_cfg.oc != .disabled) 1 else 0;
-                        const f_ccp = "CC" ++ chs ++ "P";
                         @field(CCER, f_ccp) = if (out_cfg.oc == .inverted) 1 else 0;
-                        const f_ccne = "CC" ++ chs ++ "NE";
                         if (@hasField(@TypeOf(CCER), f_ccne)) {
                             @field(CCER, f_ccne) = if (out_cfg.ocn != .disabled) 1 else 0;
-                            const f_ccnp = "CC" ++ chs ++ "NE";
                             @field(CCER, f_ccnp) = if (out_cfg.ocn == .inverted) 1 else 0;
                         } else if (out_cfg.ocn != .disabled) {
                             @compileError("Timer does not support OCN output");
                         }
-                        CCER_modified = true;
-
                         @field(reg, "CCR" ++ chs).write_raw(out_cfg.init_cmp);
                     },
                 }
+                @field(DIER, "CC" ++ chs ++ "IE") = 1;
             }
-            if (CCER_modified)
-                reg.CCER.write(CCER);
+            reg.CCER.write(CCER);
+            reg.DIER.write(DIER);
 
+            // Enable timer
             if (@hasField(@TypeOf(reg.*), "BDTR"))
                 reg.BDTR.write(.{ .MOE = 1 });
-            // Enable timer
             reg.CR1.write(.{ .CEN = 1 });
         }
     };

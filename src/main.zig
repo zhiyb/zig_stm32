@@ -80,7 +80,10 @@ const pin_inst = gpio.initCfg(.{
     },
 });
 
-const laser_pin_inst = gpio.initCfg(.{
+const timer_pin_inst = gpio.initCfg(.{
+    .GPIOA = .{
+        .PIN7 = .{ .name = "IR", .mode = .af_push_pull, .af = 9, .pull = .pull_up }, // TIM14_CH1
+    },
     .GPIOC = .{
         .PIN6 = .{ .name = "XY_LDAC", .mode = .af_push_pull, .af = 2, .speed = .medium, .value = 1 }, // TIM3_CH1
         .PIN7 = .{ .name = "LASER_R", .mode = .af_push_pull, .af = 3, .speed = .medium, .value = 0 }, // TIM8_CH2
@@ -138,6 +141,18 @@ const timer8 = timer.config(rcc_inst, .{
     },
 });
 
+const timer14 = timer.config(rcc_inst, .{
+    .timer = 14,
+    .freq_hz = 1_000_000,
+    .init_top = 65536 - 1,
+    .ch = &.{
+        .{ .num = 1, .name = "IR", .interrupt = true, .mode = .{ .input = .{
+            .ic = .both_edges,
+            .mode = .{ .capture = .{} },
+        } } },
+    },
+});
+
 // const timer3 = timer.config(rcc_inst, .{
 //     .timer = 3,
 //     .freq_hz = 1_000_000,
@@ -146,17 +161,10 @@ const timer8 = timer.config(rcc_inst, .{
 //     },
 // });
 
-// const timer14 = timer.config(rcc_inst, .{
-//     .timer = 14,
-//     .freq_hz = 1_000_000,
-//     .channels = &.{
-//         .{ .num = 1, .mode = .input_capture },
-//     },
-// });
-
 comptime {
     hal.createIrqVect(.{
         .SysTick = &systick_inst.irq,
+        // .TIM8_TRG_COM_TIM14 = &start.default_irq,
     });
 }
 
@@ -193,10 +201,10 @@ fn init() !void {
     // timer3.init();
     timer5.init();
     timer8.init();
-    // timer14.init();
+    timer14.init();
 
-    // Connect laser pins after initialised timer
-    laser_pin_inst.apply();
+    // Connect timer pins after initialised timer
+    timer_pin_inst.apply();
 
     // timer.timer1.initPwm(0x03ff);
     // timer.timer4.initIrRemote();
