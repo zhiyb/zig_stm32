@@ -1,7 +1,7 @@
 const std = @import("std");
 const hal = @import("stm32f722.zig");
 const rcc = @import("rcc.zig");
-// const nvic = @import("nvic.zig");
+const nvic = @import("nvic.zig");
 const gpio = @import("gpio.zig");
 const spi = @import("spi.zig");
 const timer = @import("timer.zig");
@@ -161,10 +161,15 @@ const timer14 = timer.config(rcc_inst, .{
 //     },
 // });
 
+pub fn timer14_irq() callconv(.C) void {
+    semihosting.writer.print("timer14_irq\n", .{}) catch {};
+    hal.TIM14.SR.write(.{ .CC1OF = 0, .CC1IF = 0 });
+}
+
 comptime {
     hal.createIrqVect(.{
         .SysTick = &systick_inst.irq,
-        // .TIM8_TRG_COM_TIM14 = &start.default_irq,
+        .TIM8_TRG_COM_TIM14 = &timer14_irq,
     });
 }
 
@@ -206,11 +211,7 @@ fn init() !void {
     // Connect timer pins after initialised timer
     timer_pin_inst.apply();
 
-    // timer.timer1.initPwm(0x03ff);
-    // timer.timer4.initIrRemote();
-    // timer.timer14.initIrRemote();
-
-    // nvic.enable_irq(.TIM4, true);
+    nvic.enable_irq(.TIM8_TRG_COM_TIM14, true);
 }
 
 pub fn main() noreturn {

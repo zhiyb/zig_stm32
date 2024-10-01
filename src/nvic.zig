@@ -1,13 +1,13 @@
-const hal = @import("stm32f103.zig");
+const hal = @import("stm32f722.zig");
 
-const nvic = hal.NVIC;
+const reg = hal.NVIC;
 
-pub fn enable_irq(irq: hal.IRQ, en: bool) void {
-    //const v = @as(u32, @intFromBool(en));
-    const mask32 = @as(u32, 1) << @intCast(@intFromEnum(irq) % 32);
-    if (@intFromEnum(irq) >= 32) {
-        (if (en) nvic.ISER1.SETENA else nvic.ICER1.CLRENA) = mask32;
+pub fn enable_irq(irq: hal.irq_t, en: bool) void {
+    const nirq = @as(u32, @intCast(@intFromEnum(irq)));
+    const mask32 = @as(u32, 1) << @intCast(nirq % 32);
+    if (en) {
+        reg.ISER[nirq / 32].write(.{ .SETENA = mask32 });
     } else {
-        (if (en) nvic.ISER0.SETENA else nvic.ICER0.CLRENA) = mask32;
+        reg.ICER[nirq / 32].write(.{ .CLRENA = mask32 });
     }
 }

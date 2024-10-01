@@ -240,6 +240,40 @@ pub const SYST: *volatile extern struct {
     }),
 } = @ptrFromInt(0xE000E010);
 
+pub const NVIC: *volatile extern struct {
+    ISER: [8]mmio.Mmio(packed struct {
+        SETENA: u32 = 0,
+    }),
+    _RESERVED0: [96]u8,
+    ICER: [8]mmio.Mmio(packed struct {
+        CLRENA: u32 = 0,
+    }),
+    _RESERVED1: [96]u8,
+    ISPR: [8]mmio.Mmio(packed struct {
+        SETPEND: u32 = 0,
+    }),
+    _RESERVED2: [96]u8,
+    ICPR: [8]mmio.Mmio(packed struct {
+        CLRPEND: u32 = 0,
+    }),
+    _RESERVED3: [96]u8,
+    IABR: [8]mmio.Mmio(packed struct {
+        ACTIVE: u32 = 0,
+    }),
+    _RESERVED4: [224]u8,
+    IPR: [60]mmio.Mmio(packed struct {
+        PRI_0: u8,
+        PRI_1: u8,
+        PRI_2: u8,
+        PRI_3: u8,
+    }),
+    _RESERVED5: [2576]u8,
+    STIR: mmio.Mmio(packed struct {
+        INTID: u9 = 0,
+        _RESERVED0: u23 = 0,
+    }),
+} = @ptrFromInt(0xE000E100);
+
 pub const PWR_CR1_VOS = enum(u2) {
     SCALE_3 = 0b01,
     SCALE_2 = 0b10,
