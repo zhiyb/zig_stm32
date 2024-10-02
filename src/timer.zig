@@ -155,6 +155,10 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
             return reg.ARR.raw;
         }
 
+        pub fn setTop(v: u32) void {
+            return reg.ARR.write_raw(v);
+        }
+
         pub fn irq() callconv(.C) void {
             // Interrupt flags
             const sr = reg.SR.read();

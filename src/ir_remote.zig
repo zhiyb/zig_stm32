@@ -135,27 +135,27 @@ pub fn config() type {
 // Known IR remote codes
 
 pub const remote_sky_now_tv = struct {
-    const repeat_mask: u32 = 0x00000101;
+    const special_mask: u32 = 0x00000303;
     pub const button_t = enum(u32) {
-        back = 0x57436699 & ~repeat_mask,
-        home = 0x5743c03f & ~repeat_mask,
-        up = 0x57439867 & ~repeat_mask,
-        down = 0x5743cc33 & ~repeat_mask,
-        left = 0x57437887 & ~repeat_mask,
-        right = 0x5743b44b & ~repeat_mask,
-        ok = 0x574354ab & ~repeat_mask,
-        rewind = 0x57432cd3 & ~repeat_mask,
-        pause = 0x574332cd & ~repeat_mask,
-        ff = 0x5743aa55 & ~repeat_mask,
-        star = 0x57438679 & ~repeat_mask,
-        now = 0x574320df & ~repeat_mask,
-        store = 0x574318e7 & ~repeat_mask,
+        back = 0x57436699 & ~special_mask,
+        home = 0x5743c03f & ~special_mask,
+        up = 0x57439867 & ~special_mask,
+        down = 0x5743cc33 & ~special_mask,
+        left = 0x57437887 & ~special_mask,
+        right = 0x5743b44b & ~special_mask,
+        ok = 0x574354ab & ~special_mask,
+        rewind = 0x57432cd3 & ~special_mask,
+        pause = 0x574332cd & ~special_mask,
+        ff = 0x5743aa55 & ~special_mask,
+        star = 0x57438679 & ~special_mask,
+        now = 0x574320df & ~special_mask,
+        store = 0x574318e7 & ~special_mask,
     };
 
     pub fn decode(val: u32) struct { button: button_t, repeat: bool } {
         return .{
-            .button = @enumFromInt(val & ~repeat_mask),
-            .repeat = (val & repeat_mask) == 0x00000100,
+            .button = @enumFromInt(val & ~special_mask),
+            .repeat = (val & 0x00000101) == 0x00000100,
         };
     }
 };

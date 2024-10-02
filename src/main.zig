@@ -96,7 +96,7 @@ const timer_pin_inst = gpio.initCfg(.{
 const timer5 = timer.config(rcc_inst, .{
     .timer = 5,
     .freq_hz = 108_000_000,
-    .init_top = 65536 / 4 - 1,
+    .init_top = 65536 - 1,
     .ch = &.{
         .{ .num = 1, .name = "LED_G", .mode = .{ .output = .{
             .oc = .inverted,
@@ -218,36 +218,119 @@ fn init() !void {
 pub fn main() noreturn {
     init() catch {};
 
+    // LED & laser duty cycle
+    const rgb_t = struct { r: u32 = 0, g: u32 = 0, b: u32 = 0 };
+    var laser: rgb_t = .{};
+    var delta: u32 = 1;
+    var update_laser = true;
+    var update_led = true;
+
+    // Remote state
+    var change: enum { r, g, b, top } = .r;
+    var use_repeat = true;
+    var max_power: u32 = 0;
+
+    // Timer state
+    const init_top = timer8.getTop();
+    var top = init_top;
     var tick = systick_inst.get_ms();
-    const top = timer8.getTop();
-    var cmp: u32 = 0;
+    var action: u32 = 0;
+
     while (true) {
         const now = systick_inst.get_ms();
         if (now != tick) {
             tick = now;
-            if (pin_inst.pins.BTN_1.read() != 0) {
-                if (cmp != top)
-                    cmp += 1;
-            }
-            if (pin_inst.pins.BTN_2.read() != 0) {
-                if (cmp != 0)
-                    cmp -= 1;
-            }
-            timer5.channels.LED_R.setCmp(cmp);
-            timer5.channels.LED_G.setCmp(cmp);
-            timer5.channels.LED_B.setCmp(cmp);
-            timer8.channels.LASER_R.setCmp(cmp);
-            timer8.channels.LASER_G.setCmp(cmp);
-            timer8.channels.LASER_B.setCmp(cmp);
+            update_led = action == 1;
+            action = @max(action, 1) - 1;
+            update_laser = max_power == 1;
+            max_power = @max(max_power, 1) - 1;
         }
 
-        const val = ir_remote_inst.dequeue();
-        if (val) |v| {
-            const remote = ir_remote.remote_sky_now_tv.decode(v);
-            semihosting.writer.print(
-                "{s} rep={}\n",
-                .{ @tagName(remote.button), remote.repeat },
-            ) catch {};
+        if (ir_remote_inst.dequeue()) |ir_val| {
+            const remote = ir_remote.remote_sky_now_tv.decode(ir_val);
+            const channel = switch (change) {
+                .r => &laser.r,
+                .g => &laser.g,
+                .b => &laser.b,
+                .top => &top,
+            };
+            if (!remote.repeat or use_repeat) {
+                action = 10;
+                switch (remote.button) {
+                    .ok => if (!remote.repeat) {
+                        use_repeat = !use_repeat;
+                    },
+
+                    .rewind => change = .r,
+                    .pause => change = .g,
+                    .ff => change = .b,
+                    .back => change = .top,
+
+                    .up => delta = @min(init_top, delta *% 2),
+                    .down => delta = @max(delta, 2) / 2,
+                    .left => channel.* = @max(channel.*, delta) - delta,
+                    .right => channel.* = @min(channel.* + delta, init_top),
+
+                    .star => {
+                        laser = .{};
+                        max_power = 0;
+                    },
+                    .now => max_power = 120,
+
+                    .home => semihosting.writer.print(
+                        "LASER r={} g={} b={} top={} CONTROL={s} delta={}\n",
+                        .{ laser.r, laser.g, laser.b, top, @tagName(change), delta },
+                    ) catch {},
+
+                    else => {
+                        semihosting.writer.print(
+                            "{s} rep={}\n",
+                            .{ @tagName(remote.button), remote.repeat },
+                        ) catch {};
+                    },
+                }
+            }
+            update_laser = true;
+            update_led = true;
+        }
+
+        if (update_led) {
+            update_led = false;
+
+            var led: rgb_t = .{};
+            if (action != 0) {
+                led = .{
+                    .r = init_top / 8,
+                    .g = init_top / 8,
+                    .b = init_top / 8,
+                };
+            } else {
+                switch (change) {
+                    .r => led.r = delta,
+                    .g => led.g = delta,
+                    .b => led.b = delta,
+                    .top => led = .{ .r = delta, .g = delta, .b = 0 },
+                }
+            }
+
+            timer5.channels.LED_R.setCmp(led.r);
+            timer5.channels.LED_G.setCmp(led.g);
+            timer5.channels.LED_B.setCmp(led.b);
+        }
+
+        if (update_laser) {
+            update_laser = false;
+            if (max_power != 0) {
+                timer8.channels.LASER_R.setCmp(init_top);
+                timer8.channels.LASER_G.setCmp(init_top);
+                timer8.channels.LASER_B.setCmp(init_top);
+                // timer8.setTop(init_top);
+            } else {
+                timer8.channels.LASER_R.setCmp(laser.r);
+                timer8.channels.LASER_G.setCmp(laser.g);
+                timer8.channels.LASER_B.setCmp(laser.b);
+                timer8.setTop(top);
+            }
         }
     }
 
@@ -327,43 +410,6 @@ pub fn main() noreturn {
     //         pins.LASER_R.write(~pins.IR.read());
     //         pins.LASER_G.write(pins.BTN_1.read());
     //         pins.LASER_B.write(pins.BTN_2.read());
-    //     }
-    // }
-
-    // var ch: u8 = 1;
-    // while (true) {
-    //     const ir = timer.timer4.popIrRemote(1);
-    //     if (ir != 0) {
-    //         const out = semihosting.writer;
-    //         out.print("IR: 0x{x:08}\n", .{ir}) catch {};
-
-    //         const mask = 0xfffffcfc;
-    //         const button = enum(u32) { // Sky NOW TV remote
-    //             back = 0x57436699 & mask,
-    //             home = 0x5743c03f & mask,
-    //             ok = 0x574354ab & mask,
-    //             up = 0x57439966 & mask,
-    //             down = 0x5743cd32 & mask,
-    //             left = 0x57437986 & mask,
-    //             right = 0x5743b54a & mask,
-    //             rewind = 0x57432dd2 & mask,
-    //             pause = 0x574333cc & mask,
-    //             ff = 0x5743ab54 & mask,
-    //             star = 0x57438679 & mask,
-    //             now = 0x574320df & mask,
-    //             store = 0x574318e7 & mask,
-    //         };
-    //         switch (@as(button, @enumFromInt(ir & mask))) {
-    //             .rewind => ch = 1,
-    //             .pause => ch = 2,
-    //             .ff => ch = 3,
-    //             .up => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 8),
-    //             .down => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 8) -% 8),
-    //             .left => timer.timer1.setCC(ch, @max(timer.timer1.getCC(ch), 1) -% 1),
-    //             .right => timer.timer1.setCC(ch, timer.timer1.getCC(ch) +% 1),
-    //             .back => @breakpoint(),
-    //             else => {},
-    //         }
     //     }
     // }
 }
