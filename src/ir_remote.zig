@@ -152,10 +152,8 @@ pub const remote_sky_now_tv = struct {
         store = 0x574318e7 & ~special_mask,
     };
 
-    pub fn decode(val: u32) struct { button: button_t, repeat: bool } {
-        return .{
-            .button = @enumFromInt(val & ~special_mask),
-            .repeat = (val & 0x00000101) == 0x00000100,
-        };
+    pub fn decode(val: u32) ?struct { button: button_t, repeat: bool } {
+        const button = std.meta.intToEnum(button_t, val & ~special_mask) catch return null;
+        return .{ .button = button, .repeat = (val & 0x00000101) == 0x00000100 };
     }
 };

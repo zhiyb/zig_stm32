@@ -298,47 +298,48 @@ pub fn main() noreturn {
         }
 
         if (ir_remote_inst.dequeue()) |ir_val| {
-            const remote = ir_remote.remote_sky_now_tv.decode(ir_val);
-            const channel = switch (change) {
-                .r => &laser.r,
-                .g => &laser.g,
-                .b => &laser.b,
-                .top => &top,
-            };
-            if (!remote.repeat or use_repeat) {
-                action = 10;
-                switch (remote.button) {
-                    .ok => if (!remote.repeat) {
-                        use_repeat = !use_repeat;
-                    },
+            if (ir_remote.remote_sky_now_tv.decode(ir_val)) |remote| {
+                const channel = switch (change) {
+                    .r => &laser.r,
+                    .g => &laser.g,
+                    .b => &laser.b,
+                    .top => &top,
+                };
+                if (!remote.repeat or use_repeat) {
+                    action = 10;
+                    switch (remote.button) {
+                        .ok => if (!remote.repeat) {
+                            use_repeat = !use_repeat;
+                        },
 
-                    .rewind => change = .r,
-                    .pause => change = .g,
-                    .ff => change = .b,
-                    .back => change = .top,
+                        .rewind => change = .r,
+                        .pause => change = .g,
+                        .ff => change = .b,
+                        .back => change = .top,
 
-                    .up => delta = @min(init_top, delta *% 2),
-                    .down => delta = @max(delta, 2) / 2,
-                    .left => channel.* = @max(channel.*, delta) -% delta,
-                    .right => channel.* = @min(channel.* +% delta, init_top),
+                        .up => delta = @min(init_top, delta *% 2),
+                        .down => delta = @max(delta, 2) / 2,
+                        .left => channel.* = @max(channel.*, delta) -% delta,
+                        .right => channel.* = @min(channel.* +% delta, init_top),
 
-                    .star => {
-                        laser = .{};
-                        max_power = 0;
-                    },
-                    .now => max_power = 120,
+                        .star => {
+                            laser = .{};
+                            max_power = 0;
+                        },
+                        .now => max_power = 120,
 
-                    .home => semihosting.writer.print(
-                        "LASER r={} g={} b={} top={} CONTROL={s} delta={}\n",
-                        .{ laser.r, laser.g, laser.b, top, @tagName(change), delta },
-                    ) catch {},
+                        .home => semihosting.writer.print(
+                            "LASER r={} g={} b={} top={} CONTROL={s} delta={}\n",
+                            .{ laser.r, laser.g, laser.b, top, @tagName(change), delta },
+                        ) catch {},
 
-                    else => {
-                        semihosting.writer.print(
-                            "{s} rep={}\n",
-                            .{ @tagName(remote.button), remote.repeat },
-                        ) catch {};
-                    },
+                        else => {
+                            semihosting.writer.print(
+                                "{s} rep={}\n",
+                                .{ @tagName(remote.button), remote.repeat },
+                            ) catch {};
+                        },
+                    }
                 }
             }
             update_laser = true;
