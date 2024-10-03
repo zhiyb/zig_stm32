@@ -53,7 +53,7 @@ pub const timer_channel_t = struct {
         },
         input: struct {
             ic: timer_channel_input_mode_t,
-            irq_cc: ?*const fn (anytype, u32, bool) void,
+            irq_cc: ?*const fn (anytype, u32, bool) void = null,
             mode: union(enum) {
                 capture: struct {},
             },
@@ -63,7 +63,7 @@ pub const timer_channel_t = struct {
 
 pub const timer_cfg_t = struct {
     timer: comptime_int,
-    interrupt: bool = false,
+    irq_upd: ?*const fn (timer_cfg_t) void = null,
     freq_hz: comptime_int,
     init_top: comptime_int = 0,
     ch: []const timer_channel_t,
@@ -172,30 +172,43 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
             var cc_cnt: [8]u32 = undefined;
             inline for (cfg.ch) |ch_cfg| {
                 const chs = std.fmt.comptimePrint("{}", .{ch_cfg.num});
-                cc_cnt[ch_cfg.num] = @field(
-                    @field(reg.*, "CCR" ++ chs).read(),
-                    "CCR" ++ chs,
-                );
+                switch (ch_cfg.mode) {
+                    .input => if (ch_cfg.mode.input.irq_cc == null) continue,
+                    .output => continue,
+                }
+                cc_cnt[ch_cfg.num] = @field(reg.*, "CCR" ++ chs).read_raw();
                 @field(SR_clr, "CC" ++ chs ++ "IF") = 0;
                 @field(SR_clr, "CC" ++ chs ++ "OF") = 0;
             }
+            // And common interrupt flags
+            if (cfg.irq_upd != null)
+                SR_clr.UIF = 0;
             reg.SR.write(SR_clr);
 
-            // Loop over configured channels
+            // Loop over configured channel IRQs
             inline for (cfg.ch) |ch_cfg| {
                 const chs = std.fmt.comptimePrint("{}", .{ch_cfg.num});
                 const f_ccif = "CC" ++ chs ++ "IF";
                 const f_ccof = "CC" ++ chs ++ "OF";
                 const cnt = cc_cnt[ch_cfg.num];
-                if (ch_cfg.mode.input.irq_cc) |irq_func|
-                    if (ch_cfg.name) |name|
-                        if (@field(sr, f_ccif) != 0)
-                            irq_func(
-                                @field(channels, name),
-                                cnt,
-                                @field(sr, f_ccof) != 0,
-                            );
+                switch (ch_cfg.mode) {
+                    .input => {
+                        if (ch_cfg.mode.input.irq_cc) |irq_func|
+                            if (ch_cfg.name) |name|
+                                if (@field(sr, f_ccif) != 0)
+                                    irq_func(
+                                        @field(channels, name),
+                                        cnt,
+                                        @field(sr, f_ccof) != 0,
+                                    );
+                    },
+                    .output => {},
+                }
             }
+            // And common IRQs
+            if (cfg.irq_upd) |irq_func|
+                if (sr.UIF != 0)
+                    irq_func(cfg);
         }
 
         pub fn init() void {
@@ -327,7 +340,9 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
             // Common timer registers
             comptime var CCER: (@TypeOf(reg.CCER).underlying_type) = .{};
             comptime var DIER: (@TypeOf(reg.DIER).underlying_type) = .{};
+
             inline for (cfg.ch) |ch_cfg| {
+                // Channel specific fields
                 const ch = ch_cfg.num;
                 const chs = std.fmt.comptimePrint("{}", .{ch});
                 const f_cce = "CC" ++ chs ++ "E";
@@ -369,6 +384,11 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                     },
                 }
             }
+
+            // Common fields
+            if (cfg.irq_upd != null)
+                DIER.UIE = 1; // Update interrupt
+
             reg.CCER.write(CCER);
             reg.DIER.write(DIER);
 

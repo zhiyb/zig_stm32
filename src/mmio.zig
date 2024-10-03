@@ -27,6 +27,10 @@ pub fn Mmio(comptime PackedT: type) type {
             return @bitCast(addr.raw);
         }
 
+        pub inline fn read_raw(addr: *volatile Self) IntT {
+            return addr.raw;
+        }
+
         pub inline fn write(addr: *volatile Self, val: PackedT) void {
             comptime {
                 assert(@bitSizeOf(PackedT) == @bitSizeOf(IntT));

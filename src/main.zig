@@ -93,6 +93,30 @@ const timer_pin_inst = gpio.initCfg(.{
     },
 });
 
+// MCP4922 SPI clock frequency
+const spi_freq_hz = 20_000_000;
+// Min LDAC pulse width 100ns
+const ldpc_timer_clk_freq_hz = 10_000_000;
+// LDAC trigger frequency
+const ldac_timer_freq_hz = spi_freq_hz / ((16 + 3) * 2 + 2);
+// Timer period
+const ldac_timer_top = (ldpc_timer_clk_freq_hz + ldac_timer_freq_hz) / ldac_timer_freq_hz - 1;
+
+const timer3 = timer.config(rcc_inst, .{
+    .timer = 3,
+    .freq_hz = ldpc_timer_clk_freq_hz,
+    .init_top = ldac_timer_top,
+    .irq_upd = &spi_update_irq,
+    .ch = &.{
+        .{ .num = 1, .name = "XY_LDAC", .interrupt = true, .mode = .{ .output = .{
+            .oc = .enabled,
+            .ocn = .disabled,
+            .init_cmp = ldac_timer_top,
+            .mode = .{ .pwm = .{} },
+        } } },
+    },
+});
+
 const timer5 = timer.config(rcc_inst, .{
     .timer = 5,
     .freq_hz = 108_000_000,
@@ -152,14 +176,6 @@ const timer14 = timer.config(rcc_inst, .{
     },
 });
 
-// const timer3 = timer.config(rcc_inst, .{
-//     .timer = 3,
-//     .freq_hz = 1_000_000,
-//     .channels = &.{
-//         .{ .num = 1, .mode = .pwm },
-//     },
-// });
-
 const ir_remote_inst = ir_remote.config();
 
 const x_spi = spi.master("SPI3");
@@ -168,6 +184,7 @@ const y_spi = spi.master("SPI2");
 comptime {
     hal.createIrqVect(.{
         .SysTick = &systick_inst.irq,
+        .TIM3 = &timer3.irq,
         .TIM8_TRG_COM_TIM14 = &timer14.irq,
     });
 }
@@ -197,12 +214,12 @@ fn init() !void {
         .cpha = 0,
         .cpol = 0,
         .bits = 16,
-        .freq_hz = 20_000_000,
+        .freq_hz = spi_freq_hz,
     };
     x_spi.init(rcc_inst, spi_cfg);
     y_spi.init(rcc_inst, spi_cfg);
 
-    // timer3.init();
+    timer3.init();
     timer5.init();
     timer8.init();
     timer14.init();
@@ -210,9 +227,28 @@ fn init() !void {
     // Connect timer pins after initialised timer
     timer_pin_inst.apply();
 
+    nvic.enable_irq(.TIM3, true);
     nvic.enable_irq(.TIM8_TRG_COM_TIM14, true);
 
     // semihosting.writer.print("Hello, world!\n", .{}) catch {};
+}
+
+var laser_dac = std.atomic.Value(u32).init(0);
+
+fn spi_update_irq(_: timer.timer_cfg_t) void {
+    const dac = laser_dac.load(.monotonic);
+    const x = @as(u16, @intCast(dac & 0xffff));
+    const y = @as(u16, @intCast((dac >> 16) & 0xffff));
+    x_spi.transmit(x);
+    y_spi.transmit(y);
+    x_spi.transmit(x ^ ((0b1000 << 12) | 0x0fff));
+    y_spi.transmit(y ^ ((0b1000 << 12) | 0x0fff));
+}
+
+fn laser_update(x: u12, y: u12) void {
+    const dac_x = @as(u32, 0b0111 << 12) | x;
+    const dac_y = @as(u32, 0b0111 << 12) | y;
+    laser_dac.store((dac_y << 16) | dac_x, .monotonic);
 }
 
 pub fn main() noreturn {
@@ -244,11 +280,6 @@ pub fn main() noreturn {
         if (now != tick) {
             tick = now;
 
-            pin_inst.pins.XY_LDAC.write(0);
-            systick_inst.delay_us(5);
-            pin_inst.pins.XY_LDAC.write(1);
-            systick_inst.delay_us(5);
-
             var ux: u12 = @intCast(galvo % 4096);
             var uy: u12 = @intCast(galvo % 4096);
             switch (galvo / 4096) {
@@ -267,10 +298,7 @@ pub fn main() noreturn {
             ux = ux / 4 + 2048;
             uy = uy / 4 + 2048;
             galvo = (galvo +% 1024) % (4096 * 4);
-            x_spi.transmit(@as(u16, (0b0111 << 12)) + @as(u12, ux));
-            y_spi.transmit(@as(u16, (0b0111 << 12)) + @as(u12, uy));
-            x_spi.transmit(@as(u16, (0b1111 << 12)) + @as(u12, ~ux));
-            y_spi.transmit(@as(u16, (0b1111 << 12)) + @as(u12, ~uy));
+            laser_update(ux, uy);
 
             // LED/laser fading delays
             update_led = action == 1;
