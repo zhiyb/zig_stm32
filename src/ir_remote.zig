@@ -37,7 +37,7 @@ pub fn config() type {
         var bit: u5 = 0;
 
         // IR code log
-        const num_log_entries = 32;
+        const num_log_entries = 8;
         var log: [num_log_entries]u32 = .{0} ** num_log_entries;
         var log_read_idx = std.atomic.Value(u32).init(0);
         var log_write_idx = std.atomic.Value(u32).init(0);
