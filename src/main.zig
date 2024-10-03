@@ -119,7 +119,7 @@ const timer5 = timer.config(rcc_inst, .{
 const timer8 = timer.config(rcc_inst, .{
     .timer = 8,
     .freq_hz = 108_000_000,
-    .init_top = 65536 - 1,
+    .init_top = 65536 / 64 - 1,
     .ch = &.{
         .{ .num = 2, .name = "LASER_R", .mode = .{ .output = .{
             .oc = .enabled,
@@ -236,14 +236,65 @@ pub fn main() noreturn {
     var tick = systick_inst.get_ms();
     var action: u32 = 0;
 
+    // Galvo
+    var galvo: u32 = 0;
+
     while (true) {
         const now = systick_inst.get_ms();
         if (now != tick) {
             tick = now;
+
+            pin_inst.pins.XY_LDAC.write(0);
+            systick_inst.delay_us(5);
+            pin_inst.pins.XY_LDAC.write(1);
+            systick_inst.delay_us(5);
+
+            var ux: u12 = @intCast(galvo % 4096);
+            var uy: u12 = @intCast(galvo % 4096);
+            switch (galvo / 4096) {
+                0 => uy = 0,
+                1 => ux = 4095,
+                2 => {
+                    ux = ~ux;
+                    uy = 4095;
+                },
+                3 => {
+                    ux = 0;
+                    uy = ~uy;
+                },
+                else => {},
+            }
+            ux = ux / 4 + 2048;
+            uy = uy / 4 + 2048;
+            galvo = (galvo +% 1024) % (4096 * 4);
+            x_spi.transmit(@as(u16, (0b0111 << 12)) + @as(u12, ux));
+            y_spi.transmit(@as(u16, (0b0111 << 12)) + @as(u12, uy));
+            x_spi.transmit(@as(u16, (0b1111 << 12)) + @as(u12, ~ux));
+            y_spi.transmit(@as(u16, (0b1111 << 12)) + @as(u12, ~uy));
+
+            // LED/laser fading delays
             update_led = action == 1;
             action = @max(action, 1) - 1;
             update_laser = max_power == 1;
             max_power = @max(max_power, 1) - 1;
+
+            // Buttons
+            if (pin_inst.pins.BTN_2.read() != 0) {
+                update_laser = true;
+                laser.r = @min(top, laser.r +% 1);
+                laser.g = @min(top, laser.g +% 1);
+                laser.b = @min(top, laser.b +% 1);
+                action = 10;
+                update_led = true;
+            }
+            if (pin_inst.pins.BTN_1.read() != 0) {
+                update_laser = true;
+                laser.r = @max(1, laser.r) - 1;
+                laser.g = @max(1, laser.g) - 1;
+                laser.b = @max(1, laser.b) - 1;
+                action = 10;
+                update_led = true;
+            }
         }
 
         if (ir_remote_inst.dequeue()) |ir_val| {
@@ -268,8 +319,8 @@ pub fn main() noreturn {
 
                     .up => delta = @min(init_top, delta *% 2),
                     .down => delta = @max(delta, 2) / 2,
-                    .left => channel.* = @max(channel.*, delta) - delta,
-                    .right => channel.* = @min(channel.* + delta, init_top),
+                    .left => channel.* = @max(channel.*, delta) -% delta,
+                    .right => channel.* = @min(channel.* +% delta, init_top),
 
                     .star => {
                         laser = .{};
@@ -333,17 +384,6 @@ pub fn main() noreturn {
             }
         }
     }
-
-    // const seq = [_]struct { x: u16, y: u16, steps: u16 }{
-    //     .{ .x = 0, .y = 0, .steps = 1000 },
-    //     .{ .x = 0, .y = 0, .steps = 500 },
-    //     .{ .x = 0, .y = 0xfff, .steps = 1000 },
-    //     .{ .x = 0, .y = 0xfff, .steps = 500 },
-    //     .{ .x = 0xfff, .y = 0xfff, .steps = 1000 },
-    //     .{ .x = 0xfff, .y = 0xfff, .steps = 500 },
-    //     .{ .x = 0xfff, .y = 0, .steps = 1000 },
-    //     .{ .x = 0xfff, .y = 0, .steps = 500 },
-    // };
 
     // const seq = [_]struct {
     //     x: u16,
