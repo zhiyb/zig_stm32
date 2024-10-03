@@ -41,7 +41,6 @@ pub const timer_channel_output_mode_t = enum {
 pub const timer_channel_t = struct {
     num: comptime_int,
     name: ?[:0]const u8 = null,
-    interrupt: bool = false,
     mode: union(enum) {
         output: struct {
             oc: timer_channel_output_mode_t,

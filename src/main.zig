@@ -7,6 +7,7 @@ const spi = @import("spi.zig");
 const timer = @import("timer.zig");
 const systick = @import("systick.zig");
 const ir_remote = @import("ir_remote.zig");
+const laser = @import("laser.zig");
 const semihosting = @import("semihosting.zig");
 
 pub const panic = semihosting.panic;
@@ -93,25 +94,16 @@ const timer_pin_inst = gpio.initCfg(.{
     },
 });
 
-// MCP4922 SPI clock frequency
-const spi_freq_hz = 20_000_000;
-// Min LDAC pulse width 100ns
-const ldpc_timer_clk_freq_hz = 10_000_000;
-// LDAC trigger frequency
-const ldac_timer_freq_hz = spi_freq_hz / ((16 + 3) * 2 + 2);
-// Timer period
-const ldac_timer_top = (ldpc_timer_clk_freq_hz + ldac_timer_freq_hz) / ldac_timer_freq_hz - 1;
-
 const timer3 = timer.config(rcc_inst, .{
     .timer = 3,
-    .freq_hz = ldpc_timer_clk_freq_hz,
-    .init_top = ldac_timer_top,
-    .irq_upd = &spi_update_irq,
+    .freq_hz = laser.ldpc_timer_clk_freq_hz,
+    .init_top = laser.ldac_timer_top,
+    .irq_upd = &laser_inst.spi_update_irq,
     .ch = &.{
-        .{ .num = 1, .name = "XY_LDAC", .interrupt = true, .mode = .{ .output = .{
+        .{ .num = 1, .name = "XY_LDAC", .mode = .{ .output = .{
             .oc = .enabled,
             .ocn = .disabled,
-            .init_cmp = ldac_timer_top,
+            .init_cmp = laser.ldac_timer_top,
             .mode = .{ .pwm = .{} },
         } } },
     },
@@ -168,7 +160,7 @@ const timer14 = timer.config(rcc_inst, .{
     .freq_hz = 1_000_000,
     .init_top = 65536 - 1,
     .ch = &.{
-        .{ .num = 1, .name = "IR", .interrupt = true, .mode = .{ .input = .{
+        .{ .num = 1, .name = "IR", .mode = .{ .input = .{
             .ic = .both_edges,
             .irq_cc = &ir_remote_inst.irq,
             .mode = .{ .capture = .{} },
@@ -176,10 +168,12 @@ const timer14 = timer.config(rcc_inst, .{
     },
 });
 
-const ir_remote_inst = ir_remote.config();
-
 const x_spi = spi.master("SPI3");
 const y_spi = spi.master("SPI2");
+
+const laser_inst = laser.config(x_spi, y_spi);
+
+const ir_remote_inst = ir_remote.config();
 
 comptime {
     hal.createIrqVect(.{
@@ -210,19 +204,12 @@ fn init() !void {
     gpio.ioCompEnable(true);
     pin_inst.apply();
 
-    const spi_cfg: spi.spi_cfg_t = .{
-        .cpha = 0,
-        .cpol = 0,
-        .bits = 16,
-        .freq_hz = spi_freq_hz,
-    };
-    x_spi.init(rcc_inst, spi_cfg);
-    y_spi.init(rcc_inst, spi_cfg);
-
     timer3.init();
     timer5.init();
     timer8.init();
     timer14.init();
+
+    laser_inst.init(rcc_inst);
 
     // Connect timer pins after initialised timer
     timer_pin_inst.apply();
@@ -233,30 +220,12 @@ fn init() !void {
     // semihosting.writer.print("Hello, world!\n", .{}) catch {};
 }
 
-var laser_dac = std.atomic.Value(u32).init(0);
-
-fn spi_update_irq(_: timer.timer_cfg_t) void {
-    const dac = laser_dac.load(.monotonic);
-    const x = @as(u16, @intCast(dac & 0xffff));
-    const y = @as(u16, @intCast((dac >> 16) & 0xffff));
-    x_spi.transmit(x);
-    y_spi.transmit(y);
-    x_spi.transmit(x ^ ((0b1000 << 12) | 0x0fff));
-    y_spi.transmit(y ^ ((0b1000 << 12) | 0x0fff));
-}
-
-fn laser_update(x: u12, y: u12) void {
-    const dac_x = @as(u32, 0b0111 << 12) | x;
-    const dac_y = @as(u32, 0b0111 << 12) | y;
-    laser_dac.store((dac_y << 16) | dac_x, .monotonic);
-}
-
 pub fn main() noreturn {
     init() catch {};
 
     // LED & laser duty cycle
     const rgb_t = struct { r: u32 = 0, g: u32 = 0, b: u32 = 0 };
-    var laser: rgb_t = .{};
+    var laser_v: rgb_t = .{};
     var delta: u32 = 1;
     var update_laser = true;
     var update_led = true;
@@ -298,7 +267,7 @@ pub fn main() noreturn {
             ux = ux / 4 + 2048;
             uy = uy / 4 + 2048;
             galvo = (galvo +% 1024) % (4096 * 4);
-            laser_update(ux, uy);
+            laser_inst.update(ux, uy);
 
             // LED/laser fading delays
             update_led = action == 1;
@@ -309,17 +278,17 @@ pub fn main() noreturn {
             // Buttons
             if (pin_inst.pins.BTN_2.read() != 0) {
                 update_laser = true;
-                laser.r = @min(top, laser.r +% 1);
-                laser.g = @min(top, laser.g +% 1);
-                laser.b = @min(top, laser.b +% 1);
+                laser_v.r = @min(top, laser_v.r +% 1);
+                laser_v.g = @min(top, laser_v.g +% 1);
+                laser_v.b = @min(top, laser_v.b +% 1);
                 action = 10;
                 update_led = true;
             }
             if (pin_inst.pins.BTN_1.read() != 0) {
                 update_laser = true;
-                laser.r = @max(1, laser.r) - 1;
-                laser.g = @max(1, laser.g) - 1;
-                laser.b = @max(1, laser.b) - 1;
+                laser_v.r = @max(1, laser_v.r) - 1;
+                laser_v.g = @max(1, laser_v.g) - 1;
+                laser_v.b = @max(1, laser_v.b) - 1;
                 action = 10;
                 update_led = true;
             }
@@ -328,9 +297,9 @@ pub fn main() noreturn {
         if (ir_remote_inst.dequeue()) |ir_val| {
             if (ir_remote.remote_sky_now_tv.decode(ir_val)) |remote| {
                 const channel = switch (change) {
-                    .r => &laser.r,
-                    .g => &laser.g,
-                    .b => &laser.b,
+                    .r => &laser_v.r,
+                    .g => &laser_v.g,
+                    .b => &laser_v.b,
                     .top => &top,
                 };
                 if (!remote.repeat or use_repeat) {
@@ -351,14 +320,14 @@ pub fn main() noreturn {
                         .right => channel.* = @min(channel.* +% delta, init_top),
 
                         .star => {
-                            laser = .{};
+                            laser_v = .{};
                             max_power = 0;
                         },
                         .now => max_power = 120,
 
                         .home => semihosting.writer.print(
                             "LASER r={} g={} b={} top={} CONTROL={s} delta={}\n",
-                            .{ laser.r, laser.g, laser.b, top, @tagName(change), delta },
+                            .{ laser_v.r, laser_v.g, laser_v.b, top, @tagName(change), delta },
                         ) catch {},
 
                         else => {
@@ -377,25 +346,25 @@ pub fn main() noreturn {
         if (update_led) {
             update_led = false;
 
-            var led: rgb_t = .{};
+            var led_v: rgb_t = .{};
             if (action != 0) {
-                led = .{
+                led_v = .{
                     .r = init_top / 8,
                     .g = init_top / 8,
                     .b = init_top / 8,
                 };
             } else {
                 switch (change) {
-                    .r => led.r = delta,
-                    .g => led.g = delta,
-                    .b => led.b = delta,
-                    .top => led = .{ .r = delta, .g = delta, .b = 0 },
+                    .r => led_v.r = delta,
+                    .g => led_v.g = delta,
+                    .b => led_v.b = delta,
+                    .top => led_v = .{ .r = delta, .g = delta, .b = 0 },
                 }
             }
 
-            timer5.channels.LED_R.setCmp(led.r);
-            timer5.channels.LED_G.setCmp(led.g);
-            timer5.channels.LED_B.setCmp(led.b);
+            timer5.channels.LED_R.setCmp(led_v.r);
+            timer5.channels.LED_G.setCmp(led_v.g);
+            timer5.channels.LED_B.setCmp(led_v.b);
         }
 
         if (update_laser) {
@@ -406,9 +375,9 @@ pub fn main() noreturn {
                 timer8.channels.LASER_B.setCmp(init_top);
                 // timer8.setTop(init_top);
             } else {
-                timer8.channels.LASER_R.setCmp(laser.r);
-                timer8.channels.LASER_G.setCmp(laser.g);
-                timer8.channels.LASER_B.setCmp(laser.b);
+                timer8.channels.LASER_R.setCmp(laser_v.r);
+                timer8.channels.LASER_G.setCmp(laser_v.g);
+                timer8.channels.LASER_B.setCmp(laser_v.b);
                 timer8.setTop(top);
             }
         }
