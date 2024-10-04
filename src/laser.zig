@@ -3,13 +3,14 @@ const spi = @import("spi.zig");
 const timer = @import("timer.zig");
 
 // MCP4922 SPI clock frequency
-pub const spi_freq_hz = 20_000_000;
+pub const spi_freq_hz = 13_500_000; // 54M / 4
 // Min LDAC pulse width 100ns
 pub const ldpc_timer_clk_freq_hz = 10_000_000;
 // LDAC trigger frequency
-pub const ldac_timer_freq_hz = spi_freq_hz / (16 * 2 + 6);
+pub const ldac_timer_freq_hz = spi_freq_hz / ((16 + 2) * 2 + 8);
+// pub const ldac_timer_freq_hz = spi_freq_hz / ((16 + 2) * 2 + 1);
 // Timer period
-pub const ldac_timer_top = (ldpc_timer_clk_freq_hz + ldac_timer_freq_hz) / ldac_timer_freq_hz - 1;
+pub const ldac_timer_top = (ldpc_timer_clk_freq_hz + ldac_timer_freq_hz - 1) / ldac_timer_freq_hz - 1;
 
 // RGB laser timer period
 pub const rgb_timer_top = 127;
@@ -32,8 +33,8 @@ pub fn config(
 
         pub fn spi_update_irq(_: timer.timer_cfg_t) void {
             const dac = laser_dac.load(.monotonic);
-            const x = @as(u16, @intCast(dac & 0xffff));
-            const y = @as(u16, @intCast((dac >> 16) & 0xffff));
+            const x: u16 = @truncate(dac);
+            const y: u16 = @truncate(dac >> 16);
             x_spi.transmit(x);
             y_spi.transmit(y);
             x_spi.transmit(x ^ ((0b1000 << 12) | 0x0fff));

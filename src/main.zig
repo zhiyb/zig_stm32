@@ -92,6 +92,7 @@ const timer_pin_inst = gpio.initCfg(.{
     },
     .GPIOC = .{
         .PIN6 = .{ .name = "XY_LDAC", .mode = .af_push_pull, .af = 2, .speed = .medium, .value = 1 }, // TIM3_CH1
+        // .PIN6 = .{ .name = "XY_LDAC", .mode = .output_push_pull, .speed = .low, .value = 0 }, // TIM3_CH1
         .PIN7 = .{ .name = "LASER_R", .mode = .af_push_pull, .af = 3, .speed = .medium, .value = 0 }, // TIM8_CH2
         .PIN8 = .{ .name = "LASER_G", .mode = .af_push_pull, .af = 3, .speed = .medium, .value = 0 }, // TIM8_CH3
         .PIN9 = .{ .name = "LASER_B", .mode = .af_push_pull, .af = 3, .speed = .medium, .value = 0 }, // TIM8_CH4
@@ -387,25 +388,4 @@ pub fn main() noreturn {
             }
         }
     }
-
-    // const seq = [_]struct {
-    //     x: u16,
-    //     y: u16,
-    //     steps: u16,
-    //     on: bool = true,
-    // }{
-    //     .{ .x = 100, .y = 100, .steps = 100, .on = false },
-    //     .{ .x = 100, .y = 100, .steps = 100, .on = false },
-    //     .{ .x = 100, .y = 100, .steps = 100 },
-    //     .{ .x = 100, .y = 1900, .steps = 200 },
-    //     .{ .x = 100, .y = 1900, .steps = 100 },
-    //     .{ .x = 100, .y = 980, .steps = 1 },
-    //     .{ .x = 100, .y = 980, .steps = 100 },
-    //     .{ .x = 900, .y = 980, .steps = 20 },
-    //     .{ .x = 900, .y = 980, .steps = 100 },
-    //     .{ .x = 900, .y = 100, .steps = 1 },
-    //     .{ .x = 900, .y = 100, .steps = 100 },
-    //     .{ .x = 900, .y = 1900, .steps = 200 },
-    //     .{ .x = 900, .y = 1900, .steps = 100 },
-    // };
 }
