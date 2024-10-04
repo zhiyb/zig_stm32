@@ -164,6 +164,31 @@ pub const irq_t = @Type(std.builtin.Type{ .@"enum" = .{
     },
 } });
 
+pub const irq_grouping_t = enum(u3) {
+    pri7_sub1 = 0,
+    pri6_sub2 = 1,
+    pri5_sub3 = 2,
+    pri4_sub4 = 3,
+    pri3_sub5 = 4,
+    pri2_sub6 = 5,
+    pri1_sub7 = 6,
+    pri0_sub8 = 7,
+
+    pub fn encode(grouping: irq_grouping_t, pri: u8, sub: u8) u8 {
+        const igp = @intFromEnum(grouping);
+        const pbit = 7 - igp;
+        const sbit = 1 + igp;
+        if (pri >= (1 << pbit))
+            @compileError("Pri-priority out-of-range");
+        if (sub >= (1 << sbit))
+            @compileError("Sub-priority out-of-range");
+        const priority = (pri << sbit) + sub;
+        if (priority & 0x0f)
+            @compileError("Chip only implements 4-bit priority");
+        return priority;
+    }
+};
+
 pub fn createIrqVect(comptime vect_list: anytype) void {
     @export(&start.entry, .{ .name = "_entry" });
     inline for (@typeInfo(irq_t).@"enum".fields) |field| {
@@ -174,6 +199,41 @@ pub fn createIrqVect(comptime vect_list: anytype) void {
         @export(func, .{ .name = field.name ++ "_IRQHandler" });
     }
 }
+
+pub const SCB: *volatile extern struct {
+    CPUID: u32,
+    ICSR: u32,
+    VTOR: u32,
+    AIRCR: mmio.Mmio(packed struct {
+        VECTRESET: u1 = 0,
+        VECTCLRACTIVE: u1 = 0,
+        SYSRESETREQ: u1 = 0,
+        _RESERVED0: u5 = 0,
+        PRIGROUP: u3 = 0,
+        _RESERVED1: u4 = 0,
+        ENDIANNESS: u1 = 0,
+        VECTKEY: u16 = 0,
+    }),
+    SCR: u32,
+    CCR: u32,
+    SHPR1: mmio.Mmio(packed struct {
+        PRI_4: u8 = 0,
+        PRI_5: u8 = 0,
+        PRI_6: u8 = 0,
+        _RESERVED0: u8 = 0,
+    }),
+    SHPR2: mmio.Mmio(packed struct {
+        _RESERVED0: u24 = 0,
+        PRI_11: u8 = 0,
+    }),
+    SHPR3: mmio.Mmio(packed struct {
+        PRI_12: u8 = 0,
+        _RESERVED0: u8 = 0,
+        PRI_14: u8 = 0,
+        PRI_15: u8 = 0,
+    }),
+    SHCRS: u32,
+} = @ptrFromInt(0xE000ED00);
 
 pub const CoreDebug: *volatile extern struct {
     DHCSR: mmio.Mmio(packed struct {
@@ -262,10 +322,10 @@ pub const NVIC: *volatile extern struct {
     }),
     _RESERVED4: [224]u8,
     IPR: [60]mmio.Mmio(packed struct {
-        PRI_0: u8,
-        PRI_1: u8,
-        PRI_2: u8,
-        PRI_3: u8,
+        PRI_0: u8 = 0,
+        PRI_1: u8 = 0,
+        PRI_2: u8 = 0,
+        PRI_3: u8 = 0,
     }),
     _RESERVED5: [2576]u8,
     STIR: mmio.Mmio(packed struct {

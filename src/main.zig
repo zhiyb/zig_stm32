@@ -12,6 +12,10 @@ const semihosting = @import("semihosting.zig");
 
 pub const panic = semihosting.panic;
 
+const nvic_inst = nvic.config(.{
+    .grouping = .pri4_sub4,
+});
+
 const rcc_inst = rcc.config(.{
     .mode = .pll_hse,
     .hse_freq_hz = 19_200_000,
@@ -220,8 +224,12 @@ fn init() !void {
     // Connect timer pins after initialised timer
     timer_pin_inst.apply();
 
-    nvic.enable_irq(.TIM3, true);
-    nvic.enable_irq(.TIM8_TRG_COM_TIM14, true);
+    nvic_inst.init();
+    nvic_inst.setPriority(.SysTick, 1, 0);
+    nvic_inst.setPriority(.TIM3, 0, 0);
+    nvic_inst.enableIrq(.TIM3, true);
+    nvic_inst.setPriority(.TIM8_TRG_COM_TIM14, 2, 0);
+    nvic_inst.enableIrq(.TIM8_TRG_COM_TIM14, true);
 
     // semihosting.writer.print("Hello, world!\n", .{}) catch {};
 }
