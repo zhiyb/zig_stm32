@@ -43,3 +43,46 @@ pub fn config(x_spi: anytype, y_spi: anytype) type {
         }
     };
 }
+
+pub fn test_pattern(laser_inst: anytype, systick_inst: anytype) type {
+    const x_ofs = 0;
+    const y_ofs = 0;
+    const w = 4096;
+    const h = 4096;
+    const delta_ms = 3;
+    const pattern = [_]struct {
+        x: u12,
+        y: u12,
+        ms: u32,
+    }{
+        .{ .x = x_ofs + 0, .y = y_ofs + 0, .ms = delta_ms },
+        .{ .x = x_ofs + w - 1, .y = y_ofs + 0, .ms = delta_ms },
+        .{ .x = x_ofs + w - 1, .y = y_ofs + h - 1, .ms = delta_ms },
+        .{ .x = x_ofs + 0, .y = y_ofs + h - 1, .ms = delta_ms },
+    };
+
+    return struct {
+        var pat: struct {
+            idx: u32 = 0,
+            tick_ms: u32 = 0,
+        } = .{};
+
+        pub fn init() void {
+            const now_ms = systick_inst.get_ms();
+            pat.idx = 0;
+            pat.tick_ms = now_ms +% pattern[pat.idx].ms;
+            laser_inst.update(pattern[pat.idx].x, pattern[pat.idx].y);
+        }
+
+        pub fn update() void {
+            const now_ms = systick_inst.get_ms();
+            const delta: i32 = @bitCast(now_ms -% pat.tick_ms);
+            if (delta >= 0) {
+                pat.idx = (pat.idx +% 1) % pattern.len;
+                const ptn = pattern[pat.idx];
+                pat.tick_ms +%= ptn.ms;
+                laser_inst.update(ptn.x, ptn.y);
+            }
+        }
+    };
+}

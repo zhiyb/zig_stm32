@@ -241,33 +241,15 @@ pub fn main() noreturn {
     var tick = systick_inst.get_ms();
     var action: u32 = 0;
 
-    // Galvo
-    var galvo: u32 = 0;
+    const tp = laser.test_pattern(laser_inst, systick_inst);
+    tp.init();
 
     while (true) {
+        tp.update();
+
         const now = systick_inst.get_ms();
         if (now != tick) {
             tick = now;
-
-            var ux: u12 = @intCast(galvo % 4096);
-            var uy: u12 = @intCast(galvo % 4096);
-            switch (galvo / 4096) {
-                0 => uy = 0,
-                1 => ux = 4095,
-                2 => {
-                    ux = ~ux;
-                    uy = 4095;
-                },
-                3 => {
-                    ux = 0;
-                    uy = ~uy;
-                },
-                else => {},
-            }
-            ux = ux / 4 + 2048;
-            uy = uy / 4 + 2048;
-            galvo = (galvo +% 1024) % (4096 * 4);
-            laser_inst.update(ux, uy);
 
             // LED/laser fading delays
             update_led = action == 1;
