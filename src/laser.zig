@@ -7,12 +7,12 @@ pub const spi_freq_hz = 20_000_000;
 // Min LDAC pulse width 100ns
 pub const ldpc_timer_clk_freq_hz = 10_000_000;
 // LDAC trigger frequency
-pub const ldac_timer_freq_hz = spi_freq_hz / ((16 + 3) * 2 + 2);
+pub const ldac_timer_freq_hz = spi_freq_hz / (16 * 2 + 6);
 // Timer period
 pub const ldac_timer_top = (ldpc_timer_clk_freq_hz + ldac_timer_freq_hz) / ldac_timer_freq_hz - 1;
 
 // RGB laser timer period
-pub const rgb_timer_top = 255;
+pub const rgb_timer_top = 127;
 
 pub fn config(
     x_spi: anytype,
@@ -75,52 +75,78 @@ pub fn config(
     };
 }
 
-pub fn test_pattern(
-    laser_inst: anytype,
-    systick_inst: anytype,
-) type {
-    const w = 4096 / 4;
-    const h = 4096 / 4;
-    const x_ofs = 2048;
-    const y_ofs = 2048;
-    const delta_ms = 3;
-    const pattern = [_]struct {
+pub const test_pattern = struct {
+    pub const rectangle = [_]pattern_step_t{
+        .{ .x = 0, .y = 0, .rgb = 0xff0000, .ms = 1 },
+        .{ .x = 4095, .y = 0, .rgb = 0x00ff00, .ms = 1 },
+        .{ .x = 4095, .y = 4095, .rgb = 0x0000ff, .ms = 1 },
+        .{ .x = 0, .y = 4095, .rgb = 0xffffff, .ms = 1 },
+    };
+
+    pub const pentagram = [_]pattern_step_t{
+        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .ms = 1 },
+        .{ .x = 3315, .y = 4095, .rgb = 0x00ff00, .ms = 1 },
+        .{ .x = 0, .y = 1594, .rgb = 0x0000ff, .ms = 1 },
+        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .ms = 1 },
+        .{ .x = 780, .y = 4095, .rgb = 0xffffff, .ms = 1 },
+    };
+
+    pub const pentagram_2 = [_]pattern_step_t{
+        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .ms = 1 },
+        .{ .x = 3315, .y = 4095, .rgb = 0xff0000, .ms = 1 },
+        .{ .x = 780, .y = 4095, .rgb = 0x00ff00, .ms = 1 },
+        .{ .x = 2048, .y = 0, .rgb = 0x00ff00, .ms = 1 },
+        .{ .x = 4095, .y = 1594, .rgb = 0x0000ff, .ms = 1 },
+        .{ .x = 780, .y = 4095, .rgb = 0x0000ff, .ms = 1 },
+        .{ .x = 0, .y = 1594, .rgb = 0xffff00, .ms = 1 },
+        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .ms = 1 },
+        .{ .x = 3315, .y = 4095, .rgb = 0xffffff, .ms = 1 },
+        .{ .x = 0, .y = 1594, .rgb = 0xffffff, .ms = 1 },
+    };
+
+    pub const pattern_step_t = struct {
         x: u12,
         y: u12,
         rgb: u24,
         ms: u32,
-    }{
-        .{ .x = x_ofs + 0, .y = y_ofs + 0, .rgb = 0xff0000, .ms = delta_ms },
-        .{ .x = x_ofs + w - 1, .y = y_ofs + 0, .rgb = 0x00ff00, .ms = delta_ms },
-        .{ .x = x_ofs + w - 1, .y = y_ofs + h - 1, .rgb = 0x0000ff, .ms = delta_ms },
-        .{ .x = x_ofs + 0, .y = y_ofs + h - 1, .rgb = 0xffcf5f, .ms = delta_ms },
     };
 
-    return struct {
-        var pat: struct {
-            idx: u32 = 0,
-            tick_ms: u32 = 0,
-        } = .{};
+    pub fn player(
+        laser_inst: anytype,
+        systick_inst: anytype,
+        comptime range: struct { x: u12, y: u12, w: u12, h: u12 },
+        comptime pattern: []const pattern_step_t,
+    ) type {
+        return struct {
+            var idx: u32 = 0;
+            var tick_ms: u32 = 0;
 
-        pub fn init() void {
-            const now_ms = systick_inst.get_ms();
-            pat.idx = 0;
-            const ptn = pattern[pat.idx];
-            pat.tick_ms = now_ms +% ptn.ms;
-            laser_inst.update_rgb(ptn.rgb);
-            laser_inst.update_xy(ptn.x, ptn.y);
-        }
-
-        pub fn update() void {
-            const now_ms = systick_inst.get_ms();
-            const delta: i32 = @bitCast(now_ms -% pat.tick_ms);
-            if (delta >= 0) {
-                pat.idx = (pat.idx +% 1) % pattern.len;
-                const ptn = pattern[pat.idx];
-                pat.tick_ms +%= ptn.ms;
-                laser_inst.update_rgb(ptn.rgb);
-                laser_inst.update_xy(ptn.x, ptn.y);
+            pub fn update_xy(ptn: pattern_step_t) void {
+                // Extra XY swap
+                const x = @as(u12, @intCast((@as(u32, ptn.y) *% range.w) / 4096 +% range.x));
+                const y = @as(u12, @intCast((@as(u32, ptn.x) *% range.h) / 4096 +% range.y));
+                laser_inst.update_xy(x, y);
             }
-        }
-    };
-}
+
+            pub fn init() void {
+                const now_ms = systick_inst.get_ms();
+                idx = 0;
+                laser_inst.update_rgb(pattern[idx].rgb);
+                idx = (idx +% 1) % pattern.len;
+                update_xy(pattern[idx]);
+                tick_ms = now_ms +% pattern[idx].ms;
+            }
+
+            pub fn update() void {
+                const now_ms = systick_inst.get_ms();
+                const delta: i32 = @bitCast(now_ms -% tick_ms);
+                if (delta >= 0) {
+                    laser_inst.update_rgb(pattern[idx].rgb);
+                    idx = (idx +% 1) % pattern.len;
+                    update_xy(pattern[idx]);
+                    tick_ms +%= pattern[idx].ms;
+                }
+            }
+        };
+    }
+};

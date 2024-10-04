@@ -101,9 +101,9 @@ const timer3 = timer.config(rcc_inst, .{
     .irq_upd = &laser_inst.spi_update_irq,
     .ch = &.{
         .{ .num = 1, .name = "XY_LDAC", .mode = .{ .output = .{
-            .oc = .enabled,
+            .oc = .inverted,
             .ocn = .disabled,
-            .init_cmp = laser.ldac_timer_top,
+            .init_cmp = 1,
             .mode = .{ .pwm = .{} },
         } } },
     },
@@ -231,7 +231,7 @@ pub fn main() noreturn {
 
     // LED & laser duty cycle
     const rgb_t = struct { r: u32 = 0, g: u32 = 0, b: u32 = 0 };
-    var laser_v: rgb_t = .{};
+    var laser_v: rgb_t = .{ .r = 65, .g = 75, .b = 65 };
     var delta: u32 = 1;
     var update_laser = true;
     var update_led = true;
@@ -247,7 +247,12 @@ pub fn main() noreturn {
     var tick = systick_inst.get_ms();
     var action: u32 = 0;
 
-    const tp = laser.test_pattern(laser_inst, systick_inst);
+    const tp = laser.test_pattern.player(
+        laser_inst,
+        systick_inst,
+        .{ .x = 0, .y = 1280, .w = 1024, .h = 1024 },
+        &laser.test_pattern.pentagram_2,
+    );
     tp.init();
 
     while (true) {
@@ -395,51 +400,4 @@ pub fn main() noreturn {
     //     .{ .x = 900, .y = 1900, .steps = 200 },
     //     .{ .x = 900, .y = 1900, .steps = 100 },
     // };
-
-    // var last_x: u16 = seq[seq.len - 1].x;
-    // var last_y: u16 = seq[seq.len - 1].y;
-    // var iseq: u16 = 0;
-    // var step: u16 = 0;
-
-    // const pins = pin_inst.pins;
-    // while (true) {
-    //     step += 1;
-    //     const s = seq[iseq];
-    //     const x: i32 = @as(i32, last_x) + @divTrunc((@as(i32, s.x) - @as(i32, last_x)) * @as(i32, step), s.steps);
-    //     const y: i32 = @as(i32, last_y) + @divTrunc((@as(i32, s.y) - @as(i32, last_y)) * @as(i32, step), s.steps);
-
-    //     if (step == s.steps) {
-    //         last_x = s.x;
-    //         last_y = s.y;
-    //         step = 0;
-    //         iseq = (iseq + 1) % @as(u16, seq.len);
-    //     }
-
-    //     if (!s.on) {
-    //         pins.LASER_R.write(0);
-    //         pins.LASER_G.write(0);
-    //         pins.LASER_B.write(0);
-    //     }
-
-    //     const ux = @as(u12, @intCast(x));
-    //     const uy = @as(u12, @intCast(y));
-    //     x_spi.transmit((0b0111 << 12) + @as(u16, ux));
-    //     y_spi.transmit((0b0111 << 12) + @as(u16, uy));
-    //     x_spi.transmit((0b1111 << 12) + @as(u16, ~ux));
-    //     y_spi.transmit((0b1111 << 12) + @as(u16, ~uy));
-    //     pins.XY_LDAC.write(0);
-    //     systick_inst.delay_us(2);
-    //     pins.XY_LDAC.write(1);
-    //     systick_inst.delay_us(2);
-
-    //     // pins.LED_R.write(pins.IR.read());
-    //     // pins.LED_G.write(~pins.BTN_1.read());
-    //     // pins.LED_B.write(~pins.BTN_2.read());
-
-    //     if (s.on) {
-    //         pins.LASER_R.write(~pins.IR.read());
-    //         pins.LASER_G.write(pins.BTN_1.read());
-    //         pins.LASER_B.write(pins.BTN_2.read());
-    //     }
-    // }
 }
