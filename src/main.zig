@@ -112,7 +112,7 @@ const timer3 = timer.config(rcc_inst, .{
 const timer5 = timer.config(rcc_inst, .{
     .timer = 5,
     .freq_hz = 108_000_000,
-    .init_top = 65536 - 1,
+    .init_top = laser.rgb_timer_top,
     .ch = &.{
         .{ .num = 1, .name = "LED_G", .mode = .{ .output = .{
             .oc = .inverted,
@@ -135,7 +135,7 @@ const timer5 = timer.config(rcc_inst, .{
 const timer8 = timer.config(rcc_inst, .{
     .timer = 8,
     .freq_hz = 108_000_000,
-    .init_top = 65536 / 64 - 1,
+    .init_top = laser.rgb_timer_top,
     .ch = &.{
         .{ .num = 2, .name = "LASER_R", .mode = .{ .output = .{
             .oc = .enabled,
@@ -171,7 +171,13 @@ const timer14 = timer.config(rcc_inst, .{
 const x_spi = spi.master("SPI3");
 const y_spi = spi.master("SPI2");
 
-const laser_inst = laser.config(x_spi, y_spi);
+const laser_inst = laser.config(
+    x_spi,
+    y_spi,
+    timer8.channels.LASER_R,
+    timer8.channels.LASER_G,
+    timer8.channels.LASER_B,
+);
 
 const ir_remote_inst = ir_remote.config();
 
@@ -352,14 +358,18 @@ pub fn main() noreturn {
         if (update_laser) {
             update_laser = false;
             if (max_power != 0) {
-                timer8.channels.LASER_R.setCmp(init_top);
-                timer8.channels.LASER_G.setCmp(init_top);
-                timer8.channels.LASER_B.setCmp(init_top);
+                laser_inst.update_rgb_scale(
+                    @as(u16, @intCast(init_top)),
+                    @as(u16, @intCast(init_top)),
+                    @as(u16, @intCast(init_top)),
+                );
                 // timer8.setTop(init_top);
             } else {
-                timer8.channels.LASER_R.setCmp(laser_v.r);
-                timer8.channels.LASER_G.setCmp(laser_v.g);
-                timer8.channels.LASER_B.setCmp(laser_v.b);
+                laser_inst.update_rgb_scale(
+                    @as(u16, @intCast(laser_v.r)),
+                    @as(u16, @intCast(laser_v.g)),
+                    @as(u16, @intCast(laser_v.b)),
+                );
                 timer8.setTop(top);
             }
         }
