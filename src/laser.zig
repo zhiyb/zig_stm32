@@ -7,8 +7,7 @@ pub const spi_freq_hz = 13_500_000; // 54M / 4
 // Min LDAC pulse width 100ns
 pub const ldpc_timer_clk_freq_hz = 10_000_000;
 // LDAC trigger frequency
-pub const ldac_timer_freq_hz = spi_freq_hz / ((16 + 2) * 2 + 8);
-// pub const ldac_timer_freq_hz = spi_freq_hz / ((16 + 2) * 2 + 1);
+pub const ldac_timer_freq_hz = spi_freq_hz / ((16 + 2) * 2 + 4);
 // Timer period
 pub const ldac_timer_top = (ldpc_timer_clk_freq_hz + ldac_timer_freq_hz - 1) / ldac_timer_freq_hz - 1;
 
@@ -23,7 +22,9 @@ pub fn config(
     timer_b: anytype,
 ) type {
     return struct {
-        var laser_dac = std.atomic.Value(u32).init(0);
+        var dac_buf = [_]u32{0} ** 64;
+        var dac_ridx = std.atomic.Value(u32).init(0);
+        var dac_widx = std.atomic.Value(u32).init(0);
 
         var rgb_scale: struct {
             r: u16 = 0,
@@ -32,19 +33,35 @@ pub fn config(
         } = .{};
 
         pub fn spi_update_irq(_: timer.timer_cfg_t) void {
-            const dac = laser_dac.load(.monotonic);
+            const ridx = dac_ridx.load(.monotonic);
+            const dac = @atomicLoad(u32, &dac_buf[ridx], .monotonic);
             const x: u16 = @truncate(dac);
             const y: u16 = @truncate(dac >> 16);
             x_spi.transmit(x);
             y_spi.transmit(y);
             x_spi.transmit(x ^ ((0b1000 << 12) | 0x0fff));
             y_spi.transmit(y ^ ((0b1000 << 12) | 0x0fff));
+
+            const ridx_next = (ridx +% 1) % dac_buf.len;
+            const widx = dac_widx.load(.monotonic);
+            if (ridx_next != widx)
+                dac_ridx.store(ridx_next, .monotonic);
         }
 
         pub fn update_xy(x: u12, y: u12) void {
             const dac_x = @as(u32, 0b0111 << 12) | x;
             const dac_y = @as(u32, 0b0111 << 12) | y;
-            laser_dac.store((dac_y << 16) | dac_x, .monotonic);
+            const dac = (dac_y << 16) | dac_x;
+            const widx = dac_widx.load(.monotonic);
+            @atomicStore(u32, &dac_buf[widx], dac, .monotonic);
+            const widx_next = (widx +% 1) % dac_buf.len;
+            // Block waiting for available DAC buffer space
+            while (true) {
+                const ridx = dac_ridx.load(.monotonic);
+                if (ridx != widx_next)
+                    break;
+            }
+            dac_widx.store(widx_next, .monotonic);
         }
 
         pub fn update_rgb_scale(r: u16, g: u16, b: u16) void {

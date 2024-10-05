@@ -19,12 +19,6 @@ pub const timer_bus_map_t = struct {
     const TIM14 = rcc.bus_t.APB1_TIMER;
 };
 
-pub const timer_channel_mode_t = enum {
-    disabled,
-    input_capture,
-    pwm,
-};
-
 pub const timer_channel_input_mode_t = enum {
     disabled,
     rising,
@@ -47,7 +41,9 @@ pub const timer_channel_t = struct {
             ocn: timer_channel_output_mode_t,
             init_cmp: comptime_int = 0,
             mode: union(enum) {
-                pwm: struct {},
+                pwm_1: struct {},
+                combined_pwm_1: struct {},
+                combined_pwm_2: struct {},
             },
         },
         input: struct {
@@ -93,7 +89,7 @@ fn channelType(
         .output => {
             const out_cfg = ch_cfg.mode.output;
             switch (out_cfg.mode) {
-                .pwm => return struct {
+                .pwm_1, .combined_pwm_1, .combined_pwm_2 => return struct {
                     pub fn getTop() u32 {
                         return reg.ARR.raw;
                     }
@@ -304,7 +300,11 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                             const f_oc_m3 = "OC" ++ chs ++ "M_3";
                             switch (ch_cfg.mode) {
                                 .output => {
-                                    const oc_m = @intFromEnum(hal.TIM_CCMR_OCM.PWM_1);
+                                    const oc_m = @intFromEnum(switch (ch_cfg.mode.output.mode) {
+                                        .pwm_1 => hal.TIM_CCMR_OCM.PWM_1,
+                                        .combined_pwm_1 => hal.TIM_CCMR_OCM.COMBINED_PWM_1,
+                                        .combined_pwm_2 => hal.TIM_CCMR_OCM.COMBINED_PWM_2,
+                                    });
                                     if (std.mem.eql(u8, field.name, f_ccs)) {
                                         @field(CCMR_out, f_ccs) = @intFromEnum(hal.TIM_CCMR_CCS.OUTPUT);
                                         @field(CCMR_out_mask, f_ccs) = 1;

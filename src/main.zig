@@ -108,8 +108,14 @@ const timer3 = timer.config(rcc_inst, .{
         .{ .num = 1, .name = "XY_LDAC", .mode = .{ .output = .{
             .oc = .inverted,
             .ocn = .disabled,
-            .init_cmp = 1,
-            .mode = .{ .pwm = .{} },
+            .init_cmp = 4,
+            .mode = .{ .combined_pwm_2 = .{} },
+        } } },
+        .{ .num = 2, .name = "XY_LDAC_2", .mode = .{ .output = .{
+            .oc = .disabled,
+            .ocn = .disabled,
+            .init_cmp = 5,
+            .mode = .{ .combined_pwm_1 = .{} },
         } } },
     },
 });
@@ -122,17 +128,17 @@ const timer5 = timer.config(rcc_inst, .{
         .{ .num = 1, .name = "LED_G", .mode = .{ .output = .{
             .oc = .inverted,
             .ocn = .disabled,
-            .mode = .{ .pwm = .{} },
+            .mode = .{ .pwm_1 = .{} },
         } } },
         .{ .num = 2, .name = "LED_B", .mode = .{ .output = .{
             .oc = .inverted,
             .ocn = .disabled,
-            .mode = .{ .pwm = .{} },
+            .mode = .{ .pwm_1 = .{} },
         } } },
         .{ .num = 3, .name = "LED_R", .mode = .{ .output = .{
             .oc = .inverted,
             .ocn = .disabled,
-            .mode = .{ .pwm = .{} },
+            .mode = .{ .pwm_1 = .{} },
         } } },
     },
 });
@@ -145,17 +151,17 @@ const timer8 = timer.config(rcc_inst, .{
         .{ .num = 2, .name = "LASER_R", .mode = .{ .output = .{
             .oc = .enabled,
             .ocn = .disabled,
-            .mode = .{ .pwm = .{} },
+            .mode = .{ .pwm_1 = .{} },
         } } },
         .{ .num = 3, .name = "LASER_G", .mode = .{ .output = .{
             .oc = .enabled,
             .ocn = .disabled,
-            .mode = .{ .pwm = .{} },
+            .mode = .{ .pwm_1 = .{} },
         } } },
         .{ .num = 4, .name = "LASER_B", .mode = .{ .output = .{
             .oc = .enabled,
             .ocn = .disabled,
-            .mode = .{ .pwm = .{} },
+            .mode = .{ .pwm_1 = .{} },
         } } },
     },
 });
