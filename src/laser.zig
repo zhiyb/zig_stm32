@@ -101,6 +101,9 @@ pub fn Config(
 }
 
 pub const test_pattern = struct {
+    const presistent_time = 100;
+    const segment_time = 400;
+
     pub const rectangle = [_]PatternStep{
         .{ .x = 0, .y = 0, .rgb = 0xff0000, .t = 1000 },
         .{ .x = 4095, .y = 0, .rgb = 0x00ff00, .t = 1000 },
@@ -117,16 +120,26 @@ pub const test_pattern = struct {
     };
 
     pub const pentagram_2 = [_]PatternStep{
-        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .t = 500 },
-        .{ .x = 3315, .y = 4095, .rgb = 0xff0000, .t = 500 },
-        .{ .x = 780, .y = 4095, .rgb = 0x00ff00, .t = 500 },
-        .{ .x = 2048, .y = 0, .rgb = 0x00ff00, .t = 500 },
-        .{ .x = 4095, .y = 1594, .rgb = 0x0000ff, .t = 500 },
-        .{ .x = 780, .y = 4095, .rgb = 0x0000ff, .t = 500 },
-        .{ .x = 0, .y = 1594, .rgb = 0xffff00, .t = 500 },
-        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .t = 500 },
-        .{ .x = 3315, .y = 4095, .rgb = 0xffffff, .t = 500 },
-        .{ .x = 0, .y = 1594, .rgb = 0xffffff, .t = 500 },
+        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .t = presistent_time },
+        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .t = segment_time },
+        .{ .x = 3315, .y = 4095, .rgb = 0xff0000, .t = presistent_time },
+        .{ .x = 3315, .y = 4095, .rgb = 0xff0000, .t = segment_time },
+        .{ .x = 780, .y = 4095, .rgb = 0x00ff00, .t = presistent_time },
+        .{ .x = 780, .y = 4095, .rgb = 0x00ff00, .t = segment_time },
+        .{ .x = 2048, .y = 0, .rgb = 0x00ff00, .t = presistent_time },
+        .{ .x = 2048, .y = 0, .rgb = 0x00ff00, .t = segment_time },
+        .{ .x = 4095, .y = 1594, .rgb = 0x0000ff, .t = presistent_time },
+        .{ .x = 4095, .y = 1594, .rgb = 0x0000ff, .t = segment_time },
+        .{ .x = 780, .y = 4095, .rgb = 0x0000ff, .t = presistent_time },
+        .{ .x = 780, .y = 4095, .rgb = 0x0000ff, .t = segment_time },
+        .{ .x = 0, .y = 1594, .rgb = 0xffff00, .t = presistent_time },
+        .{ .x = 0, .y = 1594, .rgb = 0xffff00, .t = segment_time },
+        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .t = presistent_time },
+        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .t = segment_time },
+        .{ .x = 3315, .y = 4095, .rgb = 0xffffff, .t = presistent_time },
+        .{ .x = 3315, .y = 4095, .rgb = 0xffffff, .t = segment_time },
+        .{ .x = 0, .y = 1594, .rgb = 0xffffff, .t = presistent_time },
+        .{ .x = 0, .y = 1594, .rgb = 0xffffff, .t = segment_time },
     };
 
     pub const PatternStep = struct {
