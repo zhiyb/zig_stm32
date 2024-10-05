@@ -14,7 +14,7 @@ pub const ldac_timer_top = (ldpc_timer_clk_freq_hz + ldac_timer_freq_hz - 1) / l
 // RGB laser timer period
 pub const rgb_timer_top = 127;
 
-pub fn config(
+pub fn Config(
     x_spi: anytype,
     y_spi: anytype,
     timer_r: anytype,
@@ -32,7 +32,7 @@ pub fn config(
             b: u16 = 0,
         } = .{};
 
-        pub fn spi_update_irq(_: timer.timer_cfg_t) void {
+        pub fn spiUpdateIrq(_: timer.TimerCfg) void {
             const ridx = dac_ridx.load(.monotonic);
             const dac = @atomicLoad(u32, &dac_buf[ridx], .monotonic);
             const x: u16 = @truncate(dac);
@@ -48,7 +48,7 @@ pub fn config(
                 dac_ridx.store(ridx_next, .monotonic);
         }
 
-        pub fn update_xy(x: u12, y: u12) void {
+        pub fn updateXy(x: u12, y: u12) void {
             const dac_x = @as(u32, 0b0111 << 12) | x;
             const dac_y = @as(u32, 0b0111 << 12) | y;
             const dac = (dac_y << 16) | dac_x;
@@ -64,11 +64,11 @@ pub fn config(
             dac_widx.store(widx_next, .monotonic);
         }
 
-        pub fn update_rgb_scale(r: u16, g: u16, b: u16) void {
+        pub fn updateRgbScale(r: u16, g: u16, b: u16) void {
             rgb_scale = .{ .r = r, .g = g, .b = b };
         }
 
-        pub fn update_rgb(rgb: u32) void {
+        pub fn updateRgb(rgb: u32) void {
             const r = ((rgb >> 16) & 0xff) * rgb_scale.r / 255;
             const g = ((rgb >> 8) & 0xff) * rgb_scale.g / 255;
             const b = ((rgb >> 0) & 0xff) * rgb_scale.b / 255;
@@ -81,7 +81,7 @@ pub fn config(
         }
 
         pub fn init(rcc_inst: anytype) void {
-            const spi_cfg: spi.spi_cfg_t = .{
+            const spi_cfg: spi.SpiCfg = .{
                 .cpha = 0,
                 .cpol = 0,
                 .bits = 16,
@@ -94,14 +94,14 @@ pub fn config(
 }
 
 pub const test_pattern = struct {
-    pub const rectangle = [_]pattern_step_t{
+    pub const rectangle = [_]PatternStep{
         .{ .x = 0, .y = 0, .rgb = 0xff0000, .ms = 1 },
         .{ .x = 4095, .y = 0, .rgb = 0x00ff00, .ms = 1 },
         .{ .x = 4095, .y = 4095, .rgb = 0x0000ff, .ms = 1 },
         .{ .x = 0, .y = 4095, .rgb = 0xffffff, .ms = 1 },
     };
 
-    pub const pentagram = [_]pattern_step_t{
+    pub const pentagram = [_]PatternStep{
         .{ .x = 2048, .y = 0, .rgb = 0xff0000, .ms = 1 },
         .{ .x = 3315, .y = 4095, .rgb = 0x00ff00, .ms = 1 },
         .{ .x = 0, .y = 1594, .rgb = 0x0000ff, .ms = 1 },
@@ -109,7 +109,7 @@ pub const test_pattern = struct {
         .{ .x = 780, .y = 4095, .rgb = 0xffffff, .ms = 1 },
     };
 
-    pub const pentagram_2 = [_]pattern_step_t{
+    pub const pentagram_2 = [_]PatternStep{
         .{ .x = 2048, .y = 0, .rgb = 0xff0000, .ms = 1 },
         .{ .x = 3315, .y = 4095, .rgb = 0xff0000, .ms = 1 },
         .{ .x = 780, .y = 4095, .rgb = 0x00ff00, .ms = 1 },
@@ -122,46 +122,46 @@ pub const test_pattern = struct {
         .{ .x = 0, .y = 1594, .rgb = 0xffffff, .ms = 1 },
     };
 
-    pub const pattern_step_t = struct {
+    pub const PatternStep = struct {
         x: u12,
         y: u12,
         rgb: u24,
         ms: u32,
     };
 
-    pub fn player(
-        laser_inst: anytype,
-        systick_inst: anytype,
+    pub fn Player(
+        laser_inst: type,
+        systick_inst: type,
         comptime range: struct { x: u12, y: u12, w: u12, h: u12 },
-        comptime pattern: []const pattern_step_t,
+        comptime pattern: []const PatternStep,
     ) type {
         return struct {
             var idx: u32 = 0;
             var tick_ms: u32 = 0;
 
-            pub fn update_xy(ptn: pattern_step_t) void {
+            pub fn updateXy(ptn: PatternStep) void {
                 // Extra XY swap
                 const x = @as(u12, @intCast((@as(u32, ptn.y) *% range.w) / 4096 +% range.x));
                 const y = @as(u12, @intCast((@as(u32, ptn.x) *% range.h) / 4096 +% range.y));
-                laser_inst.update_xy(x, y);
+                laser_inst.updateXy(x, y);
             }
 
             pub fn init() void {
-                const now_ms = systick_inst.get_ms();
+                const now_ms = systick_inst.getMs();
                 idx = 0;
-                laser_inst.update_rgb(pattern[idx].rgb);
+                laser_inst.updateRgb(pattern[idx].rgb);
                 idx = (idx +% 1) % pattern.len;
-                update_xy(pattern[idx]);
+                updateXy(pattern[idx]);
                 tick_ms = now_ms +% pattern[idx].ms;
             }
 
             pub fn update() void {
-                const now_ms = systick_inst.get_ms();
+                const now_ms = systick_inst.getMs();
                 const delta: i32 = @bitCast(now_ms -% tick_ms);
                 if (delta >= 0) {
-                    laser_inst.update_rgb(pattern[idx].rgb);
+                    laser_inst.updateRgb(pattern[idx].rgb);
                     idx = (idx +% 1) % pattern.len;
-                    update_xy(pattern[idx]);
+                    updateXy(pattern[idx]);
                     tick_ms +%= pattern[idx].ms;
                 }
             }

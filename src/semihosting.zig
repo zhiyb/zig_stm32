@@ -2,7 +2,7 @@ const std = @import("std");
 const hal = @import("stm32f722.zig");
 
 // https://developer.arm.com/documentation/dui0471/i/semihosting/semihosting-operations
-pub const op = enum(i32) {
+pub const OP = enum(i32) {
     angel_SWIreason_EnterSVC = 0x17,
     angel_SWIreason_ReportException = 0x18,
     SYS_CLOSE = 0x02,
@@ -45,7 +45,7 @@ fn callback(_: void, string: []const u8) error{}!usize {
         const data: [*:0]const u8 = &buf;
         asm volatile ("bkpt #0xab"
             :
-            : [cmd] "{r0}" (@intFromEnum(op.SYS_WRITE0)),
+            : [cmd] "{r0}" (@intFromEnum(OP.SYS_WRITE0)),
               [data] "{r1}" (data),
             : "r0"
         );

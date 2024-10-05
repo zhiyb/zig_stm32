@@ -2,15 +2,15 @@ const std = @import("std");
 const hal = @import("stm32f722.zig");
 const rcc = @import("rcc.zig");
 
-pub const spi_bus_map_t = struct {
-    const SPI1 = rcc.bus_t.APB2;
-    const SPI2 = rcc.bus_t.APB1;
-    const SPI3 = rcc.bus_t.APB1;
-    const SPI4 = rcc.bus_t.APB2;
-    const SPI5 = rcc.bus_t.APB2;
+pub const SpiBusMap = struct {
+    const SPI1 = rcc.Bus.APB2;
+    const SPI2 = rcc.Bus.APB1;
+    const SPI3 = rcc.Bus.APB1;
+    const SPI4 = rcc.Bus.APB2;
+    const SPI5 = rcc.Bus.APB2;
 };
 
-pub const spi_cfg_t = struct {
+pub const SpiCfg = struct {
     format: enum { motorola, ti } = .motorola,
     cpha: u1 = 0,
     cpol: u1 = 0,
@@ -31,12 +31,12 @@ fn baudRateDiv(ratio: u32) struct { br: u3, ratio: u32 } {
     std.debug.panic("Impossible baud rate divider: {}", .{ratio});
 }
 
-pub fn master(comptime spix: []const u8) type {
+pub fn Master(comptime spix: []const u8) type {
     const reg = @field(hal, spix);
     return struct {
-        pub fn init(rcc_inst: type, comptime cfg: spi_cfg_t) void {
+        pub fn init(rcc_inst: type, comptime cfg: SpiCfg) void {
             // Configure SPI
-            const bus_freq_hz = comptime rcc_inst.clockHz(@field(spi_bus_map_t, spix));
+            const bus_freq_hz = comptime rcc_inst.clockHz(@field(SpiBusMap, spix));
             const ratio = comptime (bus_freq_hz + cfg.freq_hz - 1) / cfg.freq_hz;
             const br = comptime baudRateDiv(ratio);
             reg.CR1.write(comptime .{

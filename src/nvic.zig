@@ -3,11 +3,11 @@ const hal = @import("stm32f722.zig");
 
 const reg = hal.NVIC;
 
-pub const cfg_t = struct {
-    grouping: hal.irq_grouping_t = @enumFromInt(0),
+pub const Cfg = struct {
+    grouping: hal.IrqGrouping = @enumFromInt(0),
 };
 
-pub fn config(comptime cfg: cfg_t) type {
+pub fn Config(comptime cfg: Cfg) type {
     return struct {
         pub fn init() void {
             hal.SCB.AIRCR.write(.{
@@ -16,8 +16,8 @@ pub fn config(comptime cfg: cfg_t) type {
             });
         }
 
-        pub fn setPriority(comptime irq: hal.irq_t, comptime pri: u8, comptime sub: u8) void {
-            const priority = comptime hal.irq_grouping_t.encode(cfg.grouping, pri, sub);
+        pub fn setPriority(comptime irq: hal.Irq, comptime pri: u8, comptime sub: u8) void {
+            const priority = comptime hal.IrqGrouping.encode(cfg.grouping, pri, sub);
             switch (irq) {
                 .MemManage => hal.SCB.SHPR1.modify(.{ .PRI_4 = priority }),
                 .BusFault => hal.SCB.SHPR1.modify(.{ .PRI_5 = priority }),
@@ -37,12 +37,12 @@ pub fn config(comptime cfg: cfg_t) type {
                         @field(ipr, field) = priority;
                         @field(ipr_mask, field) = 1;
                     }
-                    hal.NVIC.IPR[idx / 4].modify_masked(ipr_mask, ipr);
+                    hal.NVIC.IPR[idx / 4].modifyMasked(ipr_mask, ipr);
                 },
             }
         }
 
-        pub fn enableIrq(irq: hal.irq_t, en: bool) void {
+        pub fn enableIrq(irq: hal.Irq, en: bool) void {
             const nirq = @as(u32, @intCast(@intFromEnum(irq)));
             const mask32 = @as(u32, 1) << @intCast(nirq % 32);
             if (en) {

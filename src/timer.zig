@@ -2,43 +2,43 @@ const std = @import("std");
 const hal = @import("stm32f722.zig");
 const rcc = @import("rcc.zig");
 
-pub const timer_bus_map_t = struct {
-    const TIM1 = rcc.bus_t.APB2_TIMER;
-    const TIM2 = rcc.bus_t.APB1_TIMER;
-    const TIM3 = rcc.bus_t.APB1_TIMER;
-    const TIM4 = rcc.bus_t.APB1_TIMER;
-    const TIM5 = rcc.bus_t.APB1_TIMER;
-    const TIM6 = rcc.bus_t.APB1_TIMER;
-    const TIM7 = rcc.bus_t.APB1_TIMER;
-    const TIM8 = rcc.bus_t.APB2_TIMER;
-    const TIM9 = rcc.bus_t.APB2_TIMER;
-    const TIM10 = rcc.bus_t.APB2_TIMER;
-    const TIM11 = rcc.bus_t.APB2_TIMER;
-    const TIM12 = rcc.bus_t.APB1_TIMER;
-    const TIM13 = rcc.bus_t.APB1_TIMER;
-    const TIM14 = rcc.bus_t.APB1_TIMER;
+pub const TimerBusMap = struct {
+    const TIM1 = rcc.Bus.APB2_TIMER;
+    const TIM2 = rcc.Bus.APB1_TIMER;
+    const TIM3 = rcc.Bus.APB1_TIMER;
+    const TIM4 = rcc.Bus.APB1_TIMER;
+    const TIM5 = rcc.Bus.APB1_TIMER;
+    const TIM6 = rcc.Bus.APB1_TIMER;
+    const TIM7 = rcc.Bus.APB1_TIMER;
+    const TIM8 = rcc.Bus.APB2_TIMER;
+    const TIM9 = rcc.Bus.APB2_TIMER;
+    const TIM10 = rcc.Bus.APB2_TIMER;
+    const TIM11 = rcc.Bus.APB2_TIMER;
+    const TIM12 = rcc.Bus.APB1_TIMER;
+    const TIM13 = rcc.Bus.APB1_TIMER;
+    const TIM14 = rcc.Bus.APB1_TIMER;
 };
 
-pub const timer_channel_input_mode_t = enum {
+pub const TimerChannelInputMode = enum {
     disabled,
     rising,
     falling,
     both_edges,
 };
 
-pub const timer_channel_output_mode_t = enum {
+pub const TimerChannelOutputMode = enum {
     disabled,
     enabled,
     inverted,
 };
 
-pub const timer_channel_t = struct {
+pub const TimerChannelCfg = struct {
     num: comptime_int,
     name: ?[:0]const u8 = null,
     mode: union(enum) {
         output: struct {
-            oc: timer_channel_output_mode_t,
-            ocn: timer_channel_output_mode_t,
+            oc: TimerChannelOutputMode,
+            ocn: TimerChannelOutputMode,
             init_cmp: comptime_int = 0,
             mode: union(enum) {
                 pwm_1: struct {},
@@ -47,7 +47,7 @@ pub const timer_channel_t = struct {
             },
         },
         input: struct {
-            ic: timer_channel_input_mode_t,
+            ic: TimerChannelInputMode,
             irq_cc: ?*const fn (anytype, u32, bool) void = null,
             mode: union(enum) {
                 capture: struct {},
@@ -56,17 +56,17 @@ pub const timer_channel_t = struct {
     },
 };
 
-pub const timer_cfg_t = struct {
+pub const TimerCfg = struct {
     timer: comptime_int,
-    irq_upd: ?*const fn (timer_cfg_t) void = null,
+    irq_upd: ?*const fn (TimerCfg) void = null,
     freq_hz: comptime_int,
     init_top: comptime_int = 0,
-    ch: []const timer_channel_t,
+    ch: []const TimerChannelCfg,
 };
 
-fn channelType(
+fn ChannelType(
     comptime timer: [:0]const u8,
-    comptime ch_cfg: timer_channel_t,
+    comptime ch_cfg: TimerChannelCfg,
     comptime timer_cnt_freq_hz: comptime_int,
 ) type {
     const reg = @field(hal, timer);
@@ -99,7 +99,7 @@ fn channelType(
                     }
 
                     pub fn setCmp(v: u32) void {
-                        @field(reg, "CCR" ++ chs).write_raw(v);
+                        @field(reg, "CCR" ++ chs).writeRaw(v);
                     }
                 },
             }
@@ -107,11 +107,11 @@ fn channelType(
     }
 }
 
-pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
+pub fn Config(comptime rcc_inst: anytype, comptime cfg: TimerCfg) type {
     const timer = std.fmt.comptimePrint("TIM{}", .{cfg.timer});
 
     const reg = @field(hal, timer);
-    const freq_in = rcc_inst.clockHz(@field(timer_bus_map_t, timer));
+    const freq_in = rcc_inst.clockHz(@field(TimerBusMap, timer));
     const psc_ratio = @max(1, (freq_in + cfg.freq_hz - 1) / cfg.freq_hz);
     const timer_cnt_freq_hz = freq_in / psc_ratio;
 
@@ -125,12 +125,12 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                     .name = name,
                     .type = type,
                     .is_comptime = true,
-                    .default_value = &channelType(
+                    .default_value = &ChannelType(
                         timer,
                         ch_cfg,
                         timer_cnt_freq_hz,
                     ),
-                    .alignment = @alignOf(timer_channel_t),
+                    .alignment = @alignOf(TimerChannelCfg),
                 }};
             }
         }
@@ -151,7 +151,7 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
         }
 
         pub fn setTop(v: u32) void {
-            return reg.ARR.write_raw(v);
+            return reg.ARR.writeRaw(v);
         }
 
         pub fn irq() callconv(.C) void {
@@ -171,7 +171,7 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                     .input => if (ch_cfg.mode.input.irq_cc == null) continue,
                     .output => continue,
                 }
-                cc_cnt[ch_cfg.num] = @field(reg.*, "CCR" ++ chs).read_raw();
+                cc_cnt[ch_cfg.num] = @field(reg.*, "CCR" ++ chs).readRaw();
                 @field(SR_clr, "CC" ++ chs ++ "IF") = 0;
                 @field(SR_clr, "CC" ++ chs ++ "OF") = 0;
             }
@@ -212,8 +212,8 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
             reg.SR.write(.{});
 
             reg.PSC.write(.{ .PSC = psc_ratio - 1 });
-            reg.ARR.write_raw(cfg.init_top);
-            reg.CNT.write_raw(0);
+            reg.ARR.writeRaw(cfg.init_top);
+            reg.CNT.writeRaw(0);
 
             inline for (@typeInfo(@TypeOf(reg.*)).@"struct".fields) |reg_field| {
                 if (comptime !std.mem.startsWith(u8, reg_field.name, "CCMR"))
@@ -268,7 +268,7 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                     }
                 }
                 if (comptime !std.meta.eql(CCMR_in_mask, .{}))
-                    @field(reg.*, reg_field.name).Input.modify_masked(CCMR_in_mask, CCMR_in);
+                    @field(reg.*, reg_field.name).Input.modifyMasked(CCMR_in_mask, CCMR_in);
 
                 // Output mode channels
                 comptime var CCMR_out: (@TypeOf(@field(reg, reg_field.name).Output).underlying_type) = .{};
@@ -333,7 +333,7 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                     }
                 }
                 if (comptime !std.meta.eql(CCMR_out_mask, .{}))
-                    @field(reg.*, reg_field.name).Output.modify_masked(CCMR_out_mask, CCMR_out);
+                    @field(reg.*, reg_field.name).Output.modifyMasked(CCMR_out_mask, CCMR_out);
             }
 
             // Common timer registers
@@ -379,7 +379,7 @@ pub fn config(comptime rcc_inst: anytype, comptime cfg: timer_cfg_t) type {
                         } else if (out_cfg.ocn != .disabled) {
                             @compileError("Timer does not support OCN output");
                         }
-                        @field(reg, "CCR" ++ chs).write_raw(out_cfg.init_cmp);
+                        @field(reg, "CCR" ++ chs).writeRaw(out_cfg.init_cmp);
                     },
                 }
             }

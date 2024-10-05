@@ -1,15 +1,15 @@
 const std = @import("std");
 const hal = @import("stm32f722.zig");
 
-pub const rcc_mode_t = enum { hsi, hse, pll_hsi, pll_hse };
+pub const RccMode = enum { hsi, hse, pll_hsi, pll_hse };
 
-pub const cfg_t = struct {
-    mode: rcc_mode_t = .hsi,
+pub const Cfg = struct {
+    mode: RccMode = .hsi,
     hse_freq_hz: comptime_int = 0,
     pll_freq_hz: comptime_int = 0,
 };
 
-pub const bus_t = enum {
+pub const Bus = enum {
     AHB,
     APB1,
     APB1_TIMER,
@@ -17,9 +17,9 @@ pub const bus_t = enum {
     APB2_TIMER,
 };
 
-pub fn config(comptime cfg: cfg_t) type {
+pub fn Config(comptime cfg: Cfg) type {
     return struct {
-        pub fn clockHz(bus: bus_t) u32 {
+        pub fn clockHz(bus: Bus) u32 {
             return switch (bus) {
                 .AHB => cfg.pll_freq_hz,
                 .APB1 => cfg.pll_freq_hz / 4,
@@ -147,6 +147,6 @@ pub fn enablePeripheralsComp(comptime phs: []const struct {
             var buf: [16]u8 = undefined;
             break :blk std.ascii.upperString(&buf, r ++ "enr");
         };
-        @field(hal.RCC, reg_name).modify_masked(mask.*, val.*);
+        @field(hal.RCC, reg_name).modifyMasked(mask.*, val.*);
     }
 }

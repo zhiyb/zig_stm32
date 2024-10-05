@@ -147,7 +147,7 @@ comptime {
     );
 }
 
-pub const irq_t = @Type(std.builtin.Type{ .@"enum" = .{
+pub const Irq = @Type(std.builtin.Type{ .@"enum" = .{
     .is_exhaustive = true,
     .tag_type = i32,
     .decls = &.{},
@@ -164,7 +164,7 @@ pub const irq_t = @Type(std.builtin.Type{ .@"enum" = .{
     },
 } });
 
-pub const irq_grouping_t = enum(u3) {
+pub const IrqGrouping = enum(u3) {
     pri7_sub1 = 0,
     pri6_sub2 = 1,
     pri5_sub3 = 2,
@@ -174,7 +174,7 @@ pub const irq_grouping_t = enum(u3) {
     pri1_sub7 = 6,
     pri0_sub8 = 7,
 
-    pub fn encode(grouping: irq_grouping_t, pri: u8, sub: u8) u8 {
+    pub fn encode(grouping: IrqGrouping, pri: u8, sub: u8) u8 {
         const igp = @intFromEnum(grouping);
         const pbit = 7 - igp;
         const sbit = 1 + igp;
@@ -191,11 +191,11 @@ pub const irq_grouping_t = enum(u3) {
 
 pub fn createIrqVect(comptime vect_list: anytype) void {
     @export(&start.entry, .{ .name = "_entry" });
-    inline for (@typeInfo(irq_t).@"enum".fields) |field| {
+    inline for (@typeInfo(Irq).@"enum".fields) |field| {
         const func = if (@hasField(@TypeOf(vect_list), field.name))
             @field(vect_list, field.name)
         else
-            &start.default_irq;
+            &start.defaultIrq;
         @export(func, .{ .name = field.name ++ "_IRQHandler" });
     }
 }

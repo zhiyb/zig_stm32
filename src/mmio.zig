@@ -27,7 +27,7 @@ pub fn Mmio(comptime PackedT: type) type {
             return @bitCast(addr.raw);
         }
 
-        pub inline fn read_raw(addr: *volatile Self) IntT {
+        pub inline fn readRaw(addr: *volatile Self) IntT {
             return addr.raw;
         }
 
@@ -35,10 +35,10 @@ pub fn Mmio(comptime PackedT: type) type {
             comptime {
                 assert(@bitSizeOf(PackedT) == @bitSizeOf(IntT));
             }
-            addr.write_raw(@bitCast(val));
+            addr.writeRaw(@bitCast(val));
         }
 
-        pub fn write_raw(addr: *volatile Self, val: IntT) void {
+        pub fn writeRaw(addr: *volatile Self, val: IntT) void {
             addr.raw = val;
         }
 
@@ -50,7 +50,7 @@ pub fn Mmio(comptime PackedT: type) type {
             addr.write(val);
         }
 
-        pub inline fn modify_masked(addr: *volatile Self, mask: PackedT, val: PackedT) void {
+        pub inline fn modifyMasked(addr: *volatile Self, mask: PackedT, val: PackedT) void {
             const mask_int = @as(IntT, @bitCast(mask));
             if (mask_int == 0) {
                 return;

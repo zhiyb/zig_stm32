@@ -12,21 +12,21 @@ const semihosting = @import("semihosting.zig");
 
 pub const panic = semihosting.panic;
 
-const nvic_inst = nvic.config(.{
+const nvic_inst = nvic.Config(.{
     .grouping = .pri4_sub4,
 });
 
-const rcc_inst = rcc.config(.{
+const rcc_inst = rcc.Config(.{
     .mode = .pll_hse,
     .hse_freq_hz = 19_200_000,
     .pll_freq_hz = 216_000_000,
 });
 
-const systick_inst = systick.config(rcc_inst, .{
+const systick_inst = systick.Config(rcc_inst, .{
     .tick_rate_hz = 1_000,
 });
 
-const pin_inst = gpio.initCfg(.{
+const pin_inst = gpio.InitCfg(.{
     .GPIOA = .{
         .PIN0 = .{ .name = "LED_G", .mode = .af_push_pull, .af = 2, .speed = .medium, .value = 1 }, // TIM5_CH1
         .PIN1 = .{ .name = "LED_B", .mode = .af_push_pull, .af = 2, .speed = .medium, .value = 1 }, // TIM5_CH2
@@ -86,7 +86,7 @@ const pin_inst = gpio.initCfg(.{
     },
 });
 
-const timer_pin_inst = gpio.initCfg(.{
+const timer_pin_inst = gpio.InitCfg(.{
     .GPIOA = .{
         .PIN7 = .{ .name = "IR", .mode = .af_push_pull, .af = 9, .pull = .pull_up }, // TIM14_CH1
     },
@@ -99,11 +99,11 @@ const timer_pin_inst = gpio.initCfg(.{
     },
 });
 
-const timer3 = timer.config(rcc_inst, .{
+const timer3 = timer.Config(rcc_inst, .{
     .timer = 3,
     .freq_hz = laser.ldpc_timer_clk_freq_hz,
     .init_top = laser.ldac_timer_top,
-    .irq_upd = &laser_inst.spi_update_irq,
+    .irq_upd = &laser_inst.spiUpdateIrq,
     .ch = &.{
         .{ .num = 1, .name = "XY_LDAC", .mode = .{ .output = .{
             .oc = .inverted,
@@ -120,7 +120,7 @@ const timer3 = timer.config(rcc_inst, .{
     },
 });
 
-const timer5 = timer.config(rcc_inst, .{
+const timer5 = timer.Config(rcc_inst, .{
     .timer = 5,
     .freq_hz = 108_000_000,
     .init_top = laser.rgb_timer_top,
@@ -143,7 +143,7 @@ const timer5 = timer.config(rcc_inst, .{
     },
 });
 
-const timer8 = timer.config(rcc_inst, .{
+const timer8 = timer.Config(rcc_inst, .{
     .timer = 8,
     .freq_hz = 108_000_000,
     .init_top = laser.rgb_timer_top,
@@ -166,7 +166,7 @@ const timer8 = timer.config(rcc_inst, .{
     },
 });
 
-const timer14 = timer.config(rcc_inst, .{
+const timer14 = timer.Config(rcc_inst, .{
     .timer = 14,
     .freq_hz = 1_000_000,
     .init_top = 65536 - 1,
@@ -179,10 +179,10 @@ const timer14 = timer.config(rcc_inst, .{
     },
 });
 
-const x_spi = spi.master("SPI3");
-const y_spi = spi.master("SPI2");
+const x_spi = spi.Master("SPI3");
+const y_spi = spi.Master("SPI2");
 
-const laser_inst = laser.config(
+const laser_inst = laser.Config(
     x_spi,
     y_spi,
     timer8.channels.LASER_R,
@@ -190,7 +190,7 @@ const laser_inst = laser.config(
     timer8.channels.LASER_B,
 );
 
-const ir_remote_inst = ir_remote.config();
+const ir_remote_inst = ir_remote.Config();
 
 comptime {
     hal.createIrqVect(.{
@@ -259,10 +259,10 @@ pub fn main() noreturn {
     // Timer state
     const init_top = timer8.getTop();
     var top = init_top;
-    var tick = systick_inst.get_ms();
+    var tick = systick_inst.getMs();
     var action: u32 = 0;
 
-    const tp = laser.test_pattern.player(
+    const tp = laser.test_pattern.Player(
         laser_inst,
         systick_inst,
         .{ .x = 0, .y = 1280, .w = 1024, .h = 1024 },
@@ -273,7 +273,7 @@ pub fn main() noreturn {
     while (true) {
         tp.update();
 
-        const now = systick_inst.get_ms();
+        const now = systick_inst.getMs();
         if (now != tick) {
             tick = now;
 
@@ -378,14 +378,14 @@ pub fn main() noreturn {
         if (update_laser) {
             update_laser = false;
             if (max_power != 0) {
-                laser_inst.update_rgb_scale(
+                laser_inst.updateRgbScale(
                     @as(u16, @intCast(init_top)),
                     @as(u16, @intCast(init_top)),
                     @as(u16, @intCast(init_top)),
                 );
                 // timer8.setTop(init_top);
             } else {
-                laser_inst.update_rgb_scale(
+                laser_inst.updateRgbScale(
                     @as(u16, @intCast(laser_v.r)),
                     @as(u16, @intCast(laser_v.g)),
                     @as(u16, @intCast(laser_v.b)),

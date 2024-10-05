@@ -2,7 +2,7 @@ const std = @import("std");
 const timer = @import("timer.zig");
 const semihosting = @import("semihosting.zig");
 
-pub fn config() type {
+pub fn Config() type {
     return struct {
         // NEC IR remote protocol decoder
         const nec = struct {
@@ -13,12 +13,12 @@ pub fn config() type {
             const b1_space_us = 1_687.5;
             const tolerance = 0.30; // 30% tolerance
 
-            pub fn min_ticks(timer_ch: anytype, us: comptime_float) comptime_int {
-                return us_to_ticks(timer_ch, us * (1.0 - nec.tolerance));
+            pub fn minTicks(timer_ch: anytype, us: comptime_float) comptime_int {
+                return usToTicks(timer_ch, us * (1.0 - nec.tolerance));
             }
 
-            pub fn max_ticks(timer_ch: anytype, us: comptime_float) comptime_int {
-                return us_to_ticks(timer_ch, us * (1.0 + nec.tolerance));
+            pub fn maxTicks(timer_ch: anytype, us: comptime_float) comptime_int {
+                return usToTicks(timer_ch, us * (1.0 + nec.tolerance));
             }
         };
 
@@ -42,7 +42,7 @@ pub fn config() type {
         var log_read_idx = std.atomic.Value(u32).init(0);
         var log_write_idx = std.atomic.Value(u32).init(0);
 
-        fn us_to_ticks(timer_ch: anytype, us: comptime_float) comptime_int {
+        fn usToTicks(timer_ch: type, us: comptime_float) comptime_int {
             const freq = timer_ch.cnt_freq_hz;
             const tick_us = 1_000_000.0 / freq;
             return @round(us / tick_us);
@@ -70,8 +70,8 @@ pub fn config() type {
                 return;
             }
 
-            const start_min_ticks = nec.min_ticks(timer_ch, nec.start_burst_us);
-            const start_max_ticks = nec.max_ticks(timer_ch, nec.start_burst_us);
+            const start_min_ticks = nec.minTicks(timer_ch, nec.start_burst_us);
+            const start_max_ticks = nec.maxTicks(timer_ch, nec.start_burst_us);
             if (ticks >= start_min_ticks and ticks <= start_max_ticks) {
                 state = .start_burst;
                 // val = 0;
@@ -84,20 +84,20 @@ pub fn config() type {
                     return;
                 },
                 .start_burst => {
-                    const min_ticks = nec.min_ticks(timer_ch, nec.start_space_us);
-                    const max_ticks = nec.max_ticks(timer_ch, nec.start_space_us);
+                    const min_ticks = nec.minTicks(timer_ch, nec.start_space_us);
+                    const max_ticks = nec.maxTicks(timer_ch, nec.start_space_us);
                     state = if (ticks >= min_ticks and ticks <= max_ticks) .start_space else .idle;
                 },
                 .start_space => {
-                    const min_ticks = nec.min_ticks(timer_ch, nec.bit_burst_us);
-                    const max_ticks = nec.max_ticks(timer_ch, nec.bit_burst_us);
+                    const min_ticks = nec.minTicks(timer_ch, nec.bit_burst_us);
+                    const max_ticks = nec.maxTicks(timer_ch, nec.bit_burst_us);
                     state = if (ticks >= min_ticks and ticks <= max_ticks) .bit_burst else .idle;
                 },
                 .bit_burst => {
-                    const b0_min_ticks = nec.min_ticks(timer_ch, nec.b0_space_us);
-                    const b0_max_ticks = nec.max_ticks(timer_ch, nec.b0_space_us);
-                    const b1_min_ticks = nec.min_ticks(timer_ch, nec.b1_space_us);
-                    const b1_max_ticks = nec.max_ticks(timer_ch, nec.b1_space_us);
+                    const b0_min_ticks = nec.minTicks(timer_ch, nec.b0_space_us);
+                    const b0_max_ticks = nec.maxTicks(timer_ch, nec.b0_space_us);
+                    const b1_min_ticks = nec.minTicks(timer_ch, nec.b1_space_us);
+                    const b1_max_ticks = nec.maxTicks(timer_ch, nec.b1_space_us);
                     if (ticks >= b0_min_ticks and ticks <= b0_max_ticks) {
                         val = (val << 1) | 0;
                         bit +%= 1;
@@ -123,8 +123,8 @@ pub fn config() type {
                     }
                 },
                 .bit_space => {
-                    const min_ticks = nec.min_ticks(timer_ch, nec.bit_burst_us);
-                    const max_ticks = nec.max_ticks(timer_ch, nec.bit_burst_us);
+                    const min_ticks = nec.minTicks(timer_ch, nec.bit_burst_us);
+                    const max_ticks = nec.maxTicks(timer_ch, nec.bit_burst_us);
                     state = if (ticks >= min_ticks and ticks <= max_ticks) .bit_burst else .idle;
                 },
             }
@@ -136,7 +136,7 @@ pub fn config() type {
 
 pub const remote_sky_now_tv = struct {
     const special_mask: u32 = 0x00000303;
-    pub const button_t = enum(u32) {
+    pub const Button = enum(u32) {
         back = 0x57436699 & ~special_mask,
         home = 0x5743c03f & ~special_mask,
         up = 0x57439867 & ~special_mask,
@@ -152,8 +152,8 @@ pub const remote_sky_now_tv = struct {
         store = 0x574318e7 & ~special_mask,
     };
 
-    pub fn decode(val: u32) ?struct { button: button_t, repeat: bool } {
-        const button = std.meta.intToEnum(button_t, val & ~special_mask) catch return null;
+    pub fn decode(val: u32) ?struct { button: Button, repeat: bool } {
+        const button = std.meta.intToEnum(Button, val & ~special_mask) catch return null;
         return .{ .button = button, .repeat = (val & 0x00000101) == 0x00000100 };
     }
 };

@@ -17,6 +17,6 @@ pub fn entry() callconv(.C) noreturn {
     std.debug.panic("Exited from main()", .{});
 }
 
-pub fn default_irq() callconv(.C) noreturn {
+pub fn defaultIrq() callconv(.C) noreturn {
     std.debug.panic("Unhandled interrupt", .{});
 }
