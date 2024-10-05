@@ -264,7 +264,6 @@ pub fn main() noreturn {
 
     const tp = laser.test_pattern.Player(
         laser_inst,
-        systick_inst,
         .{ .x = 0, .y = 1280, .w = 1024, .h = 1024 },
         &laser.test_pattern.pentagram_2,
     );

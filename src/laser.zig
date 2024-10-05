@@ -48,6 +48,13 @@ pub fn Config(
                 dac_ridx.store(ridx_next, .monotonic);
         }
 
+        pub fn dacBufAvailable() bool {
+            const widx = dac_widx.load(.monotonic);
+            const ridx = dac_ridx.load(.monotonic);
+            const widx_next = (widx +% 1) % dac_buf.len;
+            return ridx != widx_next;
+        }
+
         pub fn updateXy(x: u12, y: u12) void {
             const dac_x = @as(u32, 0b0111 << 12) | x;
             const dac_y = @as(u32, 0b0111 << 12) | y;
@@ -95,74 +102,89 @@ pub fn Config(
 
 pub const test_pattern = struct {
     pub const rectangle = [_]PatternStep{
-        .{ .x = 0, .y = 0, .rgb = 0xff0000, .ms = 1 },
-        .{ .x = 4095, .y = 0, .rgb = 0x00ff00, .ms = 1 },
-        .{ .x = 4095, .y = 4095, .rgb = 0x0000ff, .ms = 1 },
-        .{ .x = 0, .y = 4095, .rgb = 0xffffff, .ms = 1 },
+        .{ .x = 0, .y = 0, .rgb = 0xff0000, .t = 1000 },
+        .{ .x = 4095, .y = 0, .rgb = 0x00ff00, .t = 1000 },
+        .{ .x = 4095, .y = 4095, .rgb = 0x0000ff, .t = 1000 },
+        .{ .x = 0, .y = 4095, .rgb = 0xffffff, .t = 1000 },
     };
 
     pub const pentagram = [_]PatternStep{
-        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .ms = 1 },
-        .{ .x = 3315, .y = 4095, .rgb = 0x00ff00, .ms = 1 },
-        .{ .x = 0, .y = 1594, .rgb = 0x0000ff, .ms = 1 },
-        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .ms = 1 },
-        .{ .x = 780, .y = 4095, .rgb = 0xffffff, .ms = 1 },
+        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .t = 1000 },
+        .{ .x = 3315, .y = 4095, .rgb = 0x00ff00, .t = 1000 },
+        .{ .x = 0, .y = 1594, .rgb = 0x0000ff, .t = 1000 },
+        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .t = 1000 },
+        .{ .x = 780, .y = 4095, .rgb = 0xffffff, .t = 1000 },
     };
 
     pub const pentagram_2 = [_]PatternStep{
-        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .ms = 1 },
-        .{ .x = 3315, .y = 4095, .rgb = 0xff0000, .ms = 1 },
-        .{ .x = 780, .y = 4095, .rgb = 0x00ff00, .ms = 1 },
-        .{ .x = 2048, .y = 0, .rgb = 0x00ff00, .ms = 1 },
-        .{ .x = 4095, .y = 1594, .rgb = 0x0000ff, .ms = 1 },
-        .{ .x = 780, .y = 4095, .rgb = 0x0000ff, .ms = 1 },
-        .{ .x = 0, .y = 1594, .rgb = 0xffff00, .ms = 1 },
-        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .ms = 1 },
-        .{ .x = 3315, .y = 4095, .rgb = 0xffffff, .ms = 1 },
-        .{ .x = 0, .y = 1594, .rgb = 0xffffff, .ms = 1 },
+        .{ .x = 2048, .y = 0, .rgb = 0xff0000, .t = 500 },
+        .{ .x = 3315, .y = 4095, .rgb = 0xff0000, .t = 500 },
+        .{ .x = 780, .y = 4095, .rgb = 0x00ff00, .t = 500 },
+        .{ .x = 2048, .y = 0, .rgb = 0x00ff00, .t = 500 },
+        .{ .x = 4095, .y = 1594, .rgb = 0x0000ff, .t = 500 },
+        .{ .x = 780, .y = 4095, .rgb = 0x0000ff, .t = 500 },
+        .{ .x = 0, .y = 1594, .rgb = 0xffff00, .t = 500 },
+        .{ .x = 4095, .y = 1594, .rgb = 0xffff00, .t = 500 },
+        .{ .x = 3315, .y = 4095, .rgb = 0xffffff, .t = 500 },
+        .{ .x = 0, .y = 1594, .rgb = 0xffffff, .t = 500 },
     };
 
     pub const PatternStep = struct {
         x: u12,
         y: u12,
         rgb: u24,
-        ms: u32,
+        t: u32,
     };
 
     pub fn Player(
         laser_inst: type,
-        systick_inst: type,
         comptime range: struct { x: u12, y: u12, w: u12, h: u12 },
         comptime pattern: []const PatternStep,
     ) type {
         return struct {
             var idx: u32 = 0;
-            var tick_ms: u32 = 0;
+            var tick: u32 = 0;
 
-            pub fn updateXy(ptn: PatternStep) void {
+            pub fn updateXy(px: u12, py: u12) void {
                 // Extra XY swap
-                const x = @as(u12, @intCast((@as(u32, ptn.y) *% range.w) / 4096 +% range.x));
-                const y = @as(u12, @intCast((@as(u32, ptn.x) *% range.h) / 4096 +% range.y));
+                const x = @as(u12, @intCast((@as(u32, py) *% range.w) / 4096 +% range.x));
+                const y = @as(u12, @intCast((@as(u32, px) *% range.h) / 4096 +% range.y));
                 laser_inst.updateXy(x, y);
             }
 
             pub fn init() void {
-                const now_ms = systick_inst.getMs();
                 idx = 0;
+                tick = 0;
+                updateXy(pattern[idx].x, pattern[idx].y);
                 laser_inst.updateRgb(pattern[idx].rgb);
-                idx = (idx +% 1) % pattern.len;
-                updateXy(pattern[idx]);
-                tick_ms = now_ms +% pattern[idx].ms;
+            }
+
+            pub fn interpolation(start: u12, end: u12, step: u32, total: u32) u12 {
+                const s = @as(i32, start);
+                const e = @as(i32, end);
+                const istep: i32 = @bitCast(step);
+                const itotal: i32 = @bitCast(total);
+                const intp = s + @divFloor((e - s) * istep, itotal);
+                return @truncate(@as(u32, @bitCast(intp)));
             }
 
             pub fn update() void {
-                const now_ms = systick_inst.getMs();
-                const delta: i32 = @bitCast(now_ms -% tick_ms);
-                if (delta >= 0) {
-                    laser_inst.updateRgb(pattern[idx].rgb);
-                    idx = (idx +% 1) % pattern.len;
-                    updateXy(pattern[idx]);
-                    tick_ms +%= pattern[idx].ms;
+                if (!laser_inst.dacBufAvailable())
+                    return;
+
+                const next_idx = (idx +% 1) % pattern.len;
+                const pat_c = pattern[idx];
+                const pat_n = pattern[next_idx];
+                const x = interpolation(pat_c.x, pat_n.x, tick, pat_c.t);
+                const y = interpolation(pat_c.y, pat_n.y, tick, pat_c.t);
+                updateXy(x, y);
+                // TODO Associate RGB with XY position
+                laser_inst.updateRgb(pat_c.rgb);
+
+                tick = tick +% 1;
+                if (tick == pat_c.t) {
+                    tick = 0;
+                    idx = next_idx;
                 }
             }
         };
